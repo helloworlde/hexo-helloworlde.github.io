@@ -11,7 +11,7 @@ script:
 
 after_script:
   - hexo d
-
+  
 env:
  global:
    - GH_REF: github.com/helloworlde/helloworlde.github.io.git
