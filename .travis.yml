@@ -4,6 +4,7 @@ node_js: stable
 
 install:
   - npm install
+  - npm install hexo-deployer-git –save
 
 script:
   - hexo cl
@@ -11,7 +12,7 @@ script:
 
 after_script:
   - hexo d
-  
+
 env:
  global:
    - GH_REF: github.com/helloworlde/helloworlde.github.io.git
