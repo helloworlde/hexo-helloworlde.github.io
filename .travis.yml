@@ -4,7 +4,7 @@ node_js: stable
 
 install:
   - npm install
-  - npm install hexo-deployer-git –save
+  - npm install hexo-deployer-git
 
 script:
   - hexo cl
