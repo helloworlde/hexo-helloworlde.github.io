@@ -70,9 +70,9 @@ CREATE TABLE logging_event_exception
         <!--日志异步到数据库-->
         <connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource">
             <driverClass>com.mysql.jdbc.Driver</driverClass>
-            <url>jdbc:mysql://ali.hellowood.com.cn:3306/log?useSSL=false</url>
+            <url>jdbc:mysql://localhost:3306/log?useSSL=false</url>
             <user>root</user>
-            <password>ihaveapen*^@#</password>
+            <password>123456</password>
         </connectionSource>
     </appender>
     
