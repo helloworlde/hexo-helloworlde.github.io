@@ -44,7 +44,7 @@ spec:
 
 此时可以通过节点 IP 和端口[https://192.168.0.110:32576/](https://192.168.0.110:32576/)访问到 Dashboard(Chrome 可能会提示证书错误,无法访问,Fix)
 
-![Dashboard](hellowoodes.oss-cn-beijing.aliyuncs.com/blog/KubernetesDashboard-1.png)
+![Dashboard](https://hellowoodes.oss-cn-beijing.aliyuncs.com/blog/KubernetesDashboard-1.png)
 
 ### 创建 ServiceAccount
 
@@ -121,7 +121,7 @@ token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2V
 
 将获取到的 Token 输入到 Dashboard 的输入框中，登录即可
 
-![DashboardAfterLogin](hellowoodes.oss-cn-beijing.aliyuncs.com/blog/KubernetesDashboard-2.png)
+![DashboardAfterLogin](https://hellowoodes.oss-cn-beijing.aliyuncs.com/blog/KubernetesDashboard-2.png)
 
 ----------
 
