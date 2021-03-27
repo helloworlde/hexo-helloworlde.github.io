@@ -1,0 +1,19 @@
+language: node_js
+
+node_js: stable
+
+install:
+  - npm install
+  - npm install hexo-deployer-git
+
+script:
+  - hexo cl
+  - hexo g
+
+after_script:
+  - hexo d
+
+env:
+ global:
+   - GH_REF: github.com/helloworlde/helloworlde.github.io.git
+
