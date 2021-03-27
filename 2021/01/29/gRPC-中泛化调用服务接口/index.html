@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC 中泛化调用服务接口 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC 中泛化调用服务接口</h2>
+  <p class="post-date">2021-01-29</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-中泛化调用服务接口"><a href="#gRPC-中泛化调用服务接口" class="headerlink" title="gRPC 中泛化调用服务接口"></a>gRPC 中泛化调用服务接口</h1><p>gRPC 没有直接支持泛化调用，protobuf 可以不依赖于生成的代码实现调用，所以可以通过反射接口间接实现泛化调用</p>
+<p>要求 Server 端提供 <code>grpc.reflection.v1alpha.ServerReflection</code> 服务，用于获取服务的描述文件</p>
+<p>大致的流程是：</p>
+<ol>
+<li>根据方法名称，调用服务端反射服务的方法，获取方法所在 proto 文件的描述</li>
+<li>根据 proto 描述文件，获取文件描述、服务描述，用于重新构建要被调用方法的方法描述 <code>MethodDescriptor</code></li>
+<li>根据方法描述，将请求内容序列化为对应的类型</li>
+<li>使用重新构建的<code>MethodDescriptor</code>和其他参数对 Server 端相应的方法发起调用</li>
+<li>解析响应并返回</li>
+</ol>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>使用 JSON 格式请求被调用的服务方法，并返回 JSON 格式的响应</p>
+<h3 id="proto-定义"><a href="#proto-定义" class="headerlink" title="proto 定义"></a>proto 定义</h3><figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> io.github.helloworlde.grpc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">option</span> go_package = <span class="string">&quot;api;grpc_gateway&quot;</span>;</span><br><span class="line"><span class="keyword">option</span> java_package = <span class="string">&quot;io.github.helloworlde.grpc&quot;</span>;</span><br><span class="line"><span class="keyword">option</span> java_multiple_files = <span class="literal">true</span>;</span><br><span class="line"><span class="keyword">option</span> java_outer_classname = <span class="string">&quot;HelloWorldGrpc&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">HelloService</span></span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> SayHello(HelloMessage) <span class="keyword">returns</span> (HelloResponse)</span>&#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">HelloMessage</span> </span>&#123;</span><br><span class="line">  <span class="built_in">string</span> <span class="class"><span class="keyword">message</span> = 2;</span></span><br><span class="line"><span class="class">&#125;</span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class"><span class="title">message</span> HelloResponse </span>&#123;</span><br><span class="line">  <span class="built_in">string</span> <span class="class"><span class="keyword">message</span> = 1;</span></span><br><span class="line"><span class="class">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="调用"><a href="#调用" class="headerlink" title="调用"></a>调用</h3><h4 id="1-构建反射服务-Stub"><a href="#1-构建反射服务-Stub" class="headerlink" title="1. 构建反射服务 Stub"></a>1. 构建反射服务 Stub</h4><p>需要调用反射服务的方法，该方法是双向流</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 构建 Channel</span></span><br><span class="line">ManagedChannel channel=ManagedChannelBuilder.forAddress(<span class="string">&quot;127.0.0.1&quot;</span>,<span class="number">9090</span>)</span><br><span class="line">                                            .usePlaintext()</span><br><span class="line">                                            .build();</span><br><span class="line"><span class="comment">// 使用 Channel 构建 BlockingStub</span></span><br><span class="line">ServerReflectionGrpc.ServerReflectionStub reflectionStub=ServerReflectionGrpc.newStub(channel);</span><br><span class="line"><span class="comment">// 响应观察器</span></span><br><span class="line">StreamObserver&lt;ServerReflectionResponse&gt; streamObserver=<span class="keyword">new</span> StreamObserver&lt;ServerReflectionResponse&gt;()&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(ServerReflectionResponse response)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 处理响应</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable t)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;Complete&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 请求观察器</span></span><br><span class="line">StreamObserver&lt;ServerReflectionRequest&gt; requestStreamObserver=reflectionStub.serverReflectionInfo(streamObserver);</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-根据方法名称获取文件描述"><a href="#2-根据方法名称获取文件描述" class="headerlink" title="2. 根据方法名称获取文件描述"></a>2. 根据方法名称获取文件描述</h4><p>这里的 <code>methodSymbol</code> 即服务或方法的限定名，可以是 <code>package.service</code> 或者 <code>package.service.method</code><br>，如 <code>io.github.helloworlde.grpc.HelloService.SayHello</code>，需要注意方法前是 <code>.</code>不是<code>/</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 构建并发送获取方法文件描述请求</span></span><br><span class="line">ServerReflectionRequest getFileContainingSymbolRequest=ServerReflectionRequest.newBuilder()</span><br><span class="line">        .setFileContainingSymbol(methodSymbol)</span><br><span class="line">        .build();</span><br><span class="line">        requestStreamObserver.onNext(getFileContainingSymbolRequest);</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-处理响应，解析-FileDescriptor"><a href="#3-处理响应，解析-FileDescriptor" class="headerlink" title="3. 处理响应，解析 FileDescriptor"></a>3. 处理响应，解析 FileDescriptor</h4><p>返回的响应后会触发 <code>onNext</code> 方法，如果响应类型是文件描述类型，即 <code>FILE_DESCRIPTOR_RESPONSE</code>，则进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(ServerReflectionResponse response)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 只需要关注文件描述类型的响应</span></span><br><span class="line">        <span class="keyword">if</span> (response.getMessageResponseCase() == ServerReflectionResponse.MessageResponseCase.FILE_DESCRIPTOR_RESPONSE) &#123;</span><br><span class="line">            List&lt;ByteString&gt; fileDescriptorProtoList = response.getFileDescriptorResponse().getFileDescriptorProtoList();</span><br><span class="line">            handleResponse(fileDescriptorProtoList, channel, methodSymbol, requestContent);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            log.warn(<span class="string">&quot;未知响应类型: &quot;</span> + response.getMessageResponseCase());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;处理响应失败: &#123;&#125;&quot;</span>, e.getMessage(), e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>handleResponse</li>
+</ul>
+<p>在处理请求时，先解析了包名、服务名和方法名，然后根据包名和服务名，从返回的文件描述中获取到了响应方法所在文件的描述；然后从文件描述中获取服务描述，最终获取到方法描述，根据方法描述执行调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">handleResponse</span><span class="params">(List&lt;ByteString&gt; fileDescriptorProtoList,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   ManagedChannel channel,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   String methodFullName,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   String requestContent)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 解析方法和服务名称</span></span><br><span class="line">        String fullServiceName = extraPrefix(methodFullName);</span><br><span class="line">        String methodName = extraSuffix(methodFullName);</span><br><span class="line">        String packageName = extraPrefix(fullServiceName);</span><br><span class="line">        String serviceName = extraSuffix(fullServiceName);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 根据响应解析 FileDescriptor</span></span><br><span class="line">        Descriptors.FileDescriptor fileDescriptor = getFileDescriptor(fileDescriptorProtoList, packageName, serviceName);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 查找服务描述</span></span><br><span class="line">        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.getFile().findServiceByName(serviceName);</span><br><span class="line">        <span class="comment">// 查找方法描述</span></span><br><span class="line">        Descriptors.MethodDescriptor methodDescriptor = serviceDescriptor.findMethodByName(methodName);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 发起请求</span></span><br><span class="line">        executeCall(channel, fileDescriptor, methodDescriptor, requestContent);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        log.error(e.getMessage(), e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>getFileDescriptor</li>
+</ul>
+<p>根据响应找到方法对应的文件的 <code>FileDescriptorProto</code>，然后构建出对应的 <code>FileDescriptor</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Descriptors.<span class="function">FileDescriptor <span class="title">getFileDescriptor</span><span class="params">(List&lt;ByteString&gt; fileDescriptorProtoList,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                            String packageName,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                            String serviceName)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">    Map&lt;String, DescriptorProtos.FileDescriptorProto&gt; fileDescriptorProtoMap =</span><br><span class="line">            fileDescriptorProtoList.stream()</span><br><span class="line">                                   .map(bs -&gt; &#123;</span><br><span class="line">                                       <span class="keyword">try</span> &#123;</span><br><span class="line">                                           <span class="keyword">return</span> DescriptorProtos.FileDescriptorProto.parseFrom(bs);</span><br><span class="line">                                       &#125; <span class="keyword">catch</span> (InvalidProtocolBufferException e) &#123;</span><br><span class="line">                                           e.printStackTrace();</span><br><span class="line">                                       &#125;</span><br><span class="line">                                       <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">                                   &#125;)</span><br><span class="line">                                   .filter(Objects::nonNull)</span><br><span class="line">                                   .collect(Collectors.toMap(DescriptorProtos.FileDescriptorProto::getName, f -&gt; f));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (fileDescriptorProtoMap.isEmpty()) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;服务不存在&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;方法的文件描述不存在&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 查找服务对应的 Proto 描述</span></span><br><span class="line">    DescriptorProtos.FileDescriptorProto fileDescriptorProto = findServiceFileDescriptorProto(packageName, serviceName, fileDescriptorProtoMap);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取这个 Proto 的依赖</span></span><br><span class="line">    Descriptors.FileDescriptor[] dependencies = getDependencies(fileDescriptorProto, fileDescriptorProtoMap);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成 Proto 的 FileDescriptor</span></span><br><span class="line">    <span class="keyword">return</span> Descriptors.FileDescriptor.buildFrom(fileDescriptorProto, dependencies);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-执行调用"><a href="#4-执行调用" class="headerlink" title="4. 执行调用"></a>4. 执行调用</h4><ul>
+<li>生成方法描述</li>
+</ul>
+<p>在执行调用时，需要重新生成 <code>MethodDescriptor</code>；因为获取到的 <code>MethodDescriptor</code> 中的方法全名是<code>package.service.method</code><br>格式，而需要的是<code>package.service/method</code>格式，同时请求和响应类型也需要重新设置为 <code>DynamicMessage</code>,所以需要重新生成 <code>MethodDescriptor</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> MethodDescriptor&lt;DynamicMessage, DynamicMessage&gt; <span class="title">generateMethodDescriptor</span><span class="params">(Descriptors.MethodDescriptor originMethodDescriptor)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 生成方法全名</span></span><br><span class="line">    String fullMethodName = MethodDescriptor.generateFullMethodName(originMethodDescriptor.getService().getFullName(), originMethodDescriptor.getName());</span><br><span class="line">    <span class="comment">// 请求和响应类型</span></span><br><span class="line">    MethodDescriptor.Marshaller&lt;DynamicMessage&gt; inputTypeMarshaller = ProtoUtils.marshaller(DynamicMessage.newBuilder(originMethodDescriptor.getInputType())</span><br><span class="line">                                                                                                          .buildPartial());</span><br><span class="line">    MethodDescriptor.Marshaller&lt;DynamicMessage&gt; outputTypeMarshaller = ProtoUtils.marshaller(DynamicMessage.newBuilder(originMethodDescriptor.getOutputType())</span><br><span class="line">                                                                                                           .buildPartial());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成方法描述, originMethodDescriptor 的 fullMethodName 不正确</span></span><br><span class="line">    <span class="keyword">return</span> MethodDescriptor.&lt;DynamicMessage, DynamicMessage&gt;newBuilder()</span><br><span class="line">            .setFullMethodName(fullMethodName)</span><br><span class="line">            .setRequestMarshaller(inputTypeMarshaller)</span><br><span class="line">            .setResponseMarshaller(outputTypeMarshaller)</span><br><span class="line">            <span class="comment">// 使用 UNKNOWN，自动修改</span></span><br><span class="line">            .setType(MethodDescriptor.MethodType.UNKNOWN)</span><br><span class="line">            .build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>执行调用</li>
+</ul>
+<p>同时需要根据文件描述，将请求的类型转为对应的请求类型，生成 <code>DynamicMessage</code> 对象；然后根据方法类型，使用<code>MethodDescriptor</code> 和 <code>CallOptions</code><br>发起请求；当接收到响应后将 <code>DynamicMessage</code> 解析为对应的格式的字符串；完成调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/helloworlde/grpc-java-sample/blob/main/reflection/src/main/java/io/github/helloworlde/grpc/ReflectionCall.java">相关实现代码参考 ReflectionCall.java</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/os72/protobuf-dynamic">protobuf-dynamic</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/fullstorydev/grpcurl">grpcurl</a>  </li>
+<li><a target="_blank" rel="noopener" href="https://github.com/grpc-swagger/grpc-swagger">grpc-swagger</a>  </li>
+<li><a target="_blank" rel="noopener" href="https://grpc.io/blog/grpc-with-json/">gRPC + JSON</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/grpc/grpc-java/blob/master/documentation/server-reflection-tutorial.md#enable-server-reflection">gRPC Server Reflection Tutorial</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/grpc/grpc-go/tree/master/reflection">Reflection</a></li>
+<li><a target="_blank" rel="noopener" href="https://chromium.googlesource.com/external/github.com/grpc/grpc-go/+/HEAD/Documentation/server-reflection-tutorial.md">gRPC Server Reflection Tutorial</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/18836727/protocol-buffer-objects-generated-at-runtime">Protocol buffer objects generated at runtime</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/52368593/how-can-i-send-a-grpc-message-whose-format-is-determined-at-runtime">How can I send a gRPC message whose format is determined at runtime</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/61133529/how-to-create-grpc-client-directly-from-protobuf-without-compiling-it-into-java/61144510#61144510">How to create GRPC client directly from protobuf without compiling it into java code</a>  </li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/01/18/Thrfit-%E4%B8%AD%E7%9A%84-Server/">
+        <span class="nav-arrow">← </span>
+        
+          Thrfit 中的 Server
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/01/31/Thrift-%E4%B8%AD%E7%9A%84-Protocol/">
+        
+          Thrift 中的 Protocol
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E4%B8%AD%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3"><span class="toc-nav-text">gRPC 中泛化调用服务接口</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">实现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#proto-%E5%AE%9A%E4%B9%89"><span class="toc-nav-text">proto 定义</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%B0%83%E7%94%A8"><span class="toc-nav-text">调用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#1-%E6%9E%84%E5%BB%BA%E5%8F%8D%E5%B0%84%E6%9C%8D%E5%8A%A1-Stub"><span class="toc-nav-text">1. 构建反射服务 Stub</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-%E6%A0%B9%E6%8D%AE%E6%96%B9%E6%B3%95%E5%90%8D%E7%A7%B0%E8%8E%B7%E5%8F%96%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0"><span class="toc-nav-text">2. 根据方法名称获取文件描述</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#3-%E5%A4%84%E7%90%86%E5%93%8D%E5%BA%94%EF%BC%8C%E8%A7%A3%E6%9E%90-FileDescriptor"><span class="toc-nav-text">3. 处理响应，解析 FileDescriptor</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#4-%E6%89%A7%E8%A1%8C%E8%B0%83%E7%94%A8"><span class="toc-nav-text">4. 执行调用</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-nav-text">参考文档</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2021/01/29/gRPC-中泛化调用服务接口/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC 中泛化调用服务接口",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

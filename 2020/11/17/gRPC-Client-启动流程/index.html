@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC Client 启动流程 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC Client 启动流程</h2>
+  <p class="post-date">2020-11-17</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-Client-启动流程"><a href="#gRPC-Client-启动流程" class="headerlink" title="gRPC Client 启动流程"></a>gRPC Client 启动流程</h1><p>gRPC 启动初始化的流程，使用 Netty 作为底层的实现</p>
+<h2 id="初始化-Channel"><a href="#初始化-Channel" class="headerlink" title="初始化 Channel"></a>初始化 Channel</h2><p>Channel 的初始化通过 <code>ChannelBuilder</code> 构建<br>这里通过 <code>forTarget</code> 设置了要解析的服务名称，会通过 <code>NameResolver</code> 解析，转换为具体的地址</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ManagedChannel channel = ManagedChannelBuilder.forTarget(<span class="string">&quot;grpc-server&quot;</span>)</span><br><span class="line">                                              .usePlaintext()</span><br><span class="line">                                              .build();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>构建 ManagedChannel 实例</li>
+</ul>
+<p><code>io.grpc.internal.AbstractManagedChannelImplBuilder#build</code></p>
+<p>调用 build 时，会根据 builder 中的属性，创建 <code>ManagedChannelImpl</code> 的实例 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ManagedChannel <span class="title">build</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ManagedChannelOrphanWrapper(<span class="keyword">new</span> ManagedChannelImpl(</span><br><span class="line">            <span class="keyword">this</span>,</span><br><span class="line">            <span class="comment">// 构建 Transport 工厂</span></span><br><span class="line">            buildTransportFactory(),</span><br><span class="line">            <span class="keyword">new</span> ExponentialBackoffPolicy.Provider(),</span><br><span class="line">            <span class="comment">// 线程池</span></span><br><span class="line">            SharedResourcePool.forResource(GrpcUtil.SHARED_CHANNEL_EXECUTOR),</span><br><span class="line">            <span class="comment">// 计时器</span></span><br><span class="line">            GrpcUtil.STOPWATCH_SUPPLIER,</span><br><span class="line">            <span class="comment">// 统计和追踪拦截器</span></span><br><span class="line">            getEffectiveInterceptors(),</span><br><span class="line">            <span class="comment">// 时间提供器</span></span><br><span class="line">            TimeProvider.SYSTEM_TIME_PROVIDER));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="初始化-Channel-属性"><a href="#初始化-Channel-属性" class="headerlink" title="初始化 Channel 属性"></a>初始化 Channel 属性</h2><ul>
+<li>io.grpc.internal.ManagedChannelImpl#ManagedChannelImpl</li>
+</ul>
+<p>为 <code>ManagedChannel</code> 设置属性，初始化服务发现，负载均衡，拦截器等并创建真正的 Channel </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ManagedChannelImpl(AbstractManagedChannelImplBuilder&lt;?&gt; builder,</span><br><span class="line">        ClientTransportFactory clientTransportFactory,</span><br><span class="line">        BackoffPolicy.Provider backoffPolicyProvider,</span><br><span class="line">        ObjectPool&lt;? extends Executor&gt; balancerRpcExecutorPool,</span><br><span class="line">        Supplier&lt;Stopwatch&gt; stopwatchSupplier,</span><br><span class="line">        List&lt;ClientInterceptor&gt; interceptors,</span><br><span class="line">        <span class="keyword">final</span> TimeProvider timeProvider)</span><br></pre></td></tr></table></figure>
+
+<h5 id="设置服务名称"><a href="#设置服务名称" class="headerlink" title="设置服务名称"></a>设置服务名称</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.target = checkNotNull(builder.target, <span class="string">&quot;target&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h5 id="设置-TransportFactory"><a href="#设置-TransportFactory" class="headerlink" title="设置  TransportFactory"></a>设置  TransportFactory</h5><p>创建了支持鉴权的代理的 <code>TransportFactory</code>，用于支持向服务端发起请求进行鉴权</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.transportFactory = <span class="keyword">new</span> CallCredentialsApplyingTransportFactory(clientTransportFactory, <span class="keyword">this</span>.executor);</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="构建服务发现工厂"><a href="#构建服务发现工厂" class="headerlink" title="构建服务发现工厂"></a>构建服务发现工厂</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.nameResolverFactory = builder.getNameResolverFactory();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractManagedChannelImplBuilder#getNameResolverFactory</li>
+</ul>
+<p>如果没有覆盖服务名称，则使用这个 <code>nameResolverFactory</code>，否则使用 <code>OverrideAuthorityNameResolverFactory</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">NameResolver.<span class="function">Factory <span class="title">getNameResolverFactory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (authorityOverride == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> nameResolverFactory;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> OverrideAuthorityNameResolverFactory(nameResolverFactory, authorityOverride);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="构建服务发现实例"><a href="#构建服务发现实例" class="headerlink" title="构建服务发现实例"></a>构建服务发现实例</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.nameResolver = getNameResolver(target, nameResolverFactory, nameResolverArgs);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ManagedChannelImpl#getNameResolver</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> NameResolver <span class="title">getNameResolver</span><span class="params">(String target,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    NameResolver.Factory nameResolverFactory,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    NameResolver.Args nameResolverArgs)</span> </span>&#123;</span><br><span class="line">  URI targetUri = <span class="keyword">null</span>;</span><br><span class="line">  StringBuilder uriSyntaxErrors = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">  <span class="comment">// 解析地址</span></span><br><span class="line">  targetUri = <span class="keyword">new</span> URI(target);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 创建 NameResolver</span></span><br><span class="line">  <span class="keyword">if</span> (targetUri != <span class="keyword">null</span>) &#123;</span><br><span class="line">    NameResolver resolver = nameResolverFactory.newNameResolver(targetUri, nameResolverArgs);</span><br><span class="line">    <span class="keyword">if</span> (resolver != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> resolver;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果不是 URI 格式，则使用默认的 schema</span></span><br><span class="line">  <span class="keyword">if</span> (!URI_PATTERN.matcher(target).matches()) &#123;</span><br><span class="line">    targetUri = <span class="keyword">new</span> URI(nameResolverFactory.getDefaultScheme(), <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span> + target, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">    NameResolver resolver = nameResolverFactory.newNameResolver(targetUri, nameResolverArgs);</span><br><span class="line">    <span class="keyword">if</span> (resolver != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> resolver;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(String.format(<span class="string">&quot;cannot find a NameResolver for %s%s&quot;</span>, target, uriSyntaxErrors.length() &gt; <span class="number">0</span> ? <span class="string">&quot; (&quot;</span> + uriSyntaxErrors + <span class="string">&quot;)&quot;</span> : <span class="string">&quot;&quot;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="设置是否开启重试"><a href="#设置是否开启重试" class="headerlink" title="设置是否开启重试"></a>设置是否开启重试</h5><p>根据是否主动开启了重试和禁止重试的开关决定是否要重试</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.retryEnabled = builder.retryEnabled &amp;&amp; !builder.temporarilyDisableRetry;</span><br></pre></td></tr></table></figure>
+
+<h5 id="设置负载均衡"><a href="#设置负载均衡" class="headerlink" title="设置负载均衡"></a>设置负载均衡</h5><p>根据负载均衡策略构建 <code>LoadBalancerFactory</code>，会从注册器中获取并初始化负载均衡实例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.loadBalancerFactory = <span class="keyword">new</span> AutoConfiguredLoadBalancerFactory(builder.defaultLbPolicy);</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="配置信息"><a href="#配置信息" class="headerlink" title="配置信息"></a>配置信息</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 配置解析器</span></span><br><span class="line">ScParser serviceConfigParser = <span class="keyword">new</span> ScParser(</span><br><span class="line">        retryEnabled,</span><br><span class="line">        builder.maxRetryAttempts,</span><br><span class="line">        builder.maxHedgedAttempts,</span><br><span class="line">        loadBalancerFactory,</span><br><span class="line">        channelLogger);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 服务配置拦截器</span></span><br><span class="line">serviceConfigInterceptor = <span class="keyword">new</span> ServiceConfigInterceptor(retryEnabled);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果 builder 有配置，则解析配置</span></span><br><span class="line"><span class="keyword">if</span> (builder.defaultServiceConfig != <span class="keyword">null</span>) &#123;</span><br><span class="line">  <span class="comment">// 解析配置</span></span><br><span class="line">  ConfigOrError parsedDefaultServiceConfig = serviceConfigParser.parseServiceConfig(builder.defaultServiceConfig);</span><br><span class="line">  <span class="keyword">this</span>.defaultServiceConfig = (ManagedChannelServiceConfig) parsedDefaultServiceConfig.getConfig();</span><br><span class="line">  <span class="keyword">this</span>.lastServiceConfig = <span class="keyword">this</span>.defaultServiceConfig;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="keyword">this</span>.defaultServiceConfig = <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">this</span>.lookUpServiceConfig = builder.lookUpServiceConfig;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果没有开启则使用默认配置</span></span><br><span class="line"><span class="keyword">if</span> (!lookUpServiceConfig) &#123;</span><br><span class="line">  <span class="keyword">if</span> (defaultServiceConfig != <span class="keyword">null</span>) &#123;</span><br><span class="line">    channelLogger.log(ChannelLogLevel.INFO, <span class="string">&quot;Service config look-up disabled, using default service config&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleServiceConfigUpdate();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="创建-RealChannel"><a href="#创建-RealChannel" class="headerlink" title="创建 RealChannel"></a>创建 RealChannel</h5><p><code>RealChannel</code> 用于发起请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Channel channel = <span class="keyword">new</span> RealChannel(nameResolver.getServiceAuthority());</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ManagedChannelImpl.RealChannel#newCall</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;ReqT, RespT&gt; <span class="function">ClientCall&lt;ReqT, RespT&gt; <span class="title">newCall</span><span class="params">(MethodDescriptor&lt;ReqT, RespT&gt; method,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     CallOptions callOptions)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> ClientCallImpl&lt;&gt;(method,</span><br><span class="line">          <span class="comment">// 执行的线程池</span></span><br><span class="line">          getCallExecutor(callOptions),</span><br><span class="line">          <span class="comment">// 调用的参数</span></span><br><span class="line">          callOptions,</span><br><span class="line">          <span class="comment">// Transport 提供器</span></span><br><span class="line">          transportProvider,</span><br><span class="line">          <span class="comment">// 如果没有关闭，则获取用于调度的执行器</span></span><br><span class="line">          terminated ? <span class="keyword">null</span> : transportFactory.getScheduledExecutorService(),</span><br><span class="line">          <span class="comment">// 统计 Channel 调用信息</span></span><br><span class="line">          channelCallTracer,</span><br><span class="line">          <span class="comment">// 是否重试</span></span><br><span class="line">          retryEnabled)</span><br><span class="line">          .setFullStreamDecompression(fullStreamDecompression)</span><br><span class="line">          .setDecompressorRegistry(decompressorRegistry)</span><br><span class="line">          .setCompressorRegistry(compressorRegistry);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="拦截器"><a href="#拦截器" class="headerlink" title="拦截器"></a>拦截器</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 添加方法拦截器</span></span><br><span class="line">channel = ClientInterceptors.intercept(channel, serviceConfigInterceptor);</span><br></pre></td></tr></table></figure>
+
+<p>除此之外，还初始化了一些其他的 Channel 的配置和属性，当构建 Channel 完成后，就可以使用 Channel 构建 Stub，用于发起请求</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/11/08/gRPC-Stream/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC Stream
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/11/18/gRPC-Channel/">
+        
+          gRPC Channel
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-Client-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">gRPC Client 启动流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96-Channel"><span class="toc-nav-text">初始化 Channel</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96-Channel-%E5%B1%9E%E6%80%A7"><span class="toc-nav-text">初始化 Channel 属性</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E8%AE%BE%E7%BD%AE%E6%9C%8D%E5%8A%A1%E5%90%8D%E7%A7%B0"><span class="toc-nav-text">设置服务名称</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E8%AE%BE%E7%BD%AE-TransportFactory"><span class="toc-nav-text">设置  TransportFactory</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E6%9E%84%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E5%B7%A5%E5%8E%82"><span class="toc-nav-text">构建服务发现工厂</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E6%9E%84%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E5%AE%9E%E4%BE%8B"><span class="toc-nav-text">构建服务发现实例</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E8%AE%BE%E7%BD%AE%E6%98%AF%E5%90%A6%E5%BC%80%E5%90%AF%E9%87%8D%E8%AF%95"><span class="toc-nav-text">设置是否开启重试</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E8%AE%BE%E7%BD%AE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-nav-text">设置负载均衡</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF"><span class="toc-nav-text">配置信息</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA-RealChannel"><span class="toc-nav-text">创建 RealChannel</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E6%8B%A6%E6%88%AA%E5%99%A8"><span class="toc-nav-text">拦截器</span></a></li></ol></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2020/11/17/gRPC-Client-启动流程/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC Client 启动流程",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

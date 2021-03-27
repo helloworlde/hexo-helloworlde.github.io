@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC 使用自定义的 LoadBalancer | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC 使用自定义的 LoadBalancer</h2>
+  <p class="post-date">2020-09-29</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-使用自定义的-LoadBalancer"><a href="#gRPC-使用自定义的-LoadBalancer" class="headerlink" title="gRPC 使用自定义的 LoadBalancer"></a>gRPC 使用自定义的 LoadBalancer</h1><p>gRPC 中提供了 <code>round_robin</code>, <code>pick_first</code>, <code>grpclb</code>, <code>HealthCheckingRoundRobin</code> 等负载均衡的实现，默认使用<code>HealthCheckingRoundRobin</code>，该负载均衡支持检查 Subchannel 的健康状态</p>
+<p>LoadBalancer 主要类包括 <code>LoadBalancerProvider</code>, <code>LoadBalancer</code>, <code>SubchannelPicker</code>, <code>LoadBalancer.SubchannelStateListener </code>，所以实现自定义的 LoadBalancer 实现这几个类就可以</p>
+<h2 id="实现自定义的-LoadBalancer"><a href="#实现自定义的-LoadBalancer" class="headerlink" title="实现自定义的 LoadBalancer"></a>实现自定义的 LoadBalancer</h2><p>自定义实现一个轮询策略的负载均衡器</p>
+<ul>
+<li>CustomLoadBalancerProvider.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomLoadBalancerProvider</span> <span class="keyword">extends</span> <span class="title">LoadBalancerProvider</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isAvailable</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getPriority</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getPolicyName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;custom_round_robin&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> LoadBalancer <span class="title">newLoadBalancer</span><span class="params">(LoadBalancer.Helper helper)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CustomLoadBalancer(helper);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>CustomLoadBalancer.java </li>
+</ul>
+<p>在 CustomLoadBalancer 中实现了地址的处理，根据地址创建 Subchannel，并启动 Subchannel 状态监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomLoadBalancer</span> <span class="keyword">extends</span> <span class="title">LoadBalancer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Attributes.Key&lt;Ref&lt;ConnectivityState&gt;&gt; STATE_INFO = Attributes.Key.create(<span class="string">&quot;state-info&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Helper helper;</span><br><span class="line"></span><br><span class="line">    Map&lt;EquivalentAddressGroup, Subchannel&gt; subchannelMap = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomLoadBalancer</span><span class="params">(Helper helper)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.helper = helper;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleResolvedAddresses</span><span class="params">(ResolvedAddresses resolvedAddresses)</span> </span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;处理地址:&#123;&#125;&quot;</span>, resolvedAddresses.getAddresses().toString());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将解析的地址分割成单个 Address</span></span><br><span class="line">        List&lt;EquivalentAddressGroup&gt; latestAddresses = resolvedAddresses.getAddresses()</span><br><span class="line">                                                                        .stream()</span><br><span class="line">                                                                        .flatMap(<span class="keyword">this</span>::splitAddressCollection)</span><br><span class="line">                                                                        .distinct()</span><br><span class="line">                                                                        .collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 已经存在的地址</span></span><br><span class="line">        Set&lt;EquivalentAddressGroup&gt; originAddresses = subchannelMap.keySet();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对新的 Address 创建 Subchannel</span></span><br><span class="line">        Map&lt;EquivalentAddressGroup, Subchannel&gt; newSubchannelMap = latestAddresses.stream()</span><br><span class="line">                                                                                  .filter(e -&gt; !originAddresses.contains(e))</span><br><span class="line">                                                                                  .map(<span class="keyword">this</span>::buildCreateSubchannelArgs)</span><br><span class="line">                                                                                  .map(helper::createSubchannel)</span><br><span class="line">                                                                                  .map(<span class="keyword">this</span>::processSubchannel)</span><br><span class="line">                                                                                  .collect(Collectors.toConcurrentMap(Subchannel::getAddresses, s -&gt; s));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将已存在的 Subchannel 放到新的集合中</span></span><br><span class="line">        originAddresses.stream()</span><br><span class="line">                       .filter(latestAddresses::contains)</span><br><span class="line">                       .forEach(e -&gt; newSubchannelMap.put(e, subchannelMap.get(e)));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 关闭需要移除的 Subchannel</span></span><br><span class="line">        originAddresses.stream()</span><br><span class="line">                       .filter(e -&gt; !latestAddresses.contains(e))</span><br><span class="line">                       .map(e -&gt; subchannelMap.get(e))</span><br><span class="line">                       .forEach(Subchannel::shutdown);</span><br><span class="line"></span><br><span class="line">        subchannelMap = newSubchannelMap;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> CreateSubchannelArgs <span class="title">buildCreateSubchannelArgs</span><span class="params">(EquivalentAddressGroup e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> CreateSubchannelArgs.newBuilder()</span><br><span class="line">                                   .setAddresses(e)</span><br><span class="line">                                   .setAttributes(Attributes.newBuilder()</span><br><span class="line">                                                            .set(STATE_INFO, <span class="keyword">new</span> Ref&lt;&gt;(IDLE))</span><br><span class="line">                                                            .build())</span><br><span class="line">                                   .build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> Stream&lt;EquivalentAddressGroup&gt; <span class="title">splitAddressCollection</span><span class="params">(EquivalentAddressGroup equivalentAddressGroup)</span> </span>&#123;</span><br><span class="line">        Attributes attributes = equivalentAddressGroup.getAttributes();</span><br><span class="line">        <span class="keyword">return</span> equivalentAddressGroup.getAddresses()</span><br><span class="line">                                     .stream()</span><br><span class="line">                                     .map(e -&gt; <span class="keyword">new</span> EquivalentAddressGroup(e, attributes));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> Subchannel <span class="title">processSubchannel</span><span class="params">(Subchannel subchannel)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (subchannelMap.containsValue(subchannel)) &#123;</span><br><span class="line">            log.info(<span class="string">&quot;&#123;&#125; &#123;&#125; 已经存在&quot;</span>, subchannel, subchannel.getAddresses());</span><br><span class="line">            <span class="keyword">return</span> subchannel;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        subchannel.start(<span class="keyword">new</span> CustomSubchannelStateListener(<span class="keyword">this</span>, subchannel, helper));</span><br><span class="line">        subchannel.requestConnection();</span><br><span class="line">        <span class="keyword">return</span> subchannel;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleNameResolutionError</span><span class="params">(Status error)</span> </span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;命名解析失败:&#123;&#125;&quot;</span>, error);</span><br><span class="line">        helper.updateBalancingState(ConnectivityState.TRANSIENT_FAILURE, <span class="keyword">new</span> CustomSubchannelPicker(PickResult.withNoResult()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">shutdown</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        subchannelMap.values()</span><br><span class="line">                     .stream()</span><br><span class="line">                     .peek(s -&gt; log.info(<span class="string">&quot;关闭 &#123;&#125; &#123;&#125;&quot;</span>, s, s.getAddresses()))</span><br><span class="line">                     .forEach(Subchannel::shutdown);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;EquivalentAddressGroup, Subchannel&gt; <span class="title">getSubchannelMap</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;(<span class="keyword">this</span>.subchannelMap);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>CustomSubchannelStateListener.java</li>
+</ul>
+<p>Subchannel 的状态监听器，当 Subchannel 状态发生变化时进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CustomSubchannelStateListener</span> <span class="keyword">implements</span> <span class="title">LoadBalancer</span>.<span class="title">SubchannelStateListener</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> LoadBalancer.Subchannel subchannel;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> LoadBalancer.Helper helper;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> CustomLoadBalancer loadBalancer;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomSubchannelStateListener</span><span class="params">(CustomLoadBalancer customLoadBalancer,</span></span></span><br><span class="line"><span class="function"><span class="params">                                         LoadBalancer.Subchannel subchannel,</span></span></span><br><span class="line"><span class="function"><span class="params">                                         LoadBalancer.Helper helper)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.loadBalancer = customLoadBalancer;</span><br><span class="line">        <span class="keyword">this</span>.subchannel = subchannel;</span><br><span class="line">        <span class="keyword">this</span>.helper = helper;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSubchannelState</span><span class="params">(ConnectivityStateInfo stateInfo)</span> </span>&#123;</span><br><span class="line">        Ref&lt;ConnectivityState&gt; stateInfoRef = subchannel.getAttributes().get(STATE_INFO);</span><br><span class="line">        ConnectivityState currentState = stateInfoRef.getValue();</span><br><span class="line">        ConnectivityState newState = stateInfo.getState();</span><br><span class="line"></span><br><span class="line">        log.info(<span class="string">&quot;&#123;&#125; 状态变化:&#123;&#125;&quot;</span>, subchannel, newState);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (newState == SHUTDOWN) &#123;</span><br><span class="line">            log.info(<span class="string">&quot;关闭 &#123;&#125;&quot;</span>, subchannel);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (newState == READY) &#123;</span><br><span class="line">            subchannel.requestConnection();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (currentState == TRANSIENT_FAILURE) &#123;</span><br><span class="line">            <span class="keyword">if</span> (newState == CONNECTING || newState == IDLE) &#123;</span><br><span class="line">                log.info(<span class="string">&quot;&#123;&#125; 建立连接或者失败&quot;</span>, subchannel);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        stateInfoRef.setValue(newState);</span><br><span class="line">        updateLoadBalancerState();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">updateLoadBalancerState</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        List&lt;LoadBalancer.Subchannel&gt; readySubchannels = loadBalancer.getSubchannelMap()</span><br><span class="line">                                                                     .values()</span><br><span class="line">                                                                     .stream()</span><br><span class="line">                                                                     .filter(s -&gt; s.getAttributes().get(STATE_INFO).getValue() == READY)</span><br><span class="line">                                                                     .collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (readySubchannels.isEmpty()) &#123;</span><br><span class="line">            log.info(<span class="string">&quot;更新 LB 状态为 CONNECTING，没有 READY 的 Subchannel&quot;</span>);</span><br><span class="line">            helper.updateBalancingState(CONNECTING, <span class="keyword">new</span> CustomSubchannelPicker(LoadBalancer.PickResult.withNoResult()));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            log.info(<span class="string">&quot;更新 LB 状态为 READY，Subchannel 为:&#123;&#125;&quot;</span>, readySubchannels.toArray());</span><br><span class="line">            helper.updateBalancingState(READY, <span class="keyword">new</span> CustomSubchannelPicker(readySubchannels));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>CustomSubchannelPicker.java</li>
+</ul>
+<p>实现选择 Subchannel 的逻辑，这里使用的是轮询策略</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CustomSubchannelPicker</span> <span class="keyword">extends</span> <span class="title">LoadBalancer</span>.<span class="title">SubchannelPicker</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger index = <span class="keyword">new</span> AtomicInteger();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> List&lt;LoadBalancer.Subchannel&gt; subchannelList;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> LoadBalancer.PickResult pickResult;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomSubchannelPicker</span><span class="params">(LoadBalancer.PickResult pickResult)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.pickResult = pickResult;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomSubchannelPicker</span><span class="params">(List&lt;LoadBalancer.Subchannel&gt; subchannelList)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.subchannelList = subchannelList;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> LoadBalancer.<span class="function">PickResult <span class="title">pickSubchannel</span><span class="params">(LoadBalancer.PickSubchannelArgs args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (pickResult != <span class="keyword">null</span>) &#123;</span><br><span class="line">            log.info(<span class="string">&quot;有错误的 pickResult，返回:&#123;&#125;&quot;</span>, pickResult);</span><br><span class="line">            <span class="keyword">return</span> pickResult;</span><br><span class="line">        &#125;</span><br><span class="line">        LoadBalancer.PickResult pickResult = nextSubchannel(args);</span><br><span class="line">        log.info(<span class="string">&quot;Pick 下一个 Subchannel:&#123;&#125;&quot;</span>, pickResult.getSubchannel());</span><br><span class="line">        <span class="keyword">return</span> pickResult;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> LoadBalancer.<span class="function">PickResult <span class="title">nextSubchannel</span><span class="params">(LoadBalancer.PickSubchannelArgs args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (index.get() &gt;= subchannelList.size()) &#123;</span><br><span class="line">            index.set(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        LoadBalancer.Subchannel subchannel = subchannelList.get(index.getAndIncrement());</span><br><span class="line"></span><br><span class="line">        log.info(<span class="string">&quot;返回 Subchannel:&#123;&#125;&quot;</span>, subchannel);</span><br><span class="line">        <span class="keyword">return</span> LoadBalancer.PickResult.withSubchannel(subchannel);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Ref.java</li>
+</ul>
+<p>用于保存 Subchannel 状态的工具类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Ref</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    T value;</span><br><span class="line"></span><br><span class="line">    Ref(T value) &#123;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setValue</span><span class="params">(T value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">getValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/gRPC-%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%E4%B8%8E%E9%87%8D%E8%AF%95%E6%97%B6%E9%97%B4%E9%97%B4%E9%9A%94/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC 超时时间与重试时间间隔
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/10/22/gRPC-Transport/">
+        
+          gRPC Transport
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-LoadBalancer"><span class="toc-nav-text">gRPC 使用自定义的 LoadBalancer</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-LoadBalancer"><span class="toc-nav-text">实现自定义的 LoadBalancer</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2020/09/29/gRPC-使用自定义的-LoadBalancer/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC 使用自定义的 LoadBalancer",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

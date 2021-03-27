@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC 中使用 Channelz | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC 中使用 Channelz</h2>
+  <p class="post-date">2021-01-04</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-中使用-Channelz"><a href="#gRPC-中使用-Channelz" class="headerlink" title="gRPC 中使用 Channelz"></a>gRPC 中使用 Channelz</h1><p>gRPC 提供了 Channelz 用于对外提供服务的数据，用于调试、监控等；根据服务的角色不同，可以提供的数据有：</p>
+<ul>
+<li>服务端: Servers, Server, ServerSockets, Socket</li>
+<li>客户端: TopChannels, Channel, Subchannel</li>
+</ul>
+<h2 id="Channelz-服务定义"><a href="#Channelz-服务定义" class="headerlink" title="Channelz 服务定义"></a>Channelz 服务定义</h2><p>参考 Channelz 的设计 <a target="_blank" rel="noopener" href="https://github.com/grpc/proposal/blob/master/A14-channelz.md">gRPC Channelz</a> 以及服务定义 <a target="_blank" rel="noopener" href="https://github.com/grpc/grpc/blob/master/src/proto/grpc/channelz/channelz.proto">channelz.proto</a>，提供了以下方法：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">Channelz</span> </span>&#123;</span><br><span class="line"><span class="comment">// 返回所有的根 Channel(即应用直接创建的 Channel)</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> GetTopChannels(GetTopChannelsRequest) <span class="keyword">returns</span> (GetTopChannelsResponse)</span>;</span><br><span class="line">  <span class="comment">// 根据 Channel ID 返回单个的 Channel 详情，包括 Subchannel，如果没有则返回 NOT_FOUND</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> GetChannel(GetChannelRequest) <span class="keyword">returns</span> (GetChannelResponse)</span>;</span><br><span class="line">  <span class="comment">// 根据 Subchannel ID 返回 Subchannel 详情</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> GetSubchannel(GetSubchannelRequest) <span class="keyword">returns</span> (GetSubchannelResponse)</span>;</span><br><span class="line">  <span class="comment">// 返回所有存在的 Server</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> GetServers(GetServersRequest) <span class="keyword">returns</span> (GetServersResponse)</span>;</span><br><span class="line">  <span class="comment">// 根据 Server ID 返回 Server 详情</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> GetServer(GetServerRequest) <span class="keyword">returns</span> (GetServerResponse)</span>;</span><br><span class="line">  <span class="comment">// 根据 Server ID 返回 Server 所有的 Socket</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> GetServerSockets(GetServerSocketsRequest) <span class="keyword">returns</span> (GetServerSocketsResponse)</span>;</span><br><span class="line">  <span class="comment">// 根据 Socket ID 返回 Socket 详情</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> GetSocket(GetSocketRequest) <span class="keyword">returns</span> (GetSocketResponse)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>相关项目参考 <a target="_blank" rel="noopener" href="https://github.com/helloworlde/grpc-java-sample">github.com/helloworlde/grpc-java-sample</a></p>
+<h3 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h3><ul>
+<li>build.gradle.kts</li>
+</ul>
+<p>Channelz 服务在 grpc-services 包中，需要添加该依赖</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    implementation(<span class="string">&quot;io.grpc:grpc-netty:<span class="subst">$&#123;grpcVersion&#125;</span>&quot;</span>)</span><br><span class="line">    implementation(<span class="string">&quot;io.grpc:grpc-protobuf:<span class="subst">$&#123;grpcVersion&#125;</span>&quot;</span>)</span><br><span class="line">    implementation(<span class="string">&quot;io.grpc:grpc-stub:<span class="subst">$&#123;grpcVersion&#125;</span>&quot;</span>)</span><br><span class="line">    implementation(<span class="string">&quot;io.grpc:grpc-services:<span class="subst">$&#123;grpcVersion&#125;</span>&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Server-端"><a href="#Server-端" class="headerlink" title="Server 端"></a>Server 端</h3><p>Server 端添加 Channelz 服务非常简单，只需要将 Channelz 的服务添加到 Server 中即可</p>
+<ul>
+<li>Server</li>
+</ul>
+<p>可以通过 <code>ChannelzService.newInstance(100)</code> 直接构建 Channelz 服务实例，参数是获取数据时分页的大小</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">@Slf4j</span><br><span class="line">public class ChannelzServer &#123;</span><br><span class="line"></span><br><span class="line">    @SneakyThrows</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line"></span><br><span class="line">        // 构建 Server</span><br><span class="line">        Server server = NettyServerBuilder.forAddress(new InetSocketAddress(9090))</span><br><span class="line">                                          // 添加服务</span><br><span class="line">                                          .addService(new HelloServiceImpl())</span><br><span class="line">                                          // 添加 Channelz 服务</span><br><span class="line"><span class="addition">+                                         .addService(ChannelzService.newInstance(100))</span></span><br><span class="line">                                          // 添加反射服务，用于 grpcurl 等工具调试</span><br><span class="line"><span class="addition">+                                         .addService(ProtoReflectionService.newInstance())</span></span><br><span class="line">                                          .build();</span><br><span class="line"></span><br><span class="line">        // 启动 Server</span><br><span class="line">        server.start();</span><br><span class="line">        log.info(&quot;服务端启动成功&quot;);</span><br><span class="line"></span><br><span class="line">        Runtime.getRuntime().addShutdownHook(new Thread(() -&gt; &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                server.awaitTermination(10, TimeUnit.SECONDS);</span><br><span class="line">            &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;));</span><br><span class="line"></span><br><span class="line">        // 保持运行</span><br><span class="line">        server.awaitTermination();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Client-端"><a href="#Client-端" class="headerlink" title="Client 端"></a>Client 端</h3><p>Client 端不能直接开启，需要单独启动一个 Server，用于提供数据，与 Server 端一样，不过只提供 Channelz 的服务</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">@Slf4j</span><br><span class="line">public class ChannelzClient &#123;</span><br><span class="line"></span><br><span class="line">    @SneakyThrows</span><br><span class="line">    public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">        // 构建并启动 Channelz 服务</span><br><span class="line"><span class="addition">+       Server server = NettyServerBuilder.forPort(9091)</span></span><br><span class="line"><span class="addition">+                                         // 添加 Channelz 服务</span></span><br><span class="line"><span class="addition">+                                         .addService(ChannelzService.newInstance(100))</span></span><br><span class="line"><span class="addition">+                                         // 添加反射服务，用于 grpcurl 等工具调试</span></span><br><span class="line"><span class="addition">+                                         .addService(ProtoReflectionService.newInstance())</span></span><br><span class="line"><span class="addition">+                                         .build()</span></span><br><span class="line"><span class="addition">+                                         .start();</span></span><br><span class="line"></span><br><span class="line">        // 构建 Channel</span><br><span class="line">        ManagedChannel channel = ManagedChannelBuilder.forAddress(&quot;127.0.0.1&quot;, 9090)</span><br><span class="line">                                                      .usePlaintext()</span><br><span class="line">                                                      .build();</span><br><span class="line"></span><br><span class="line">        // 使用 Channel 构建 BlockingStub</span><br><span class="line">        HelloServiceGrpc.HelloServiceBlockingStub blockingStub = HelloServiceGrpc.newBlockingStub(channel);</span><br><span class="line"></span><br><span class="line">        // 发送多个请求，用于观察数据变化</span><br><span class="line">        for (int i = 0; i &lt; 10000; i++) &#123;</span><br><span class="line">            // 构建消息</span><br><span class="line">            HelloMessage message = HelloMessage.newBuilder()</span><br><span class="line">                                               .setMessage(&quot;Channelz &quot; + i)</span><br><span class="line">                                               .build();</span><br><span class="line"></span><br><span class="line">            // 发送消息，并返回响应</span><br><span class="line">            HelloResponse helloResponse = blockingStub.sayHello(message);</span><br><span class="line">            log.info(helloResponse.getMessage());</span><br><span class="line">            Thread.sleep(1000);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 等待终止</span><br><span class="line"><span class="addition">+       server.awaitTermination();</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>分别启动 Server 端和 Client 端，发送请求；使用其他工具观察</p>
+<h3 id="grpc-zpages"><a href="#grpc-zpages" class="headerlink" title="grpc-zpages"></a>grpc-zpages</h3><p>gRPC 官方提供了 <a target="_blank" rel="noopener" href="https://github.com/grpc/grpc-experiments/tree/master/gdebug">grpc-zpages</a> 工具，可用通过 Web 查看指定服务的信息，不过该工具已经很久没有维护，使用较为复杂，具体可以参考 <a target="_blank" rel="noopener" href="https://grpc.io/blog/a-short-introduction-to-channelz/">A short introduction to Channelz</a></p>
+<h3 id="channelzcli"><a href="#channelzcli" class="headerlink" title="channelzcli"></a>channelzcli</h3><p>是一个 CLI 工具，可以通过命令行实现获取 Channelz 的信息，对 Channelz 的数据做了一定的处理，较为友好，具体使用参考 <a target="_blank" rel="noopener" href="https://github.com/kazegusuri/channelzcli">channelzcli</a></p>
+<h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get -u github.com/kazegusuri/channelzcli</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h4><ul>
+<li>获取 Channel 信息</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">channelzcli list channel -k --addr localhost:9091</span><br><span class="line"></span><br><span class="line">ID	Name                                                                            	State	Channel	SubChannel	Calls	Success	Fail	LastCall</span><br><span class="line">4	ManagedChannelImpl&#123;logId=4, target=127.0.0.1:9090&#125;                              	READY	0      	1         	4355  	4355  	0     	716ms</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>描述 Server 信息</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">channelzcli describe server 2 -k --addr localhost:9090</span><br><span class="line"></span><br><span class="line">ID: 	2</span><br><span class="line">Name:	ServerImpl&#123;logId=2, transportServers=[NettyServer&#123;logId=1, address=0.0.0.0/0.0.0.0:9090&#125;]&#125;</span><br><span class="line">Calls:</span><br><span class="line">  Started:        	14486</span><br><span class="line">  Succeeded:      	14476</span><br><span class="line">  Failed:         	9</span><br><span class="line">  LastCallStarted:	2021-01-06 08:51:35.608 +0000 UTC</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>列出 Channel 信息</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">channelzcli tree channel -k --addr localhost:9091</span><br><span class="line"></span><br><span class="line">127.0.0.1:9090 (ID:4) [READY]</span><br><span class="line">  [Calls] Started:4627, Succeeded:4627, Failed:0, Last:638ms</span><br><span class="line">  [Subchannels]</span><br><span class="line">    |-- [[[/127.0.0.1:9090]/&#123;&#125;]] (ID:6) [READY]</span><br><span class="line">          [Calls]: Started:4627, Succeeded:4627, Failed:0, Last:638ms</span><br><span class="line">          [Socket] ID:7, Name:CallTracingTransport&#123;delegate=CallCredentialsApplyingTransport&#123;delegate=NettyClientTransport&#123;logId=7, remoteAddress=/127.0.0.1:9090, channel=[id: 0x83c4d921, L:/127.0.0.1:52321 - R:/127.0.0.1:9090]&#125;&#125;&#125;, RemoteName:, Local:[127.0.0.1]:52321 Remote:[127.0.0.1]:9090```</span><br></pre></td></tr></table></figure>
+
+<h3 id="grpcurl"><a href="#grpcurl" class="headerlink" title="grpcurl"></a>grpcurl</h3><p>是一个 CLI 工具，可以像 CURL 一样对 gRPC 服务发起请求，但是需要服务添加<a target="_blank" rel="noopener" href="https://github.com/grpc/proposal/blob/master/A15-promote-reflection.md">反射服务</a>，详情参考 <a target="_blank" rel="noopener" href="https://github.com/fullstorydev/grpcurl">grpcurl</a></p>
+<h4 id="安装-1"><a href="#安装-1" class="headerlink" title="安装"></a>安装</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install grpcurl</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用-2"><a href="#使用-2" class="headerlink" title="使用"></a>使用</h4><ul>
+<li>获取 Server 列表</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">grpcurl -plaintext localhost:9090 grpc.channelz.v1.Channelz/GetServers</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;server&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">&quot;ref&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;server_id&quot;</span>: <span class="string">&quot;2&quot;</span>,</span><br><span class="line">        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;ServerImpl&#123;logId=2, transportServers=[NettyServer&#123;logId=1, address=0.0.0.0/0.0.0.0:9090&#125;]&#125;&quot;</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">&quot;data&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;calls_started&quot;</span>: <span class="string">&quot;13438&quot;</span>,</span><br><span class="line">        <span class="string">&quot;calls_succeeded&quot;</span>: <span class="string">&quot;13432&quot;</span>,</span><br><span class="line">        <span class="string">&quot;calls_failed&quot;</span>: <span class="string">&quot;4&quot;</span>,</span><br><span class="line">        <span class="string">&quot;last_call_started_timestamp&quot;</span>: <span class="string">&quot;2021-01-06T08:34:17.763Z&quot;</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">&quot;listen_socket&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="string">&quot;socket_id&quot;</span>: <span class="string">&quot;3&quot;</span>,</span><br><span class="line">          <span class="string">&quot;name&quot;</span>: <span class="string">&quot;ListenSocket&#123;logId=3, channel=[id: 0xc703c330, L:/0:0:0:0:0:0:0:0:9090]&#125;&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="string">&quot;end&quot;</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>获取 Channel 列表</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">grpcurl -plaintext localhost:9091 grpc.channelz.v1.Channelz/GetTopChannels</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;channel&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">&quot;ref&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;channel_id&quot;</span>: <span class="string">&quot;4&quot;</span>,</span><br><span class="line">        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;ManagedChannelImpl&#123;logId=4, target=127.0.0.1:9090&#125;&quot;</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">&quot;data&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;state&quot;</span>: &#123;</span><br><span class="line">          <span class="string">&quot;state&quot;</span>: <span class="string">&quot;READY&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">&quot;target&quot;</span>: <span class="string">&quot;127.0.0.1:9090&quot;</span>,</span><br><span class="line">        <span class="string">&quot;calls_started&quot;</span>: <span class="string">&quot;45&quot;</span>,</span><br><span class="line">        <span class="string">&quot;calls_succeeded&quot;</span>: <span class="string">&quot;45&quot;</span>,</span><br><span class="line">        <span class="string">&quot;last_call_started_timestamp&quot;</span>: <span class="string">&quot;2021-01-06T07:38:45.217Z&quot;</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">&quot;subchannel_ref&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="string">&quot;subchannel_id&quot;</span>: <span class="string">&quot;6&quot;</span>,</span><br><span class="line">          <span class="string">&quot;name&quot;</span>: <span class="string">&quot;InternalSubchannel&#123;logId=6, addressGroups=[[[/127.0.0.1:9090]/&#123;&#125;]]&#125;&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="string">&quot;end&quot;</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/01/04/gRPC-%E4%B8%AD%E6%89%93%E5%8D%B0%E8%AF%B7%E6%B1%82%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%97%A5%E5%BF%97/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC 中打印请求二进制日志
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/01/06/gRPC-%E6%9C%8D%E5%8A%A1%E4%BD%BF%E7%94%A8-TLS-%E5%8A%A0%E5%AF%86/">
+        
+          gRPC 服务使用 TLS 加密
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E4%B8%AD%E4%BD%BF%E7%94%A8-Channelz"><span class="toc-nav-text">gRPC 中使用 Channelz</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Channelz-%E6%9C%8D%E5%8A%A1%E5%AE%9A%E4%B9%89"><span class="toc-nav-text">Channelz 服务定义</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Server-%E7%AB%AF"><span class="toc-nav-text">Server 端</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Client-%E7%AB%AF"><span class="toc-nav-text">Client 端</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#grpc-zpages"><span class="toc-nav-text">grpc-zpages</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#channelzcli"><span class="toc-nav-text">channelzcli</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-nav-text">安装</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-1"><span class="toc-nav-text">使用</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#grpcurl"><span class="toc-nav-text">grpcurl</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85-1"><span class="toc-nav-text">安装</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-2"><span class="toc-nav-text">使用</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2021/01/04/gRPC-中使用-Channelz/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC 中使用 Channelz",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

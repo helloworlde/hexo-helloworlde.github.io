@@ -152,252 +152,167 @@
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2018/01/01/IDEA%E5%90%AF%E5%8A%A8Spring-Boot%E9%A1%B9%E7%9B%AE%E6%8F%90%E7%A4%BAUnable-to-start-EmbeddedWebApplicationContext-due-to-missing-EmbeddedServlet/">IDEA启动Spring Boot项目提示Unable to start EmbeddedWebApplicationContext due to missing EmbeddedServlet...</a>
+        <a href="/2018/01/01/Nginx-%E9%85%8D%E7%BD%AE/">Nginx 配置</a>
       </h2>
       <p class="article-date">January 1, 2018</p>
       
         
-  <a href="/tags#SpringBoot" >
-    <span class="tag-code">SpringBoot</span>
+  <a href="/tags#Nginx" >
+    <span class="tag-code">Nginx</span>
   </a>
 
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
+      
+      <div class="article-summary">
+        
+          1. 基础配置123456789101112131415161718192021222324252627282930313233worker_processes  1;events &#123;    worker_connections  1024;&#125;http &#123;    ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Nginx-%E9%85%8D%E7%BD%AE/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Tomcat9-%E9%85%8D%E7%BD%AEHTTPS%E8%BF%9E%E6%8E%A5/">Tomcat9 配置HTTPS连接</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Tomcat" >
+    <span class="tag-code">Tomcat</span>
   </a>
 
-  <a href="/tags#IDEA" >
-    <span class="tag-code">IDEA</span>
-  </a>
-
-  <a href="/tags#Exception" >
-    <span class="tag-code">Exception</span>
+  <a href="/tags#Https" >
+    <span class="tag-code">Https</span>
   </a>
 
       
       <div class="article-summary">
         
           
-导入一个gradle 的Spring Boot项目，在启动的时候先提示找不到HttpServletRequest这个包，错误如下：
+Tomcat中配置HTTPS连接可以分为两步：      1. 生成证书        2. 配置Tomcat
 
-1234567Caused by: java.lang.ClassNotFoundException: javax.servlet.http.HttpSer ...
+
+准备工作
+
+
+JDK
+Tomcat
+
+
+1. 生成证书
+证书可以使用Java来生成
+
+
+直接使用命令生成证书
+
+1keytool -genkeypair -alias &qu ...
         
       </div>
-      <a class="more" href="/2018/01/01/IDEA%E5%90%AF%E5%8A%A8Spring-Boot%E9%A1%B9%E7%9B%AE%E6%8F%90%E7%A4%BAUnable-to-start-EmbeddedWebApplicationContext-due-to-missing-EmbeddedServlet/">Read more</a>
+      <a class="more" href="/2018/01/01/Tomcat9-%E9%85%8D%E7%BD%AEHTTPS%E8%BF%9E%E6%8E%A5/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2018/01/01/IDEA%E4%B8%ADSpring-Boot%E9%A1%B9%E7%9B%AEMyBaits%E6%8F%90%E7%A4%BAInvalid-bound-statement-not-found-%E9%94%99%E8%AF%AF/">IDEA中Spring Boot项目MyBaits提示Invalid bound statement (not found)错误</a>
+        <a href="/2018/01/01/Windows%E4%B8%8B%E9%85%8D%E7%BD%AEChrome-WebDriver/">Windows下配置Chrome WebDriver</a>
       </h2>
       <p class="article-date">January 1, 2018</p>
       
         
-  <a href="/tags#SpringBoot" >
-    <span class="tag-code">SpringBoot</span>
+  <a href="/tags#WebDriver" >
+    <span class="tag-code">WebDriver</span>
   </a>
 
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#MyBatis" >
-    <span class="tag-code">MyBatis</span>
-  </a>
-
-  <a href="/tags#Exception" >
-    <span class="tag-code">Exception</span>
+  <a href="/tags#Selenium" >
+    <span class="tag-code">Selenium</span>
   </a>
 
       
       <div class="article-summary">
         
           
-一个SpringBoot项目在STS中是正常的，没有任何问题，但是导入到IDEA中之后启动就提示org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)错误
+WebDriver多用来执行自动化测试，可以通过Java文件或者其他方式在测试的时候打开，Firefox的自带了WebDriver，但是Chrome没有，需要手动安装
 
-1232017-05-01  ...
+
+
+首先下载Chrome的WebDriver
+将WebDriver复制到Chrome的安装目录
+安装目录可以通过在Chr ...
         
       </div>
-      <a class="more" href="/2018/01/01/IDEA%E4%B8%ADSpring-Boot%E9%A1%B9%E7%9B%AEMyBaits%E6%8F%90%E7%A4%BAInvalid-bound-statement-not-found-%E9%94%99%E8%AF%AF/">Read more</a>
+      <a class="more" href="/2018/01/01/Windows%E4%B8%8B%E9%85%8D%E7%BD%AEChrome-WebDriver/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-%E7%BC%96%E8%AF%91%E6%97%B6%E4%B8%8B%E8%BD%BD%E4%BE%9D%E8%B5%96%E5%A4%B1%E8%B4%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Gradle 使用-编译时下载依赖失败解决方法</a>
+        <a href="/2018/01/01/AngularJS%E4%B8%AD%E4%BD%BF%E7%94%A8ngModal%E6%A8%A1%E6%80%81%E6%A1%86/">AngularJS中使用ngModal模态框</a>
       </h2>
       <p class="article-date">January 1, 2018</p>
       
         
-  <a href="/tags#Gradle" >
-    <span class="tag-code">Gradle</span>
+  <a href="/tags#AngularJs" >
+    <span class="tag-code">AngularJs</span>
+  </a>
+
+  <a href="/tags#ngModal" >
+    <span class="tag-code">ngModal</span>
   </a>
 
       
       <div class="article-summary">
         
           
-如果Gradle在编译的时候没有在本地仓库中发现依赖，就会从远程仓库中下载，默认的远程仓库为mavenCentral()，也就是http://repo1.maven.org/maven2/，但是往往访问速度特别慢，不翻墙经常会下载超时或者需要很长时间导致Build失败，因此，可以用国内的仓 ...
+在AngularJS中使用模态框需要引用的文件：
+angular.js 1.5.5
+ui.bootstrap-tpls.js 0.11.2
+bootstrap.css 3.3.7
+
+
+
+
+需要注意版本要一致，高版本的不支持这种方法，会出错
+
+
+
+将需要弹出的模态框的内容写在 script  ...
         
       </div>
-      <a class="more" href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-%E7%BC%96%E8%AF%91%E6%97%B6%E4%B8%8B%E8%BD%BD%E4%BE%9D%E8%B5%96%E5%A4%B1%E8%B4%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Read more</a>
+      <a class="more" href="/2018/01/01/AngularJS%E4%B8%AD%E4%BD%BF%E7%94%A8ngModal%E6%A8%A1%E6%80%81%E6%A1%86/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2018/01/01/Ubuntu%E6%90%AD%E5%BB%BAShadowsocks%E6%9C%8D%E5%8A%A1%E5%99%A8/">Ubuntu搭建Shadowsocks服务器</a>
+        <a href="/2018/01/01/AngularJS%E4%B8%ADngTable%E8%87%AA%E5%AE%9A%E4%B9%89-%E9%87%8D%E5%86%99%E8%BF%87%E6%BB%A4%E5%99%A8/">AngularJS 中ngTable自定义/重写过滤器</a>
       </h2>
       <p class="article-date">January 1, 2018</p>
       
         
-  <a href="/tags#Ubuntu" >
-    <span class="tag-code">Ubuntu</span>
+  <a href="/tags#AngularJs" >
+    <span class="tag-code">AngularJs</span>
   </a>
 
-  <a href="/tags#Shadowsocks" >
-    <span class="tag-code">Shadowsocks</span>
+  <a href="/tags#ngTable" >
+    <span class="tag-code">ngTable</span>
   </a>
 
       
       <div class="article-summary">
         
           
-在Ubuntu环境中搭建Shadowsocks服务
 
-##1 安装Shadowsocks
-12345678# 更新apt-getsudo apt-get update# 安装python包管理工具sudo apt-get install python-pip# 安装Shadowsocksp ...
+在使用ngTable 时用到了需要进行按时间过滤，但是ngTable并没有该功能，所以需要自定义过滤器，但是如果自定义了过滤器，则会覆盖原来的，所以就需要重写过滤器
+
+
+
+
+###ngTable过滤器的原理是按照过滤的条件遍历所有的列表项内容，如果满足过滤条件则返回true，显示该记录， ...
         
       </div>
-      <a class="more" href="/2018/01/01/Ubuntu%E6%90%AD%E5%BB%BAShadowsocks%E6%9C%8D%E5%8A%A1%E5%99%A8/">Read more</a>
+      <a class="more" href="/2018/01/01/AngularJS%E4%B8%ADngTable%E8%87%AA%E5%AE%9A%E4%B9%89-%E9%87%8D%E5%86%99%E8%BF%87%E6%BB%A4%E5%99%A8/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2018/01/01/SpringMVC%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E6%97%B6%E6%89%A7%E8%A1%8C%E6%93%8D%E4%BD%9C/">SpringMVC应用启动时执行操作</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#SpringMVC" >
-    <span class="tag-code">SpringMVC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          
-ContextRefreshedEvent：当ApplicationContext初始化或者刷新时触发该事件。 
-
-ContextClosedEvent：当ApplicationContext被关闭时触发该事件。容器被关闭时，其管理的所有单例Bean都被销毁。 
-
- RequestHand ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/SpringMVC%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E6%97%B6%E6%89%A7%E8%A1%8C%E6%93%8D%E4%BD%9C/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/Spring-Boot-%E5%90%AF%E5%8A%A8%E6%97%B6%E6%89%A7%E8%A1%8C%E5%8A%A0%E8%BD%BD%E8%B5%84%E6%BA%90-%E6%89%A7%E8%A1%8C%E6%93%8D%E4%BD%9C/">Spring Boot 启动时执行加载资源/执行操作</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#SpringBoot" >
-    <span class="tag-code">SpringBoot</span>
-  </a>
-
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          
-SpringBoot 在启动的时候加载资源或者执行操作，进行初始化来执行特定操作，SpringBoot已经提供了这样的接口，通过实现该接口就可以实现需要的操作
-
-
-实现CommandLineRunner接口123456789@Order(value&#x3D;2)@Componentpub ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/Spring-Boot-%E5%90%AF%E5%8A%A8%E6%97%B6%E6%89%A7%E8%A1%8C%E5%8A%A0%E8%BD%BD%E8%B5%84%E6%BA%90-%E6%89%A7%E8%A1%8C%E6%93%8D%E4%BD%9C/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/SpringBoot%E5%90%AF%E5%8A%A8%E6%97%B6%E6%8A%A5org-springframework-context-annotation-ConflictingBeanDefinitionException%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">SpringBoot启动时报org.springframework.context.annotation.ConflictingBeanDefinitionException解决方法</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#SpringBoot" >
-    <span class="tag-code">SpringBoot</span>
-  </a>
-
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#Exception" >
-    <span class="tag-code">Exception</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          
-在SpringBoot应用启动的过程中，因为报org.springframework.context.annotation.ConflictingBeanDefinitionException导致应用启动失败
-
-
-
-错误信息：
-
-1234Annotation-specified bean  ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/SpringBoot%E5%90%AF%E5%8A%A8%E6%97%B6%E6%8A%A5org-springframework-context-annotation-ConflictingBeanDefinitionException%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/SpringBoot%E4%B8%AD%E9%85%8D%E7%BD%AE%E4%BD%BF%E7%94%A8Druid%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">SpringBoot中配置使用Druid数据库连接池</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#SpringBoot" >
-    <span class="tag-code">SpringBoot</span>
-  </a>
-
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#Druid" >
-    <span class="tag-code">Druid</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          
-Druid 是阿里巴巴开源的Java数据库连接池插件，Druid能够提供强大的监控和扩展功能
-
-配置使用Druid数据库连接池添加依赖
-Gradle
-
-1compile(&#39;com.alibaba:druid-spring-boot-starter:$&#123;version&#1 ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/SpringBoot%E4%B8%AD%E9%85%8D%E7%BD%AE%E4%BD%BF%E7%94%A8Druid%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/SpringBoot%E9%A1%B9%E7%9B%AE%E7%94%9F%E6%88%90War%E5%8C%85/">SpringBoot项目生成War包</a>
+        <a href="/2018/01/01/Spring-Controller-%E6%95%B0%E6%8D%AE%E4%BC%A0%E9%80%92%E4%B8%AD%E6%B3%A8%E8%A7%A3%E7%9A%84%E4%BD%BF%E7%94%A8/">Spring Controller 数据传递中注解的使用</a>
       </h2>
       <p class="article-date">January 1, 2018</p>
       
@@ -413,108 +328,19 @@ Gradle
       
       <div class="article-summary">
         
-          
-Spring Boot 项目默认生成Jar包，如果想发布到Tomcat还需要生成War包才能运行，SpringBoot官方文档中已经阐述了具体的操作方法，可以参考：howto-create-a-deployable-war-file；以下使用Gradle作为Build工具
+          ##根据处理Request的不同内容分为4类：
 
-1. 向bui ...
+处理Request URI部分的注解：@PathVariable
+处理Request Header部分的注解：@RequestHeader，@CookieValue
+处理Request Body部分的注解：@RequestParam，@Req ...
         
       </div>
-      <a class="more" href="/2018/01/01/SpringBoot%E9%A1%B9%E7%9B%AE%E7%94%9F%E6%88%90War%E5%8C%85/">Read more</a>
+      <a class="more" href="/2018/01/01/Spring-Controller-%E6%95%B0%E6%8D%AE%E4%BC%A0%E9%80%92%E4%B8%AD%E6%B3%A8%E8%A7%A3%E7%9A%84%E4%BD%BF%E7%94%A8/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2018/01/01/%E4%BD%BF%E7%94%A8Gradle%E6%95%B4%E5%90%88Flyway%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%81%E7%A7%BB/">使用Gradle整合Flyway进行数据库迁移</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#Gradle" >
-    <span class="tag-code">Gradle</span>
-  </a>
-
-  <a href="/tags#Flyway" >
-    <span class="tag-code">Flyway</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          
-使用Flyway进行数据库迁移可以极大的减少开发过程中对数据库版本的操作，使用Gradle整合Flyway可以更好的和项目契合
-
-配置build.gradle文件1234567891011121314151617181920apply plugin: &#39;org.flywaydb.f ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/%E4%BD%BF%E7%94%A8Gradle%E6%95%B4%E5%90%88Flyway%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%81%E7%A7%BB/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Association-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/">MyBatis 中使用 Association 嵌套查询</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#MyBatis" >
-    <span class="tag-code">MyBatis</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          
-当使用 MyBatis 进行查询的时候如果一个 JavaBean 中包含另一个 JavaBean 或者 Collection 时，可以通过 MyBatis 的嵌套查询来获取需要的结果;以下以用户登录时的用户、角色和菜单直接的关系为例使用嵌套查询
-
-
-JavaBean
-UserModel12 ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Association-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Collection-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/">MyBatis 中使用 Collection 嵌套查询</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#MyBatis" >
-    <span class="tag-code">MyBatis</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          
-当使用 MyBatis 进行查询的时候如果一个 JavaBean 中包含另一个 JavaBean 或者 Collection 时，可以通过 MyBatis 的嵌套查询来获取需要的结果;以下以用户登录时的角色和菜单直接的关系为例使用嵌套查询
-
-
-JavaBean
-RoleModel
-1234 ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Collection-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/Spring-Security-%E7%9A%84-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">在使用 Spring Security 的 Remember Me 记住密码功能时遇到的问题和解决方法</a>
+        <a href="/2018/01/01/Spring-Cloud-%E7%9B%91%E6%8E%A7%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8B-IP-URL-%E4%B8%8D%E6%AD%A3%E7%A1%AE%E5%AF%BC%E8%87%B4%E6%97%A0%E6%B3%95%E6%B3%A8%E5%86%8C%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Spring Cloud 监控服务器下 IP/URL 不正确导致无法注册的解决方法</a>
       </h2>
       <p class="article-date">January 1, 2018</p>
       
@@ -527,95 +353,33 @@ RoleModel
     <span class="tag-code">Java</span>
   </a>
 
-  <a href="/tags#Spring Security" >
-    <span class="tag-code">Spring Security</span>
+  <a href="/tags#Actuator" >
+    <span class="tag-code">Actuator</span>
+  </a>
+
+  <a href="/tags#Issue" >
+    <span class="tag-code">Issue</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
   </a>
 
       
       <div class="article-summary">
         
           
-在使用 Spring Security 的 Remember Me 记住密码功能时遇到的问题和解决方法
+本项目仅用到了 Spring Cloud，并没有使用 Eureka
 
-
-java.lang.IllegalStateException: UserDetailsService is required.
-配置信息(Security.java)1234567 ...
+在使用 Spring Cloud 对 Spring Boot 应用通过 Spring Admin 进行监控的时候，当 Admin Server 和被监控的应用都在本地启动的时候没有任何问题，但是当部署到 Server 上 ...
         
       </div>
-      <a class="more" href="/2018/01/01/Spring-Security-%E7%9A%84-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Read more</a>
+      <a class="more" href="/2018/01/01/Spring-Cloud-%E7%9B%91%E6%8E%A7%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8B-IP-URL-%E4%B8%8D%E6%AD%A3%E7%A1%AE%E5%AF%BC%E8%87%B4%E6%97%A0%E6%B3%95%E6%B3%A8%E5%86%8C%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2018/01/01/Spring-Security-%E4%B8%AD%E5%AE%9E%E7%8E%B0-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD/">Spring Security 中实现 Remember Me 记住密码功能</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#SpringBoot" >
-    <span class="tag-code">SpringBoot</span>
-  </a>
-
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#Spring Security" >
-    <span class="tag-code">Spring Security</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          
-在 Spring Boot 应用中使用 Spring Security 并实现 Remember Me 记住密码功能，实现自动登录
-
-
-
-前置条件：在 Spring Boot 应用中已正确配置 Spring Security
-
-##在页面添加记住密码的复选框
-1&lt;input type ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/Spring-Security-%E4%B8%AD%E5%AE%9E%E7%8E%B0-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/Spring-Boot-%E4%B8%AD%E9%9B%86%E6%88%90-Spring-Security/">Spring Boot 中集成 Spring Security</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#SpringBoot" >
-    <span class="tag-code">SpringBoot</span>
-  </a>
-
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#Spring Security" >
-    <span class="tag-code">Spring Security</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          
-Spring Boot 集成 Spring Security的简单应用，从数据库读取数据校验用户，页面使用Thymeleaf模板
-
-
-项目地址 https://github.com/helloworlde/SpringSecurity演示 http://project.hellowood. ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/Spring-Boot-%E4%B8%AD%E9%9B%86%E6%88%90-Spring-Security/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/Spring-MVC-%E4%BD%BF%E7%94%A8-Spring-Session-%E5%AE%9E%E7%8E%B0-Session-%E5%85%B1%E4%BA%AB-Redis/">Spring MVC 使用 Spring Session 实现 Session 共享-Redis</a>
+        <a href="/2018/01/01/Spring-MVC%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E5%9B%BD%E9%99%85%E5%8C%96-%E5%A4%9A%E8%AF%AD%E8%A8%80/">Spring MVC简单实现国际化/多语言</a>
       </h2>
       <p class="article-date">January 1, 2018</p>
       
@@ -628,86 +392,28 @@ Spring Boot 集成 Spring Security的简单应用，从数据库读取数据校�
     <span class="tag-code">SrpingMVC</span>
   </a>
 
-  <a href="/tags#Spring Session" >
-    <span class="tag-code">Spring Session</span>
+  <a href="/tags#i18n" >
+    <span class="tag-code">i18n</span>
   </a>
 
       
       <div class="article-summary">
         
           
-使用Spring Session 通过 Redis 实现 Session 共享，用于多实例应用
+SpringMVC 可以通过Spring框架来实现多语言
 
+1. 创建SpringMVC项目
+配置web.xml
 
-Spring Session 官方文档https://docs.spring.io/spring-session/docs/2.0.0.M4/reference/html5/#introdu ...
+1234567891011121314151617181920212223242526272829303132333435363738394041&lt;?xml versi ...
         
       </div>
-      <a class="more" href="/2018/01/01/Spring-MVC-%E4%BD%BF%E7%94%A8-Spring-Session-%E5%AE%9E%E7%8E%B0-Session-%E5%85%B1%E4%BA%AB-Redis/">Read more</a>
+      <a class="more" href="/2018/01/01/Spring-MVC%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E5%9B%BD%E9%99%85%E5%8C%96-%E5%A4%9A%E8%AF%AD%E8%A8%80/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-%E5%A4%9A%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA/">Gradle 添加多项，依赖其他项目</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#Gradle" >
-    <span class="tag-code">Gradle</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          Gradle 使用-多项目构建配置
-如该项目有四个模块，分别是Controller, Service, Dao,Model，根目录仅为父级目录，不存在任何代码；子目录为各个相应的模块或单独的项目
-
-
-项目根目录下添加 build.gradle
-
-12345678910111213141516 ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-%E5%A4%9A%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/Gradle-%E6%B7%BB%E5%8A%A0%E5%A4%9A%E6%A8%A1%E5%9D%97%EF%BC%8C%E4%BE%9D%E8%B5%96%E5%85%B6%E4%BB%96%E9%A1%B9%E7%9B%AE/">Gradle 使用-多项目构建</a>
-      </h2>
-      <p class="article-date">January 1, 2018</p>
-      
-        
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
-  </a>
-
-  <a href="/tags#Gradle" >
-    <span class="tag-code">Gradle</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          Gradle 使用-多项目构建配置
-如该项目有三个模块，分别是Controller, Service, Dao,Model，根目录仅为父级目录，不存在任何代码；子目录为各个相应的模块或单独的项目
-
-
-项目根目录下添加 build.gradle
-
-12345678910111213141516 ...
-        
-      </div>
-      <a class="more" href="/2018/01/01/Gradle-%E6%B7%BB%E5%8A%A0%E5%A4%9A%E6%A8%A1%E5%9D%97%EF%BC%8C%E4%BE%9D%E8%B5%96%E5%85%B6%E4%BB%96%E9%A1%B9%E7%9B%AE/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-Jacoco-%E5%88%86%E6%9E%90%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E5%B7%A5%E5%85%B7/">Gradle 使用-添加 Jacoco 分析单元测试覆盖率工具</a>
+        <a href="/2018/01/01/SpringBoot%E4%B8%ADJunit%E6%B5%8B%E8%AF%95%E6%B3%A8%E5%85%A5Bean%E5%A4%B1%E8%B4%A5%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">SpringBoot中Junit测试注入Bean失败的解决方法</a>
       </h2>
       <p class="article-date">January 1, 2018</p>
       
@@ -720,45 +426,229 @@ Spring Session 官方文档https://docs.spring.io/spring-session/docs/2.0.0.M4/r
     <span class="tag-code">Java</span>
   </a>
 
-  <a href="/tags#Gradle" >
-    <span class="tag-code">Gradle</span>
+  <a href="/tags#Junit" >
+    <span class="tag-code">Junit</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          
+在SpringBoot中使用Junit做测试的时候测试DAO层的接口，但是一直提示注入Bean失败，报以下错误：
+
+12org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/SpringBoot%E4%B8%ADJunit%E6%B5%8B%E8%AF%95%E6%B3%A8%E5%85%A5Bean%E5%A4%B1%E8%B4%A5%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/AngularJS%E4%B8%AD%E4%BD%BF%E7%94%A8ngTable/">AngularJS中使用ngTable</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#AngularJs" >
+    <span class="tag-code">AngularJs</span>
+  </a>
+
+  <a href="/tags#ngTable" >
+    <span class="tag-code">ngTable</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          
+在HTML中使用ngTable 可以方便的进行排序，筛选，分页，添加，编辑删除等操作，不用再从数据库里面进行分页等操作
+
+
+需要引用的文件
+angular.js
+ng-table.js
+ng-table.css
+bootrasp.css
+
+
+
+
+
+注入依赖
+
+ 为ng-table 设置属性 ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/AngularJS%E4%B8%AD%E4%BD%BF%E7%94%A8ngTable/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/AngularJS%E5%8F%91%E9%80%81%E5%BC%82%E6%AD%A5Get-Post%E8%AF%B7%E6%B1%82/">AngularJS发送异步Get/Post请求</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#AngularJs" >
+    <span class="tag-code">AngularJs</span>
+  </a>
+
+  <a href="/tags#Request" >
+    <span class="tag-code">Request</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+           1 . 在页面中加入AngularJS并为页面绑定ng-app 和 ng-controller
+1234&lt;body ng-app&#x3D;&quot;MyApp&quot; ng-controller&#x3D;&quot;MyCtrl&quot; &gt;...&lt;scrip ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/AngularJS%E5%8F%91%E9%80%81%E5%BC%82%E6%AD%A5Get-Post%E8%AF%B7%E6%B1%82/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/HTML%E4%B8%AD%E4%BD%BF%E7%94%A8Ajax%E8%BF%9B%E8%A1%8C%E5%B1%80%E9%83%A8%E5%88%B7%E6%96%B0%E9%A1%B5%E9%9D%A2/">HTML中使用Ajax进行局部刷新页面</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#HTML" >
+    <span class="tag-code">HTML</span>
+  </a>
+
+  <a href="/tags#Jquery" >
+    <span class="tag-code">Jquery</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          #HTML中使用Ajax进行局部刷新页面，使用JS将数据发送到后台
+
+##1.在HTML页面中使用js脚本将请求数据发送给后台servlet
+
+由按钮触发事件
+
+1&lt;button id&#x3D;&quot;select&quot; onclick&#x3D;&quot;queryIn ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/HTML%E4%B8%AD%E4%BD%BF%E7%94%A8Ajax%E8%BF%9B%E8%A1%8C%E5%B1%80%E9%83%A8%E5%88%B7%E6%96%B0%E9%A1%B5%E9%9D%A2/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/%E8%A7%A3%E5%86%B3%E4%BB%8EGitHub%E4%B8%8A%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6%E6%85%A2%E7%9A%84%E9%97%AE%E9%A2%98/">解决从GitHub上下载文件慢的问题</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Experience" >
+    <span class="tag-code">Experience</span>
+  </a>
+
+  <a href="/tags#GitHub" >
+    <span class="tag-code">GitHub</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          
+解决从GitHub上下载文件慢的问题从GitHub下载文件一直非常慢，查看下载链接发现最终被指向了Amazon的服务器，下载地址是http://github-cloud.s3.amazonaws.com/，从国内访问Amazon非常慢，所以总是下载失败，解决方法时更改host文件，使该域名 ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/%E8%A7%A3%E5%86%B3%E4%BB%8EGitHub%E4%B8%8A%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6%E6%85%A2%E7%9A%84%E9%97%AE%E9%A2%98/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B5%8B%E8%AF%95/">Gauge中执行数据库测试</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Gauge" >
+    <span class="tag-code">Gauge</span>
   </a>
 
   <a href="/tags#Test" >
     <span class="tag-code">Test</span>
   </a>
 
-  <a href="/tags#Junit" >
-    <span class="tag-code">Junit</span>
+      
+      <div class="article-summary">
+        
+          
+使用Gauge对数据库的增删改查进行测试
+
+
+打开数据库连接
+.spec文件
+
+1* open connection before crud
+
+.java文件
+
+1234567891011121314151617private Connection connection;private P ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B5%8B%E8%AF%95/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8CHttp%E8%AF%B7%E6%B1%82%E6%B5%8B%E8%AF%95/">Gauge中执行Http请求测试</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
   </a>
 
-  <a href="/tags#Jacoco" >
-    <span class="tag-code">Jacoco</span>
+  <a href="/tags#Gauge" >
+    <span class="tag-code">Gauge</span>
+  </a>
+
+  <a href="/tags#Test" >
+    <span class="tag-code">Test</span>
   </a>
 
       
       <div class="article-summary">
         
-          Gradle 添加 Jacoco 分析单元测试覆盖率工具
-Jacoco  是一个免费的 Java 单元测试覆盖率分析工具，在 Gradle 中添加插件，在编译的同事进行单元测试覆盖率分析
+          
+通过Gauge执行自动化测试，测试Http请求
 
-配置1234567891011121314151617181920212223242526272829 ...
+
+通过Java发送Http 请求来测试服务器请求执行状态
+
+
+##GET请求
+
+.spec文件
+
+123456## query userquery all usertags: query,request,http* query user
+
+ ...
         
       </div>
-      <a class="more" href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-Jacoco-%E5%88%86%E6%9E%90%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E5%B7%A5%E5%85%B7/">Read more</a>
+      <a class="more" href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8CHttp%E8%AF%B7%E6%B1%82%E6%B5%8B%E8%AF%95/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2018/01/01/Java-%E5%B0%86%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E4%B8%8A%E4%BC%A0%E5%88%B0-Codecov/">Java 将单元测试覆盖率上传到 Codecov</a>
+        <a href="/2018/01/01/%E4%BD%BF%E7%94%A8Gradle%E7%BC%96%E8%AF%91%E6%89%A7%E8%A1%8CGague%E9%A1%B9%E7%9B%AE/">使用Gradle编译执行Gague项目</a>
       </h2>
       <p class="article-date">January 1, 2018</p>
       
         
-  <a href="/tags#SpringBoot" >
-    <span class="tag-code">SpringBoot</span>
-  </a>
-
   <a href="/tags#Java" >
     <span class="tag-code">Java</span>
   </a>
@@ -767,31 +657,168 @@ Jacoco  是一个免费的 Java 单元测试覆盖率分析工具，在 Gradle �
     <span class="tag-code">Gradle</span>
   </a>
 
+  <a href="/tags#Gauge" >
+    <span class="tag-code">Gauge</span>
+  </a>
+
   <a href="/tags#Test" >
     <span class="tag-code">Test</span>
-  </a>
-
-  <a href="/tags#Junit" >
-    <span class="tag-code">Junit</span>
-  </a>
-
-  <a href="/tags#Codecov" >
-    <span class="tag-code">Codecov</span>
   </a>
 
       
       <div class="article-summary">
         
-          将单元测试覆盖率上传到 Codecov
-通过使用 Jacoco 生成单元测试覆盖率报告，并将该报告上传到 Codecov
+          使用Gradle编译运行Gauge项目可以很大程度解决依赖的问题，并且可以根据需要创建多个不同的Task来在不同的环境运行或执行不同的操作
 
-配置 Jacoco
-配置 build.gradle 文件(以 SpringBoot 应用为例)
-
-12345678910111213141516171819202122 ...
+创建Gauge项目
+首先在IDEA中创建一个Gauge项目
+打开命令行，执行gradle init 初始化Gradle项目
+修改build.gradl ...
         
       </div>
-      <a class="more" href="/2018/01/01/Java-%E5%B0%86%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E4%B8%8A%E4%BC%A0%E5%88%B0-Codecov/">Read more</a>
+      <a class="more" href="/2018/01/01/%E4%BD%BF%E7%94%A8Gradle%E7%BC%96%E8%AF%91%E6%89%A7%E8%A1%8CGague%E9%A1%B9%E7%9B%AE/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8C%E9%92%A9%E5%AD%90-Hook/">Gauge中执行钩子(Hook)</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Gauge" >
+    <span class="tag-code">Gauge</span>
+  </a>
+
+  <a href="/tags#Test" >
+    <span class="tag-code">Test</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          本文所有内容均参考自Gauge官方文档
+
+
+钩子可以理解为Java中的AOP(Aspect Oriented Programming)，把Specification或Scenario当做一个切面，在执行之前和执行之后做一些操作
+
+
+Suit Hook
+作用于所有的Specification， ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8C%E9%92%A9%E5%AD%90-Hook/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8C%E6%B5%8B%E8%AF%95%E7%9A%84%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">Gauge中执行测试的常用命令</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Gauge" >
+    <span class="tag-code">Gauge</span>
+  </a>
+
+  <a href="/tags#Test" >
+    <span class="tag-code">Test</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          本文所有内容均参考自Gauge官方文档s
+
+#初始化Java项目
+
+会在指定的文件夹下创建一个新的Gauge项目，如果没有安装Java和Html-report插件会自动安装
+
+1gauge --init java
+
+
+
+执行项目通过文件执行
+执行specs文件夹下所有.spec文件
+
+1ga ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8C%E6%B5%8B%E8%AF%95%E7%9A%84%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Gauge-%E4%B8%ADStep%E4%BD%BF%E7%94%A8%E5%88%AB%E5%90%8D/">Gauge 中Step使用别名</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Gauge" >
+    <span class="tag-code">Gauge</span>
+  </a>
+
+  <a href="/tags#Test" >
+    <span class="tag-code">Test</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          所有内容均来自Gauge官网文档
+
+##在执行的过程中，可能需要使用不同的名称来执行同样的操作，所以使用别名来区分
+
+
+在这个Scenario中，第一步和第三步是相同的操作，但是表示的方式不同
+
+12345678User Creation&#x3D;&#x3D;&#x3D;&#x3D;&#x ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Gauge-%E4%B8%ADStep%E4%BD%BF%E7%94%A8%E5%88%AB%E5%90%8D/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Gauge%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">Gauge基础知识</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Gauge" >
+    <span class="tag-code">Gauge</span>
+  </a>
+
+  <a href="/tags#Test" >
+    <span class="tag-code">Test</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          本文所有内容均参照自Gauge官方文档
+
+
+#基本思想Gauge入门比较简单，Gauge的基本思想就是通过.spec 或者.md 文件，使用MarkDown语法去规定执行的动作，然后由Java或者其他语言的文件去按照所写的.spec 或者.md 文件的顺序去执行Java文件，从而达到测试的目 ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Gauge%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">Read more</a>
     </article>
   
 

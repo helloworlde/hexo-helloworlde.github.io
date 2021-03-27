@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC Server 端启动流程 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC Server 端启动流程</h2>
+  <p class="post-date">2020-12-05</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-Server-端启动流程"><a href="#gRPC-Server-端启动流程" class="headerlink" title="gRPC Server 端启动流程"></a>gRPC Server 端启动流程</h1><p>gRPC Server 启动流程，底层实现以 Netty 为例；</p>
+<h2 id="核心类"><a href="#核心类" class="headerlink" title="核心类"></a>核心类</h2><ul>
+<li><code>io.grpc.Server</code> </li>
+</ul>
+<p>Server 的定义接口，实现类是 <code>io.grpc.internal.ServerImpl</code>，实现了服务、方法与方法处理器的绑定，端口监听，不同类型的 Server 实现的调用，Server 生命周期管理等</p>
+<ul>
+<li><code>io.grpc.BindableService</code></li>
+</ul>
+<p>由编译器生成的服务抽象类的基础接口，并将实现类绑定到服务器，提供将服务的实现的实例绑定到 Server 的方式</p>
+<ul>
+<li><code>io.grpc.ServerInterceptor</code></li>
+</ul>
+<p>Server 端的拦截器，在方法调用之前会被调用</p>
+<ul>
+<li><code>io.grpc.HandlerRegistry</code></li>
+</ul>
+<p>方法处理器注册器，所有的方法注册器会注册在这里，通过服务名和方法名查找</p>
+<ul>
+<li><code>io.grpc.ServerServiceDefinition</code></li>
+</ul>
+<p>服务定义，包含服务描述信息，方法信息集合</p>
+<ul>
+<li><code>io.grpc.ServerMethodDefinition</code></li>
+</ul>
+<p>方法定义，包含方法描述信息，方法处理器</p>
+<h2 id="启动流程"><a href="#启动流程" class="headerlink" title="启动流程"></a>启动流程</h2><h3 id="启动大致流程"><a href="#启动大致流程" class="headerlink" title="启动大致流程"></a>启动大致流程</h3><ol>
+<li>创建 <code>ServerBuilder</code></li>
+<li>指定端口</li>
+<li>为 <code>ServerBuilder</code> 添加方法<ol>
+<li>构建服务定义<ol>
+<li>通过生成的代码构建方法定义，将方法与处理器绑定</li>
+<li>将方法处理器添加到方法定义中</li>
+<li>将服务定义添加到服务注册器中</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>添加拦截器等其他的配置</li>
+<li>构建 <code>Server</code> 实例<ol>
+<li>构建 <code>ServerTransport</code> 实例<ol start="2">
+<li>遍历所有监听的地址，创建相应的  <code>NettyServer</code></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>启动 <code>Server</code><ol>
+<li>遍历所有的 <code>NettyServer</code>，调用 <code>start</code> 方法启动<ol>
+<li>创建相应的 <code>ServerBootstrap</code>，绑定监听的地址，可以接受连接</li>
+<li>创建 <code>NettyServerTransport</code>，调用 <code>start</code> 方法启动 <code>Transport</code></li>
+<li>为 <code>NettyServerTransport</code> 创建 <code>NettyServerHandler</code>，用于处理请求</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>保持 <code>Server</code> 启动状态，启动完成</li>
+</ol>
+<h3 id="Server-定义"><a href="#Server-定义" class="headerlink" title="Server 定义"></a>Server 定义</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Server server = ServerBuilder.forPort(<span class="number">1234</span>) </span><br><span class="line">                             .addService(<span class="keyword">new</span> HelloServiceImpl()) </span><br><span class="line">                             .intercept(<span class="keyword">new</span> CustomServerInterceptor())</span><br><span class="line">                             .build();</span><br><span class="line">server.start();</span><br><span class="line">server.awaitTermination();</span><br></pre></td></tr></table></figure>
+
+<h4 id="绑定端口"><a href="#绑定端口" class="headerlink" title="绑定端口"></a>绑定端口</h4><p>指定了要监听的端口，会根据不同的 <code>Server</code> 实现绑定端口</p>
+<ul>
+<li>io.grpc.ServerBuilder#forPort</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ServerBuilder&lt;?&gt; forPort(<span class="keyword">int</span> port) &#123;</span><br><span class="line">    <span class="keyword">return</span> ServerProvider.provider().builderForPort(port);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.NettyServerProvider#builderForPort</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> NettyServerBuilder <span class="title">builderForPort</span><span class="params">(<span class="keyword">int</span> port)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> NettyServerBuilder.forPort(port);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.NettyServerBuilder#NettyServerBuilder(int)</li>
+</ul>
+<p>最终会使用指定的端口，创建 <code>InetSocketAddress</code> 并将其加入到监听的地址集合中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">NettyServerBuilder</span><span class="params">(<span class="keyword">int</span> port)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 将本地 IP 和端口的地址添加到监听的地址集合中</span></span><br><span class="line">    <span class="keyword">this</span>.listenAddresses.add(<span class="keyword">new</span> InetSocketAddress(port));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="绑定服务"><a href="#绑定服务" class="headerlink" title="绑定服务"></a>绑定服务</h4><p>将指定的服务实现类添加到方法注册器中</p>
+<ul>
+<li>io.grpc.internal.AbstractServerImplBuilder#addService(io.grpc.BindableService)</li>
+</ul>
+<p>添加的服务是 <code>BindableService</code> 接口的实现类的实例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> T <span class="title">addService</span><span class="params">(BindableService bindableService)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> addService(checkNotNull(bindableService, <span class="string">&quot;bindableService&quot;</span>).bindService());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.github.helloworlde.HelloServiceGrpc.HelloServiceImplBase#bindService</li>
+</ul>
+<p>这个方法是生成的代码，里面创建了服务定义、并绑定了方法与处理器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> io.grpc.<span class="function">ServerServiceDefinition <span class="title">bindService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())</span><br><span class="line">                                          .addMethod(getHowAreYouMethod(), asyncUnaryCall(<span class="keyword">new</span> MethodHandlers&lt;io.github.helloworlde.HelloMessage, io.github.helloworlde.HelloResponse&gt;(<span class="keyword">this</span>, METHODID_HOW_ARE_YOU)))</span><br><span class="line">                                          .build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>addMethod</code> 会获取方法，为方法绑定处理器，即当前的实现类，并构建方法定义；其中 <code>getHowAreYouMethod</code>用于获取方法定义，最终返回包含方法类型、全名、编解码等方法描述信息的实例</p>
+<ul>
+<li>io.github.helloworlde.HelloServiceGrpc.MethodHandlers#MethodHandlers</li>
+</ul>
+<p>通过方法实现类实例和方法的 ID 构建 <code>MethodHandlers</code>实例，这个方法也是生成的，在处理请求时会根据方法的 ID 选择不同的实现类调用相应的方法处理请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">MethodHandlers(HelloServiceImplBase serviceImpl, <span class="keyword">int</span> methodId) &#123;</span><br><span class="line">    <span class="keyword">this</span>.serviceImpl = serviceImpl;</span><br><span class="line">    <span class="keyword">this</span>.methodId = methodId;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@java</span>.lang.Override</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">invoke</span><span class="params">(Req request, io.grpc.stub.StreamObserver&lt;Resp&gt; responseObserver)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (methodId) &#123;</span><br><span class="line">        <span class="keyword">case</span> METHODID_HOW_ARE_YOU:</span><br><span class="line">            serviceImpl.howAreYou((io.github.helloworlde.HelloMessage) request,</span><br><span class="line">                    (io.grpc.stub.StreamObserver&lt;io.github.helloworlde.HelloResponse&gt;) responseObserver);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.stub.ServerCalls#asyncUnaryCall</li>
+</ul>
+<p>会根据构建的 <code>MethodHandlers</code>  创建相应类型请求的处理器，并将其加入到服务定义中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;ReqT, RespT&gt; <span class="function">ServerCallHandler&lt;ReqT, RespT&gt; <span class="title">asyncUnaryCall</span><span class="params">(UnaryMethod&lt;ReqT, RespT&gt; method)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> UnaryServerCallHandler&lt;&gt;(method);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建的 <code>UnaryServerCallHandler</code> 会在服务端 <code>onHalfClose</code> 时调用构建的 <code>UnaryMethod</code>的<code>invoke</code>方法，处理请求</p>
+<ul>
+<li>io.grpc.ServerServiceDefinition.Builder#build</li>
+</ul>
+<p>遍历服务中的所有的方法，构建服务定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public ServerServiceDefinition build() &#123;</span><br><span class="line">    ServiceDescriptor serviceDescriptor &#x3D; this.serviceDescriptor;</span><br><span class="line">    &#x2F;&#x2F; 如果服务定义为 null，则遍历方法，用服务名和方法集合构建新的服务定义</span><br><span class="line">    if (serviceDescriptor &#x3D;&#x3D; null) &#123;</span><br><span class="line">        List&lt;MethodDescriptor&lt;?, ?&gt;&gt; methodDescriptors &#x3D; new ArrayList&lt;&gt;(methods.size());</span><br><span class="line">        for (ServerMethodDefinition&lt;?, ?&gt; serverMethod : methods.values()) &#123;</span><br><span class="line">            methodDescriptors.add(serverMethod.getMethodDescriptor());</span><br><span class="line">        &#125;</span><br><span class="line">        serviceDescriptor &#x3D; new ServiceDescriptor(serviceName, methodDescriptors);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Map&lt;String, ServerMethodDefinition&lt;?, ?&gt;&gt; tmpMethods &#x3D; new HashMap&lt;&gt;(methods);</span><br><span class="line">    &#x2F;&#x2F; 遍历方法定义，校验是否所有的方法都在方法定义中</span><br><span class="line">    for (MethodDescriptor&lt;?, ?&gt; descriptorMethod : serviceDescriptor.getMethods()) &#123;</span><br><span class="line">        ServerMethodDefinition&lt;?, ?&gt; removed &#x3D; tmpMethods.remove(descriptorMethod.getFullMethodName());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 根据服务定义和方法定义集合构建服务定义</span><br><span class="line">    return new ServerServiceDefinition(serviceDescriptor, methods);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractServerImplBuilder#addService(io.grpc.ServerServiceDefinition)</li>
+</ul>
+<p>将服务定义添加到服务注册器中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> T <span class="title">addService</span><span class="params">(ServerServiceDefinition service)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 将服务添加到处理器中</span></span><br><span class="line">    registryBuilder.addService(checkNotNull(service, <span class="string">&quot;service&quot;</span>));</span><br><span class="line">    <span class="keyword">return</span> thisT();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.InternalHandlerRegistry.Builder#addService</li>
+</ul>
+<p>最终将服务定义添加到注册器的 Map 中，key 是服务的全名，value 是服务定义；<br>这样就可以在处理请求时根据请求中的服务和方法名称，在注册器中查找对应的方法的处理器，实现调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Builder <span class="title">addService</span><span class="params">(ServerServiceDefinition service)</span> </span>&#123;</span><br><span class="line">    services.put(service.getServiceDescriptor().getName(), service);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="绑定拦截器"><a href="#绑定拦截器" class="headerlink" title="绑定拦截器"></a>绑定拦截器</h4><ul>
+<li>io.grpc.internal.AbstractServerImplBuilder#intercept</li>
+</ul>
+<p>通过 <code>intercept</code> 方法，将拦截器添加到拦截器集合中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> T <span class="title">intercept</span><span class="params">(ServerInterceptor interceptor)</span> </span>&#123;</span><br><span class="line">    interceptors.add(checkNotNull(interceptor, <span class="string">&quot;interceptor&quot;</span>));</span><br><span class="line">    <span class="keyword">return</span> thisT();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="构建-Server-实例"><a href="#构建-Server-实例" class="headerlink" title="构建 Server 实例"></a>构建 Server 实例</h4><ul>
+<li>io.grpc.internal.AbstractServerImplBuilder#build</li>
+</ul>
+<p>在构建器中创建 <code>Server</code> 的实例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Server <span class="title">build</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ServerImpl(<span class="keyword">this</span>, buildTransportServers(getTracerFactories()), Context.ROOT);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.NettyServerBuilder#buildTransportServers</li>
+</ul>
+<p>构建 <code>Server</code> 的 <code>Transport</code>，会为每个监听的地址都构建一个 <code>NettyServer</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> List&lt;NettyServer&gt; <span class="title">buildTransportServers</span><span class="params">(List&lt;? extends ServerStreamTracer.Factory&gt; streamTracerFactories)</span> </span>&#123;</span><br><span class="line">    assertEventLoopsAndChannelType();</span><br><span class="line"></span><br><span class="line">    ProtocolNegotiator negotiator = protocolNegotiator;</span><br><span class="line">    <span class="keyword">if</span> (negotiator == <span class="keyword">null</span>) &#123;</span><br><span class="line">        negotiator = sslContext != <span class="keyword">null</span> ? ProtocolNegotiators.serverTls(sslContext, <span class="keyword">this</span>.getExecutorPool()) : ProtocolNegotiators.serverPlaintext();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    List&lt;NettyServer&gt; transportServers = <span class="keyword">new</span> ArrayList&lt;&gt;(listenAddresses.size());</span><br><span class="line">    <span class="comment">// 为每一个监听的地址构建一个 NettyServer</span></span><br><span class="line">    <span class="keyword">for</span> (SocketAddress listenAddress : listenAddresses) &#123;</span><br><span class="line">        NettyServer transportServer = <span class="keyword">new</span> NettyServer(listenAddress,</span><br><span class="line">                channelFactory,</span><br><span class="line">                channelOptions,</span><br><span class="line">                childChannelOptions,</span><br><span class="line">                bossEventLoopGroupPool,</span><br><span class="line">                workerEventLoopGroupPool,</span><br><span class="line">                forceHeapBuffer,</span><br><span class="line">                negotiator,</span><br><span class="line">                streamTracerFactories,</span><br><span class="line">                getTransportTracerFactory(),</span><br><span class="line">                maxConcurrentCallsPerConnection,</span><br><span class="line">                autoFlowControl,</span><br><span class="line">                flowControlWindow,</span><br><span class="line">                maxMessageSize,</span><br><span class="line">                maxHeaderListSize,</span><br><span class="line">                keepAliveTimeInNanos,</span><br><span class="line">                keepAliveTimeoutInNanos,</span><br><span class="line">                maxConnectionIdleInNanos,</span><br><span class="line">                maxConnectionAgeInNanos,</span><br><span class="line">                maxConnectionAgeGraceInNanos,</span><br><span class="line">                permitKeepAliveWithoutCalls,</span><br><span class="line">                permitKeepAliveTimeInNanos,</span><br><span class="line">                getChannelz());</span><br><span class="line">        transportServers.add(transportServer);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> Collections.unmodifiableList(transportServers);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl#ServerImpl</li>
+</ul>
+<p>创建 <code>ServerImpl</code> 实例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">ServerImpl(AbstractServerImplBuilder&lt;?&gt; builder,</span><br><span class="line">           List&lt;? extends InternalServer&gt; transportServers,</span><br><span class="line">           Context rootContext) &#123;</span><br><span class="line">    <span class="keyword">this</span>.executorPool = Preconditions.checkNotNull(builder.executorPool, <span class="string">&quot;executorPool&quot;</span>);</span><br><span class="line">    <span class="keyword">this</span>.registry = Preconditions.checkNotNull(builder.registryBuilder.build(), <span class="string">&quot;registryBuilder&quot;</span>);</span><br><span class="line">    <span class="keyword">this</span>.fallbackRegistry = Preconditions.checkNotNull(builder.fallbackRegistry, <span class="string">&quot;fallbackRegistry&quot;</span>);</span><br><span class="line">    Preconditions.checkNotNull(transportServers, <span class="string">&quot;transportServers&quot;</span>);</span><br><span class="line">    Preconditions.checkArgument(!transportServers.isEmpty(), <span class="string">&quot;no servers provided&quot;</span>);</span><br><span class="line">    <span class="keyword">this</span>.transportServers = <span class="keyword">new</span> ArrayList&lt;&gt;(transportServers);</span><br><span class="line">    <span class="keyword">this</span>.logId = InternalLogId.allocate(<span class="string">&quot;Server&quot;</span>, String.valueOf(getListenSocketsIgnoringLifecycle()));</span><br><span class="line">    <span class="comment">// Fork from the passed in context so that it does not propagate cancellation, it only</span></span><br><span class="line">    <span class="comment">// inherits values.</span></span><br><span class="line">    <span class="keyword">this</span>.rootContext = Preconditions.checkNotNull(rootContext, <span class="string">&quot;rootContext&quot;</span>).fork();</span><br><span class="line">    <span class="keyword">this</span>.decompressorRegistry = builder.decompressorRegistry;</span><br><span class="line">    <span class="keyword">this</span>.compressorRegistry = builder.compressorRegistry;</span><br><span class="line">    <span class="keyword">this</span>.transportFilters = Collections.unmodifiableList(<span class="keyword">new</span> ArrayList&lt;&gt;(builder.transportFilters));</span><br><span class="line">    <span class="keyword">this</span>.interceptors = builder.interceptors.toArray(<span class="keyword">new</span> ServerInterceptor[builder.interceptors.size()]);</span><br><span class="line">    <span class="keyword">this</span>.handshakeTimeoutMillis = builder.handshakeTimeoutMillis;</span><br><span class="line">    <span class="keyword">this</span>.binlog = builder.binlog;</span><br><span class="line">    <span class="keyword">this</span>.channelz = builder.channelz;</span><br><span class="line">    <span class="keyword">this</span>.serverCallTracer = builder.callTracerFactory.create();</span><br><span class="line">    <span class="keyword">this</span>.ticker = checkNotNull(builder.ticker, <span class="string">&quot;ticker&quot;</span>);</span><br><span class="line">    channelz.addServer(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动-Server"><a href="#启动-Server" class="headerlink" title="启动 Server"></a>启动 Server</h3><h4 id="启动-Server-1"><a href="#启动-Server-1" class="headerlink" title="启动 Server"></a>启动 Server</h4><ul>
+<li>io.grpc.internal.ServerImpl#start</li>
+</ul>
+<p>启动 <code>Server</code>，会创建服务监听器，遍历所有的监听的地址，并启动相应的 <code>Transport</code>，修改启动状态为 true</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ServerImpl <span class="title">start</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        checkState(!started, <span class="string">&quot;Already started&quot;</span>);</span><br><span class="line">        checkState(!shutdown, <span class="string">&quot;Shutting down&quot;</span>);</span><br><span class="line">        <span class="comment">// Start and wait for any ports to actually be bound.</span></span><br><span class="line">        <span class="comment">// 创建服务监听器实例</span></span><br><span class="line">        ServerListenerImpl listener = <span class="keyword">new</span> ServerListenerImpl();</span><br><span class="line">        <span class="comment">// 遍历 Server 并启动</span></span><br><span class="line">        <span class="keyword">for</span> (InternalServer ts : transportServers) &#123;</span><br><span class="line">            ts.start(listener);</span><br><span class="line">            activeTransportServers++;</span><br><span class="line">        &#125;</span><br><span class="line">        executor = Preconditions.checkNotNull(executorPool.getObject(), <span class="string">&quot;executor&quot;</span>);</span><br><span class="line">        started = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.NettyServer#start</li>
+</ul>
+<p>启动 Netty Server，会先创建 <code>ServerBootstrap</code>，然后在初始化 <code>Channel</code> 时会创建  <code>NettyServerTransport</code> 并调用其 start 方法启动，并将需要监听的地址绑定在  <code>ServerBootstrap</code> 上</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">(ServerListener serverListener)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">  listener = checkNotNull(serverListener, <span class="string">&quot;serverListener&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 用于启动 Netty ServerChannel</span></span><br><span class="line">  ServerBootstrap b = <span class="keyword">new</span> ServerBootstrap();</span><br><span class="line">  b.group(bossGroup, workerGroup);</span><br><span class="line"></span><br><span class="line">  b.childHandler(<span class="keyword">new</span> ChannelInitializer&lt;Channel&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(Channel ch)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">      ChannelPromise channelDone = ch.newPromise();</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 构建基于 Netty 的 ServerTransport</span></span><br><span class="line">      NettyServerTransport transport = <span class="keyword">new</span> NettyServerTransport(ch,</span><br><span class="line">              channelDone,</span><br><span class="line">              protocolNegotiator,</span><br><span class="line">              streamTracerFactories,</span><br><span class="line">              transportTracerFactory.create(),</span><br><span class="line">              maxStreamsPerConnection,</span><br><span class="line">              autoFlowControl,</span><br><span class="line">              flowControlWindow,</span><br><span class="line">              maxMessageSize,</span><br><span class="line">              maxHeaderListSize,</span><br><span class="line">              keepAliveTimeInNanos,</span><br><span class="line">              keepAliveTimeoutInNanos,</span><br><span class="line">              maxConnectionIdleInNanos,</span><br><span class="line">              maxConnectionAgeInNanos,</span><br><span class="line">              maxConnectionAgeGraceInNanos,</span><br><span class="line">              permitKeepAliveWithoutCalls,</span><br><span class="line">              permitKeepAliveTimeInNanos);</span><br><span class="line">      ServerTransportListener transportListener;</span><br><span class="line">      <span class="keyword">synchronized</span> (NettyServer.<span class="keyword">this</span>) &#123;</span><br><span class="line">        <span class="comment">// 调用监听器回调，Transport 创建事件</span></span><br><span class="line">        transportListener = listener.transportCreated(transport);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 启动监听器</span></span><br><span class="line">      transport.start(transportListener);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="comment">// 绑定地址，接受连接</span></span><br><span class="line">  ChannelFuture future = b.bind(address);</span><br><span class="line"></span><br><span class="line">  channel = future.channel();</span><br><span class="line">  channel.eventLoop().execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      listenSocketStats = <span class="keyword">new</span> ListenSocket(channel);</span><br><span class="line">      channelz.addListenSocket(listenSocketStats);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.ServerListenerImpl#transportCreated</li>
+</ul>
+<p><code>ServerTransport</code> 创建事件回调</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ServerTransportListener <span class="title">transportCreated</span><span class="params">(ServerTransport transport)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        transports.add(transport);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Transport 监听器</span></span><br><span class="line">    ServerTransportListenerImpl stli = <span class="keyword">new</span> ServerTransportListenerImpl(transport);</span><br><span class="line">    <span class="comment">// 初始化监听器，添加握手超时的取消任务</span></span><br><span class="line">    stli.init();</span><br><span class="line">    <span class="keyword">return</span> stli;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.NettyServerTransport#start</li>
+</ul>
+<p>启动 <code>NettyServerTransport</code>，会创建相应的 <code>NettyServerHandler</code> 用于处理请求；同时添加监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">(ServerTransportListener listener)</span> </span>&#123;</span><br><span class="line">    Preconditions.checkState(<span class="keyword">this</span>.listener == <span class="keyword">null</span>, <span class="string">&quot;Handler already registered&quot;</span>);</span><br><span class="line">    <span class="keyword">this</span>.listener = listener;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Create the Netty handler for the pipeline.</span></span><br><span class="line">    <span class="comment">// 为 pipeline 创建 Netty Handler</span></span><br><span class="line">    grpcHandler = createHandler(listener, channelUnused);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Notify when the channel closes.</span></span><br><span class="line">    <span class="comment">// 当 Channel 关闭的时候发送通知</span></span><br><span class="line">    <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">TerminationNotifier</span> <span class="keyword">implements</span> <span class="title">ChannelFutureListener</span> </span>&#123;</span><br><span class="line">        <span class="keyword">boolean</span> done;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(ChannelFuture future)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (!done) &#123;</span><br><span class="line">                done = <span class="keyword">true</span>;</span><br><span class="line">                notifyTerminated(grpcHandler.connectionError());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建 Handler</span></span><br><span class="line">    ChannelHandler negotiationHandler = protocolNegotiator.newHandler(grpcHandler);</span><br><span class="line">    ChannelHandler bufferingHandler = <span class="keyword">new</span> WriteBufferingAndExceptionHandler(negotiationHandler);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加监听器</span></span><br><span class="line">    ChannelFutureListener terminationNotifier = <span class="keyword">new</span> TerminationNotifier();</span><br><span class="line">    channelUnused.addListener(terminationNotifier);</span><br><span class="line">    channel.closeFuture().addListener(terminationNotifier);</span><br><span class="line"></span><br><span class="line">    channel.pipeline().addLast(bufferingHandler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="保持-Server-运行"><a href="#保持-Server-运行" class="headerlink" title="保持 Server 运行"></a>保持 Server 运行</h4><ul>
+<li>io.grpc.internal.ServerImpl#awaitTermination()</li>
+</ul>
+<p>通过轮询关闭的状态，如果没有关闭，则使锁等待，保持 Server 线程的运行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">awaitTermination</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        <span class="keyword">while</span> (!terminated) &#123;</span><br><span class="line">            lock.wait();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/11/18/gRPC-Channel/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC Channel
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/12/05/gRPC-Server-%E7%AB%AF%E5%85%B3%E9%97%AD%E6%B5%81%E7%A8%8B/">
+        
+          gRPC Server 端关闭流程
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-Server-%E7%AB%AF%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">gRPC Server 端启动流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%A0%B8%E5%BF%83%E7%B1%BB"><span class="toc-nav-text">核心类</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">启动流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8%E5%A4%A7%E8%87%B4%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">启动大致流程</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Server-%E5%AE%9A%E4%B9%89"><span class="toc-nav-text">Server 定义</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E7%BB%91%E5%AE%9A%E7%AB%AF%E5%8F%A3"><span class="toc-nav-text">绑定端口</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E7%BB%91%E5%AE%9A%E6%9C%8D%E5%8A%A1"><span class="toc-nav-text">绑定服务</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E7%BB%91%E5%AE%9A%E6%8B%A6%E6%88%AA%E5%99%A8"><span class="toc-nav-text">绑定拦截器</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%9E%84%E5%BB%BA-Server-%E5%AE%9E%E4%BE%8B"><span class="toc-nav-text">构建 Server 实例</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Server"><span class="toc-nav-text">启动 Server</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Server-1"><span class="toc-nav-text">启动 Server</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E4%BF%9D%E6%8C%81-Server-%E8%BF%90%E8%A1%8C"><span class="toc-nav-text">保持 Server 运行</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2020/12/05/gRPC-Server-端启动流程/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC Server 端启动流程",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

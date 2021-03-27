@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC 对冲请求取消流程 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC 对冲请求取消流程</h2>
+  <p class="post-date">2021-02-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-对冲请求取消流程"><a href="#gRPC-对冲请求取消流程" class="headerlink" title="gRPC 对冲请求取消流程"></a>gRPC 对冲请求取消流程</h1><p>当客户端接收到对冲请求集合中的一个完成时，会取消其他的请求，被取消的请求最终会提交一个 CancelClientStreamCommand，发送一个 RST_STEAM 请求；当服务端接受到这个流后，如果监听器还没有关闭，会执行取消上下文的操作，最终将这个请求取消</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-hedging-request-cancel.svg" alt="grpc-hedging-request-cancel.svg"></p>
+<h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><p>当客户端成功接收到响应会，会在 io.grpc.internal.RetriableStream.Sublistener#close 中将成功的流进行提交</p>
+<ul>
+<li>io.grpc.internal.RetriableStream#commit$CommitTask#run </li>
+</ul>
+<p>在提交时，会通过提交 CommitTask 将其他的流取消</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CommitTask</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 遍历保存的枯竭的流，如果不是最后提交的流，则都取消</span></span><br><span class="line">        <span class="keyword">for</span> (Substream substream : savedDrainedSubstreams) &#123;</span><br><span class="line">            <span class="keyword">if</span> (substream != winningSubstream) &#123;</span><br><span class="line">                substream.stream.cancel(CANCELLED_BECAUSE_COMMITTED);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 如果有重试中的，则取消</span></span><br><span class="line">        <span class="keyword">if</span> (retryFuture != <span class="keyword">null</span>) &#123;</span><br><span class="line">            retryFuture.cancel(<span class="keyword">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 如果有对冲中的，则取消</span></span><br><span class="line">        <span class="keyword">if</span> (hedgingFuture != <span class="keyword">null</span>) &#123;</span><br><span class="line">            hedgingFuture.cancel(<span class="keyword">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将当前流从未提交的流中移除</span></span><br><span class="line">        postCommit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractClientStream#cancel</li>
+</ul>
+<p>使用指定的原因取消流</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">cancel</span><span class="params">(Status reason)</span> </span>&#123;</span><br><span class="line">    Preconditions.checkArgument(!reason.isOk(), <span class="string">&quot;Should not cancel with OK status&quot;</span>);</span><br><span class="line">    cancelled = <span class="keyword">true</span>;</span><br><span class="line">    abstractClientStreamSink().cancel(reason);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.shaded.io.grpc.netty.NettyClientStream.Sink#cancel</li>
+</ul>
+<p>提交取消流的指令</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancel</span><span class="params">(Status status)</span> </span>&#123;</span><br><span class="line">    PerfMark.startTask(<span class="string">&quot;NettyClientStream$Sink.cancel&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        NettyClientStream.<span class="keyword">this</span>.writeQueue.enqueue(<span class="keyword">new</span> CancelClientStreamCommand(NettyClientStream.<span class="keyword">this</span>.transportState(), status), <span class="keyword">true</span>);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        PerfMark.stopTask(<span class="string">&quot;NettyClientStream$Sink.cancel&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.shaded.io.grpc.netty.NettyClientHandler#write</li>
+</ul>
+<p>在执行写入消息时，写入取消指令</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(ChannelHandlerContext ctx, Object msg, ChannelPromise promise)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (msg <span class="keyword">instanceof</span> CreateStreamCommand) &#123;</span><br><span class="line">        <span class="keyword">this</span>.createStream((CreateStreamCommand)msg, promise);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (msg <span class="keyword">instanceof</span> SendGrpcFrameCommand) &#123;</span><br><span class="line">        <span class="keyword">this</span>.sendGrpcFrame(ctx, (SendGrpcFrameCommand)msg, promise);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (msg <span class="keyword">instanceof</span> CancelClientStreamCommand) &#123;</span><br><span class="line">        <span class="keyword">this</span>.cancelStream(ctx, (CancelClientStreamCommand)msg, promise);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (msg <span class="keyword">instanceof</span> SendPingCommand) &#123;</span><br><span class="line">        <span class="keyword">this</span>.sendPingFrame(ctx, (SendPingCommand)msg, promise);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (msg <span class="keyword">instanceof</span> GracefulCloseCommand) &#123;</span><br><span class="line">        <span class="keyword">this</span>.gracefulClose(ctx, (GracefulCloseCommand)msg, promise);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (msg <span class="keyword">instanceof</span> ForcefulCloseCommand) &#123;</span><br><span class="line">        <span class="keyword">this</span>.forcefulClose(ctx, (ForcefulCloseCommand)msg, promise);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (msg != NOOP_MESSAGE) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError(<span class="string">&quot;Write called for unexpected type: &quot;</span> + msg.getClass().getName());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ctx.write(Unpooled.EMPTY_BUFFER, promise);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.shaded.io.grpc.netty.NettyClientHandler#cancelStream</li>
+</ul>
+<p>执行取消命令的写入，在 transportReportStatus 会提交关闭监听器的指令，如果停止投递，同时也会选择执行或者延迟执行关闭帧<br>如果流存在，则会发送一个新的 RST_STREAM 请求，该请求表示当前流错误，错误状态为 CANCEL，即值为 8</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">cancelStream</span><span class="params">(ChannelHandlerContext ctx, CancelClientStreamCommand cmd, ChannelPromise promise)</span> </span>&#123;</span><br><span class="line">    TransportState stream = cmd.stream();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Status reason = cmd.reason();</span><br><span class="line">        <span class="keyword">if</span> (reason != <span class="keyword">null</span>) &#123;</span><br><span class="line">            stream.transportReportStatus(reason, <span class="keyword">true</span>, <span class="keyword">new</span> Metadata());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!cmd.stream().isNonExistent()) &#123;</span><br><span class="line">            <span class="keyword">this</span>.encoder().writeRstStream(ctx, stream.id(), Http2Error.CANCEL.code(), promise);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            promise.setSuccess();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        PerfMark.stopTask(<span class="string">&quot;NettyClientHandler.cancelStream&quot;</span>, stream.tag());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h2><ul>
+<li>io.grpc.netty.shaded.io.grpc.netty.NettyServerHandler.FrameListener#onRstStreamRead</li>
+</ul>
+<p>接收到的请求中，errorCode 为 8，代表请求被取消</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRstStreamRead</span><span class="params">(ChannelHandlerContext ctx, <span class="keyword">int</span> streamId, <span class="keyword">long</span> errorCode)</span> <span class="keyword">throws</span> Http2Exception </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (NettyServerHandler.<span class="keyword">this</span>.keepAliveManager != <span class="keyword">null</span>) &#123;</span><br><span class="line">        NettyServerHandler.<span class="keyword">this</span>.keepAliveManager.onDataReceived();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    NettyServerHandler.<span class="keyword">this</span>.onRstStreamRead(streamId, errorCode);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.shaded.io.grpc.netty.NettyServerHandler#onRstStreamRead</li>
+</ul>
+<p>然后会在 NettyServerHandler 中根据 streamId 获取流，如果流存在，则会以 CANCELLED 状态取消当前请求<br>需要注意的是，如果接收到这个请求时流已经完成被清除，则可能无法处理，请求会以 OK 状态完成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">onRstStreamRead</span><span class="params">(<span class="keyword">int</span> streamId, <span class="keyword">long</span> errorCode)</span> <span class="keyword">throws</span> Http2Exception </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        TransportState stream = <span class="keyword">this</span>.serverStream(<span class="keyword">this</span>.connection().stream(streamId));</span><br><span class="line">        <span class="keyword">if</span> (stream != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                stream.transportReportStatus(Status.CANCELLED.withDescription(<span class="string">&quot;RST_STREAM received for code &quot;</span> + errorCode));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable var9) &#123;</span><br><span class="line">        logger.log(Level.WARNING, <span class="string">&quot;Exception in onRstStreamRead()&quot;</span>, var9);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">this</span>.newStreamException(streamId, var9);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractServerStream.TransportState#transportReportStatus</li>
+</ul>
+<p>如果解帧器已经关闭，则使用取消状态关闭监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">transportReportStatus</span><span class="params">(<span class="keyword">final</span> Status status)</span> </span>&#123;</span><br><span class="line">    Preconditions.checkArgument(!status.isOk(), <span class="string">&quot;status must not be OK&quot;</span>);</span><br><span class="line">    <span class="comment">// 如果解帧器关闭，则关闭监听器</span></span><br><span class="line">    <span class="keyword">if</span> (deframerClosed) &#123;</span><br><span class="line">        deframerClosedTask = <span class="keyword">null</span>;</span><br><span class="line">        closeListener(status);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果解帧器还没有关闭，则创建关闭监听器的任务，并立即关闭解帧器</span></span><br><span class="line">        deframerClosedTask = <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                closeListener(status);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        immediateCloseRequested = <span class="keyword">true</span>;</span><br><span class="line">        closeDeframer(<span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractServerStream.TransportState#closeListener</li>
+</ul>
+<p>使用指定状态关闭监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">closeListener</span><span class="params">(Status newStatus)</span> </span>&#123;</span><br><span class="line">    Preconditions.checkState(!newStatus.isOk() || closedStatus != <span class="keyword">null</span>);</span><br><span class="line">    <span class="comment">// 如果监听器没有关闭，则根据状态操作</span></span><br><span class="line">    <span class="keyword">if</span> (!listenerClosed) &#123;</span><br><span class="line">        listenerClosed = <span class="keyword">true</span>;</span><br><span class="line">        <span class="comment">// 通知流的状态不可以再使用</span></span><br><span class="line">        onStreamDeallocated();</span><br><span class="line">        <span class="comment">// 使用指定状态关闭监听器</span></span><br><span class="line">        listener().closed(newStatus);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.JumpToApplicationThreadServerStreamListener#closedInternal</li>
+</ul>
+<p>使用 CANCELLED 状态，执行 ContextCloser 任务，取消上下文；然后提交 Closed 任务，取消<br>监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">closedInternal</span><span class="params">(<span class="keyword">final</span> Status status)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果状态不是 OK，则直接提交关闭 Context 任务</span></span><br><span class="line">    <span class="keyword">if</span> (!status.isOk()) &#123;</span><br><span class="line">        cancelExecutor.execute(<span class="keyword">new</span> ContextCloser(context, status.getCause()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Closed</span> <span class="keyword">extends</span> <span class="title">ContextRunnable</span> </span>&#123;</span><br><span class="line">        Closed() &#123;</span><br><span class="line">            <span class="keyword">super</span>(context);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">runInContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 调用监听器的关闭事件</span></span><br><span class="line">                getListener().closed(status);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    callExecutor.execute(<span class="keyword">new</span> Closed());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.ContextCloser#run</li>
+</ul>
+<p>执行提交的 ContextCloser 任务，取消上下文</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 执行时使用指定异常关闭 Context</span></span><br><span class="line">    context.cancel(cause);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.Context.CancellableContext#cancel</li>
+</ul>
+<p>执行 Context 取消事件，会修改 Context 的状态，取消等待的 deadline 任务，然后会通知并清除监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">cancel</span><span class="params">(Throwable cause)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> triggeredCancel = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">        <span class="comment">// 如果没有取消，则取消，并修改状态</span></span><br><span class="line">        <span class="keyword">if</span> (!cancelled) &#123;</span><br><span class="line">            cancelled = <span class="keyword">true</span>;</span><br><span class="line">            <span class="comment">// 如果有等待取消的任务，则取消</span></span><br><span class="line">            <span class="keyword">if</span> (pendingDeadline != <span class="keyword">null</span>) &#123;</span><br><span class="line">                pendingDeadline.cancel(<span class="keyword">false</span>);</span><br><span class="line">                pendingDeadline = <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">this</span>.cancellationCause = cause;</span><br><span class="line">            triggeredCancel = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果取消成功了，则通知监听器</span></span><br><span class="line">    <span class="keyword">if</span> (triggeredCancel) &#123;</span><br><span class="line">        notifyAndClearListeners();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> triggeredCancel;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.Context.CancellableContext#notifyAndClearListeners</li>
+</ul>
+<p>会通知当前的监听器进行取消，默认由两个监听器，一个是<code>CancellationListener</code>，用于取消当前上下文，另一个是 <code>ServerStreamCancellationListener</code> ，用于取消流；如果有其他的监听器，还会通知其他监听器取消，并移除监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">notifyAndClearListeners</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ArrayList&lt;ExecutableListener&gt; tmpListeners;</span><br><span class="line">    CancellationListener tmpParentListener;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">        <span class="comment">// 如果没有监听器则返回</span></span><br><span class="line">        <span class="keyword">if</span> (listeners == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        tmpParentListener = parentListener;</span><br><span class="line">        parentListener = <span class="keyword">null</span>;</span><br><span class="line">        tmpListeners = listeners;</span><br><span class="line">        listeners = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 在取消之前先通知事件，优先通知当前上下文</span></span><br><span class="line">    <span class="keyword">for</span> (ExecutableListener tmpListener : tmpListeners) &#123;</span><br><span class="line">        <span class="keyword">if</span> (tmpListener.context == <span class="keyword">this</span>) &#123;</span><br><span class="line">            tmpListener.deliver();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 通知其他的上下文</span></span><br><span class="line">    <span class="keyword">for</span> (ExecutableListener tmpListener : tmpListeners) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!(tmpListener.context == <span class="keyword">this</span>)) &#123;</span><br><span class="line">            tmpListener.deliver();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 移除引用的监听器</span></span><br><span class="line">    <span class="keyword">if</span> (cancellableAncestor != <span class="keyword">null</span>) &#123;</span><br><span class="line">        cancellableAncestor.removeListener(tmpParentListener);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerCallImpl.ServerStreamListenerImpl#ServerStreamListenerImpl</li>
+</ul>
+<p>最终会调用构造 ServerStreamListenerImpl 时添加的 Context.CancellationListener 的 cancelled 方法，将 ServerCallImpl 的 cancelled 状态改为 true</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.context.addListener(<span class="keyword">new</span> Context.CancellationListener() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancelled</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        ServerStreamListenerImpl.<span class="keyword">this</span>.call.cancelled = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;, MoreExecutors.directExecutor());</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.ServerTransportListenerImpl#StreamCreated$ServerStreamCancellationListener#cancelled</li>
+</ul>
+<p>执行创建流时添加的流取消监听器，如果没有异常信息，则会使用 <code>&quot;io.grpc.Context was cancelled without error&quot;</code>作为描述，更新状态</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancelled</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">    Status status = statusFromCancelled(context);</span><br><span class="line">    <span class="keyword">if</span> (DEADLINE_EXCEEDED.getCode().equals(status.getCode())) &#123;</span><br><span class="line">        <span class="comment">// This should rarely get run, since the client will likely cancel the stream</span></span><br><span class="line">        <span class="comment">// before the timeout is reached.</span></span><br><span class="line">        stream.cancel(status);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<ul>
+<li>io.grpc.internal.ServerCallImpl.ServerStreamListenerImpl#closedInternal</li>
+</ul>
+<p>在执行 OnClosed 任务时，会使用 CANCELLED 状态，触发 ServerCall.Listener 的 onCanncel 事件，如果有取消任务，会执行取消任务</p>
+<p>另外，无论请求成功与否，都会执行 <code>context.cancel(null)</code>，通知 <code>notifyAndClearListeners</code>取消上下文监听器和流监听器，然后移除监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">closedInternal</span><span class="params">(Status status)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 如果状态是 OK，通知监听器完成</span></span><br><span class="line">        <span class="keyword">if</span> (status.isOk()) &#123;</span><br><span class="line">            listener.onComplete();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 否则将状态改为取消，通知监听器取消</span></span><br><span class="line">            call.cancelled = <span class="keyword">true</span>;</span><br><span class="line">            listener.onCancel();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// 取消上下文</span></span><br><span class="line">        context.cancel(<span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/02/01/Thrift-%E4%B8%AD%E7%9A%84-Transport/">
+        <span class="nav-arrow">← </span>
+        
+          Thrift 中的 Transport
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/02/20/gRPC-%E6%9C%8D%E5%8A%A1%E9%97%B4%E8%B0%83%E7%94%A8%E4%BA%8B%E4%BB%B6%E6%B5%81%E7%A8%8B/">
+        
+          gRPC 服务间调用事件流程
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E5%AF%B9%E5%86%B2%E8%AF%B7%E6%B1%82%E5%8F%96%E6%B6%88%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">gRPC 对冲请求取消流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-nav-text">客户端</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-nav-text">服务端</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2021/02/20/gRPC-对冲请求取消流程/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC 对冲请求取消流程",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

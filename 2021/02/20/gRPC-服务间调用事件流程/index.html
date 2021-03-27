@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC 服务间调用事件流程 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC 服务间调用事件流程</h2>
+  <p class="post-date">2021-02-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-服务间调用事件流程"><a href="#gRPC-服务间调用事件流程" class="headerlink" title="gRPC 服务间调用事件流程"></a>gRPC 服务间调用事件流程</h1><h2 id="调用流程图"><a href="#调用流程图" class="headerlink" title="调用流程图"></a>调用流程图</h2><p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/gRPC%E8%AF%B7%E6%B1%82%E4%BA%8B%E4%BB%B6%E6%B5%81%E7%A8%8B.svg" alt="gRPC请求事件流程.svg"></p>
+<h2 id="可监听的事件"><a href="#可监听的事件" class="headerlink" title="可监听的事件"></a>可监听的事件</h2><h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><h4 id="ClientCall"><a href="#ClientCall" class="headerlink" title="ClientCall"></a>ClientCall</h4><p>客户端调用，用于执行客户端的调用行为</p>
+<ul>
+<li><code>checkStart</code>：开始调用</li>
+<li><code>request</code>：指定发送消息的数量</li>
+<li><code>sendMessage</code>：发送消息到缓冲区</li>
+<li><code>halfClose</code>：半关闭，会将消息发送给 Server 端</li>
+<li><code>cancel</code>：调用失败时取消</li>
+</ul>
+<h4 id="ClientCall-Listener"><a href="#ClientCall-Listener" class="headerlink" title="ClientCall.Listener"></a>ClientCall.Listener</h4><p>调用监听器，监听调用事件</p>
+<ul>
+<li> <code>onReady</code>：流就绪事件，用于非 <code>UNARY</code> 和 <code>SERVER_STREAM</code> 的请求</li>
+<li> <code>onHeaders</code>：当接收到 Server 端返回的 Header 时调用</li>
+<li> <code>onMessage</code>：当接收到 Server 端返回的 Message 时调用</li>
+<li> <code>onClose</code>：当流关闭时调用</li>
+</ul>
+<h4 id="ClientStreamTracer"><a href="#ClientStreamTracer" class="headerlink" title="ClientStreamTracer"></a>ClientStreamTracer</h4><p>流统计追踪，监听流的事件</p>
+<ul>
+<li><code>outboundHeaders</code>：发送 header 给 Server 端</li>
+<li><code>outboundMessage</code>：发送 message 给 Server 端</li>
+<li><code>inboundHeaders</code>：接收 Server 端返回的 headers</li>
+<li><code>inboundMessage</code>：接收 Server 端返回的 message</li>
+<li><code>inboundTrailers</code>：接收 Server 端返回的 trailers</li>
+<li><code>streamClosed</code>：流关闭时调用</li>
+</ul>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><h4 id="ServerTransportFilter"><a href="#ServerTransportFilter" class="headerlink" title="ServerTransportFilter"></a>ServerTransportFilter</h4><p>Server 端 Transport 事件过滤器，支持监听事件，修改 Transport 的属性</p>
+<ul>
+<li><code>transportReady</code>：Transport 就绪事件</li>
+<li><code>transportTerminated</code>：Transport 关闭事件</li>
+</ul>
+<h4 id="ServerStreamTracer"><a href="#ServerStreamTracer" class="headerlink" title="ServerStreamTracer"></a>ServerStreamTracer</h4><p>Server 端流事件追踪，监听流的事件</p>
+<ul>
+<li><code>filterContext</code>：创建 Context 时调用，支持修改 Context 的属性</li>
+<li><code>serverCallStarted</code>：创建 ServerCall 时调用</li>
+<li><code>inboundMessage</code>：接收客户端发送的 message</li>
+<li><code>outboundMessage</code>：发送 message 给客户端</li>
+<li><code>streamClosed</code>：流关闭时调用</li>
+</ul>
+<h4 id="ServerCall"><a href="#ServerCall" class="headerlink" title="ServerCall"></a>ServerCall</h4><p>Server 端调用，执行 Server 端调用行为</p>
+<ul>
+<li><code>request</code>：要求指定数量的消息</li>
+<li><code>sendHeaders</code>：发送 headers 给客户端</li>
+<li><code>sendMessage</code>：发送 message 给客户端</li>
+<li><code>close</code>：调用完成时关闭</li>
+</ul>
+<h4 id="ServerCall-Listener"><a href="#ServerCall-Listener" class="headerlink" title="ServerCall.Listener"></a>ServerCall.Listener</h4><p>Server 端调用监听器</p>
+<ul>
+<li><code>onReady</code>：流就绪事件</li>
+<li><code>onMessage</code>：接收到消息</li>
+<li><code>onHalfClose</code>：接收到半关闭事件</li>
+<li><code>onCancel</code>：流取消事件</li>
+<li><code>onComplete</code>：流完成事件</li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/02/20/gRPC-%E5%AF%B9%E5%86%B2%E8%AF%B7%E6%B1%82%E5%8F%96%E6%B6%88%E6%B5%81%E7%A8%8B/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC 对冲请求取消流程
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/02/20/Thrift-%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%82%E6%AD%A5%E8%AF%B7%E6%B1%82/">
+        
+          Thrift 客户端异步请求
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E6%9C%8D%E5%8A%A1%E9%97%B4%E8%B0%83%E7%94%A8%E4%BA%8B%E4%BB%B6%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">gRPC 服务间调用事件流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="toc-nav-text">调用流程图</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%AF%E7%9B%91%E5%90%AC%E7%9A%84%E4%BA%8B%E4%BB%B6"><span class="toc-nav-text">可监听的事件</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-nav-text">客户端</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#ClientCall"><span class="toc-nav-text">ClientCall</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#ClientCall-Listener"><span class="toc-nav-text">ClientCall.Listener</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#ClientStreamTracer"><span class="toc-nav-text">ClientStreamTracer</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-nav-text">服务端</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#ServerTransportFilter"><span class="toc-nav-text">ServerTransportFilter</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#ServerStreamTracer"><span class="toc-nav-text">ServerStreamTracer</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#ServerCall"><span class="toc-nav-text">ServerCall</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#ServerCall-Listener"><span class="toc-nav-text">ServerCall.Listener</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2021/02/20/gRPC-服务间调用事件流程/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC 服务间调用事件流程",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC Server 端请求处理流程 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC Server 端请求处理流程</h2>
+  <p class="post-date">2020-12-15</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-Server-端请求处理流程"><a href="#gRPC-Server-端请求处理流程" class="headerlink" title="gRPC Server 端请求处理流程"></a>gRPC Server 端请求处理流程</h1><p>[TOC]</p>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><ol>
+<li>创建并启动 ServerTransport</li>
+</ol>
+<p>在 Server 启动的时候，最终调用 <code>NettyServer</code> 的 <code>start()</code> 方法，为 <code>ServerBootstrap</code> 添加了 <code>ChannelInitializer</code>，最终，当有新的连接建立时，会由 <code>NettyServerHandler</code> 调用该类的 <code>initChannel</code> 方法，初始化一个 <code>NettyServerTransport</code></p>
+<ul>
+<li> io.grpc.netty.NettyServer#start</li>
+</ul>
+<p>在初始化 Netty Channel 时，会先创建 <code>NettyServerTransport</code>，然后调用监听器的 <code>Transport</code> 创建事件，添加一个超时取消任务；<br>然后会调用 <code>Transport</code> 的 <code>start</code> 方法启动 <code>Transport</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">b.childHandler(<span class="keyword">new</span> ChannelInitializer&lt;Channel&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(Channel ch)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 构建基于 Netty 的 ServerTransport</span></span><br><span class="line">        NettyServerTransport transport = <span class="keyword">new</span> NettyServerTransport(<span class="comment">/*...*/</span>);</span><br><span class="line">        ServerTransportListener transportListener;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">synchronized</span> (NettyServer.<span class="keyword">this</span>) &#123;</span><br><span class="line">            <span class="comment">// 调用监听器回调，Transport 创建事件</span></span><br><span class="line">            transportListener = listener.transportCreated(transport);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动监听器</span></span><br><span class="line">        transport.start(transportListener);</span><br><span class="line">        ChannelFutureListener loopReleaser = <span class="keyword">new</span> LoopReleaser();</span><br><span class="line">        channelDone.addListener(loopReleaser);</span><br><span class="line">        ch.closeFuture().addListener(loopReleaser);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.NettyServerTransport#start</li>
+</ul>
+<p>在启动 <code>Transport</code> 时，会为当前的 <code>Transport</code> 创建一个处理器，并绑定到 Netty  的 Channel 中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">(ServerTransportListener listener)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.listener = listener;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 为 pipeline 创建 Netty Handler</span></span><br><span class="line">    grpcHandler = createHandler(listener, channelUnused);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建 Handler</span></span><br><span class="line">    ChannelHandler negotiationHandler = protocolNegotiator.newHandler(grpcHandler);</span><br><span class="line">    ChannelHandler bufferingHandler = <span class="keyword">new</span> WriteBufferingAndExceptionHandler(negotiationHandler);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加监听器</span></span><br><span class="line">    ChannelFutureListener terminationNotifier = <span class="keyword">new</span> TerminationNotifier();</span><br><span class="line">    channelUnused.addListener(terminationNotifier);</span><br><span class="line">    channel.closeFuture().addListener(terminationNotifier);</span><br><span class="line"></span><br><span class="line">    channel.pipeline().addLast(bufferingHandler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="处理请求"><a href="#处理请求" class="headerlink" title="处理请求"></a>处理请求</h2><p>当 Server 与 Client 的连接建立成功之后，可以开始处理请求</p>
+<h4 id="请求整体处理流程"><a href="#请求整体处理流程" class="headerlink" title="请求整体处理流程"></a>请求整体处理流程</h4><ol>
+<li>读取 <code>Settings</code> 帧，触发 <code>Transport</code> <code>ready</code> 事件</li>
+<li>读取 <code>Header</code> 帧，触发 <code>FrameListener#onHeadersRead</code> 事件<ol start="3">
+<li>由 <code>NettyServerHandler</code> 处理<ol start="4">
+<li>根据 <code>Header</code> 里面的信息，获取相应的方法</li>
+<li>将 HTTP 流转换为 <code>NettyServerStream</code></li>
+<li>触发 <code>Transport#streamCreated</code> 事件<ol start="6">
+<li>检查编解码、解压缩等信息，创建可取消的上下文</li>
+<li>初始化流监听器</li>
+<li>提交 <code>StreamCreated</code> 任务</li>
+</ol>
+</li>
+<li>触发 <code>NettyServerStream.TransportState#onStreamAllocated</code> 事件<ol start="8">
+<li>提交 <code>OnReady</code> 任务</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>执行 <code>StreamCreated</code> 任务<ol start="10">
+<li>根据方法名查找方法定义</li>
+<li>调用 <code>startCall</code> 开始处理<ol start="12">
+<li>遍历拦截器，使用拦截器包装方法处理器</li>
+<li>调用 <code>startWrappedCall</code> 处理<ol start="14">
+<li>创建 <code>ServerCallImpl</code> 实例</li>
+<li>通过方法定义的请求处理器 <code>startCall</code> 方法处理<ol start="16">
+<li>创建响应观察器 <code>ServerCallStreamObserverImpl</code> 实例</li>
+<li>调用 <code>call.request()</code> 获取指定数量的消息<ol start="18">
+<li>提交 <code>RequestRunnable</code> 任务获取指定数量的消息</li>
+</ol>
+</li>
+<li>创建调用监听器 <code>UnaryServerCallListener</code></li>
+</ol>
+</li>
+<li>创建 <code>ServerStreamListenerImpl</code> 流监听器实例</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>执行 <code>OnReady</code> 任务<ol start="21">
+<li>调用 <code>UnaryServerCallListener#onReady</code> 处理 <code>Ready</code> 事件<ol start="22">
+<li>修改 <code>ready</code> 状态</li>
+<li>如果有 <code>onReadyHandler</code> 任务，则执行</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>执行 <code>RequestRunnable</code> 任务<ol start="25">
+<li>要求指定数量的消息</li>
+<li>修改等待投递的消息数量</li>
+<li>调用 <code>deliver</code> 方法投递<ol start="27">
+<li>如果有待投递的消息，根据类型进行投递<ol start="28">
+<li>当消息类型是消息体时，处理消息体<ol start="29">
+<li>读取消息体的流</li>
+<li>调用 <code>MessageFramer.Listener#messagesAvailable</code> 事件，通知新的消息</li>
+<li>提交 <code>MessagesAvailable</code> 任务</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>调用 <code>MessageDeframer#close</code> 方法关闭帧<ol start="33">
+<li>调用流监听器半关闭事件</li>
+<li>提交 <code>HalfClosed</code> 任务</li>
+</ol>
+</li>
+<li>执行 <code>MessagesAvailable</code> 任务    32. 从 <code>MessageProducer</code> 中获取消息，解析为请求对象    33. 调用 <code>SeverCall.Listener#onMessage</code> 方法处理消息<pre><code>34. 将 `request` 对象赋值给相应的对象，该对象会在 `halfClose` 时处理
+</code></pre>
+</li>
+<li>执行 <code>HalfClosed</code> 任务<ol start="36">
+<li>调用 <code>invoke</code> 方法，处理业务逻辑<ol start="37">
+<li>根据方法 ID，使用相应的实现调用业务逻辑<ol start="38">
+<li>调用 <code>StreamObserver#onNext</code> 发送响应<ol start="39">
+<li>发送响应 <code>Header</code><ol start="40">
+<li>设置编码和压缩的请求头</li>
+<li>写入 <code>Header</code></li>
+</ol>
+</li>
+<li>发送响应 <code>body</code><ol start="41">
+<li>将响应对象序列化为流</li>
+<li>写入响应</li>
+<li>清空缓存</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>调用 <code>StreamObserver#onComplete</code> 完成请求<ol start="45">
+<li>使用 <code>OK</code> 状态关闭调用<ol start="46">
+<li>修改关闭状态</li>
+<li>调用流关闭事件<ol start="48">
+<li>关闭帧</li>
+<li>将响应状态加入响应元数据中</li>
+<li>修改 <code>TransportState</code> 的状态</li>
+<li>写入响应元数据，发送给客户端</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>冻结响应</li>
+<li>如果 <code>ready</code> 状态，再次执行 <code>onReady</code> 事件</li>
+<li>当流关闭时，调用 <code>TransportState#complete</code> 事件<ol start="40">
+<li>关闭监听器</li>
+<li>提交 <code>Closed</code> 任务</li>
+</ol>
+</li>
+<li>执行 <code>Closed</code> 任务<ol start="43">
+<li>调用 <code>stream#complete</code>  事件</li>
+<li>取消上下文</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h4 id="1-读取-Settings-帧"><a href="#1-读取-Settings-帧" class="headerlink" title="1. 读取 Settings 帧"></a>1. 读取 Settings 帧</h4><ul>
+<li>io.grpc.netty.NettyServerHandler.FrameListener#onSettingsRead</li>
+</ul>
+<p>当读取到 Settings 帧时，会调用 onSettingsRead 方法，同时会同时 Transport 监听器 ready 事件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSettingsRead</span><span class="params">(ChannelHandlerContext ctx, Http2Settings settings)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (firstSettings) &#123;</span><br><span class="line">        firstSettings = <span class="keyword">false</span>;</span><br><span class="line">        <span class="comment">// 通知 Transport ready</span></span><br><span class="line">        attributes = transportListener.transportReady(negotiationAttributes);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.ServerTransportListenerImpl#transportReady</li>
+</ul>
+<p>会通知 Transport Ready 事件，会遍历 <code>ServerTransportFilter</code> 通知，默认没有 <code>ServerTransportFilter</code> 的实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Attributes <span class="title">transportReady</span><span class="params">(Attributes attributes)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果有握手超时回调，则取消</span></span><br><span class="line">    handshakeTimeoutFuture.cancel(<span class="keyword">false</span>);</span><br><span class="line">    handshakeTimeoutFuture = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历 TransportFilter，通知 ready 事件并获取 attributes</span></span><br><span class="line">    <span class="keyword">for</span> (ServerTransportFilter filter : transportFilters) &#123;</span><br><span class="line">        attributes = Preconditions.checkNotNull(filter.transportReady(attributes), <span class="string">&quot;Filter %s returned null&quot;</span>, filter);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.attributes = attributes;</span><br><span class="line">    <span class="keyword">return</span> attributes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-接收-header"><a href="#2-接收-header" class="headerlink" title="2. 接收 header"></a>2. 接收 header</h4><p>当 Server 接收到 Client 发送的 header 后，经过 Netty 处理，最终调用 <code>onHeadersRead</code> 开始处理流</p>
+<ul>
+<li>io.grpc.netty.shaded.io.grpc.netty.NettyServerHandler.FrameListener#onHeadersRead</li>
+</ul>
+<p>接收 header 帧</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onHeadersRead</span><span class="params">(ChannelHandlerContext ctx, <span class="keyword">int</span> streamId, Http2Headers headers, <span class="keyword">int</span> streamDependency, <span class="keyword">short</span> weight, <span class="keyword">boolean</span> exclusive, <span class="keyword">int</span> padding, <span class="keyword">boolean</span> endStream)</span> <span class="keyword">throws</span> Http2Exception </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (NettyServerHandler.<span class="keyword">this</span>.keepAliveManager != <span class="keyword">null</span>) &#123;</span><br><span class="line">        NettyServerHandler.<span class="keyword">this</span>.keepAliveManager.onDataReceived();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    NettyServerHandler.<span class="keyword">this</span>.onHeadersRead(ctx, streamId, headers);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.NettyServerHandler.FrameListener#onHeadersRead</li>
+</ul>
+<p>开始处理 header</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onHeadersRead</span><span class="params">(ChannelHandlerContext ctx,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> streamId,</span></span></span><br><span class="line"><span class="function"><span class="params">                          Http2Headers headers,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> streamDependency,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">short</span> weight,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">boolean</span> exclusive,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> padding,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">boolean</span> endStream)</span> <span class="keyword">throws</span> Http2Exception </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (keepAliveManager != <span class="keyword">null</span>) &#123;</span><br><span class="line">        keepAliveManager.onDataReceived();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 最终会创建流并出发流创建事件</span></span><br><span class="line">    NettyServerHandler.<span class="keyword">this</span>.onHeadersRead(ctx, streamId, headers);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.NettyServerHandler#onHeadersRead</li>
+</ul>
+<p>会根据请求的 Header 信息，查找服务和方法，校验请求类型，请求方法，传输编码等内容；然后根据 HTTP2 流 Id，获取对应的流，将其转换为 <code>NettyServerStream</code>；调用 <code>Transport</code> 的 <code>onStreamCreated</code> 事件<br>向线程池中提交 <code>StreamCreated</code>，然后调用 <code>onStreamAllocated</code> 方法通知流 <code>StreamListener</code>的<code>onReady</code>事件提交<code>OnReady</code>任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">onHeadersRead</span><span class="params">(ChannelHandlerContext ctx, <span class="keyword">int</span> streamId, Http2Headers headers)</span> <span class="keyword">throws</span> Http2Exception </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 删除斜杠获取方法限定名称</span></span><br><span class="line">    CharSequence path = headers.path();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 方法限定名，即包含服务名和方法名</span></span><br><span class="line">    String method = path.subSequence(<span class="number">1</span>, path.length()).toString();</span><br><span class="line">    <span class="comment">// 获取 HTTP 流</span></span><br><span class="line">    Http2Stream http2Stream = requireHttp2Stream(streamId);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 header 转为 metadata</span></span><br><span class="line">    Metadata metadata = Utils.convertHeaders(headers);</span><br><span class="line">    <span class="comment">// 创建支持统计的上下文</span></span><br><span class="line">    StatsTraceContext statsTraceCtx = StatsTraceContext.newServerContext(streamTracerFactories, method, metadata);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建流的声明</span></span><br><span class="line">    NettyServerStream.TransportState state = <span class="keyword">new</span> NettyServerStream.TransportState(</span><br><span class="line">            <span class="keyword">this</span>,</span><br><span class="line">            ctx.channel().eventLoop(),</span><br><span class="line">            http2Stream,</span><br><span class="line">            maxMessageSize,</span><br><span class="line">            statsTraceCtx,</span><br><span class="line">            transportTracer,</span><br><span class="line">            method);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="comment">// 获取请求的 authority</span></span><br><span class="line">      String authority = getOrUpdateAuthority((AsciiString) headers.authority());</span><br><span class="line">      <span class="comment">// 创建 Server 端的流</span></span><br><span class="line">      NettyServerStream stream = <span class="keyword">new</span> NettyServerStream(ctx.channel(),</span><br><span class="line">              state,</span><br><span class="line">              attributes,</span><br><span class="line">              authority,</span><br><span class="line">              statsTraceCtx,</span><br><span class="line">              transportTracer);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 触发监听器，通知流创建事件，查找相应处理器，开始处理流，会提交 StreamCreated 任务到线程池中</span></span><br><span class="line">      transportListener.streamCreated(stream, method, metadata);</span><br><span class="line">      <span class="comment">// 会提交 OnReady 任务到线程池中，通知 Stream Ready</span></span><br><span class="line">      state.onStreamAllocated();</span><br><span class="line">      http2Stream.setProperty(streamKey, state);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    logger.log(Level.WARNING, <span class="string">&quot;Exception in onHeadersRead()&quot;</span>, e);</span><br><span class="line">    <span class="keyword">throw</span> newStreamException(streamId, e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-流创建事件"><a href="#3-流创建事件" class="headerlink" title="3. 流创建事件"></a>3. 流创建事件</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">transportListener.streamCreated(stream, method, metadata);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.ServerTransportListenerImpl#streamCreated</li>
+</ul>
+<p>检查并初始化流的编解码，解压缩等信息；创建可需取消的上下文，选择要执行的线程池，初始化流监听器，最终提交流创建任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">streamCreatedInternal</span><span class="params">(<span class="keyword">final</span> ServerStream stream,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   <span class="keyword">final</span> String methodName,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   <span class="keyword">final</span> Metadata headers,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   <span class="keyword">final</span> Tag tag)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Executor wrappedExecutor;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (executor == directExecutor()) &#123;</span><br><span class="line">        wrappedExecutor = <span class="keyword">new</span> SerializeReentrantCallsDirectExecutor();</span><br><span class="line">        stream.optimizeForDirectExecutor();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 否则使用指定的 Executor 执行</span></span><br><span class="line">        wrappedExecutor = <span class="keyword">new</span> SerializingExecutor(executor);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建可以取消的上下文</span></span><br><span class="line">    <span class="keyword">final</span> Context.CancellableContext context = createContext(headers, statsTraceCtx);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 流事件监听器，处理流的所有生命周期事件</span></span><br><span class="line">    <span class="keyword">final</span> JumpToApplicationThreadServerStreamListener jumpListener = <span class="keyword">new</span> JumpToApplicationThreadServerStreamListener(wrappedExecutor, executor, stream, context, tag);</span><br><span class="line">    stream.setListener(jumpListener);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 提交流创建任务</span></span><br><span class="line">    wrappedExecutor.execute(<span class="keyword">new</span> StreamCreated());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来会执行流 ready 的任务</p>
+<h4 id="4-流-ready-事件"><a href="#4-流-ready-事件" class="headerlink" title="4. 流 ready 事件"></a>4. 流 ready 事件</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">state.onStreamAllocated();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractStream.TransportState#onStreamAllocated</li>
+</ul>
+<p>流分配，会调用流 ready 事件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onStreamAllocated</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    checkState(listener() != <span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">synchronized</span> (onReadyLock) &#123;</span><br><span class="line">        checkState(!allocated, <span class="string">&quot;Already allocated&quot;</span>);</span><br><span class="line">        allocated = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    notifyIfReady();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.JumpToApplicationThreadServerStreamListener#onReady</li>
+</ul>
+<p>最终会调用 onReady 提交流的 <code>OnReady</code> 任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReady</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        callExecutor.execute(<span class="keyword">new</span> OnReady());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-执行流创建任务"><a href="#5-执行流创建任务" class="headerlink" title="5. 执行流创建任务"></a>5. 执行流创建任务</h4><p>执行 <code>StreamCreated</code>任务</p>
+<ul>
+<li>io.grpc.internal.ServerImpl.ServerTransportListenerImpl#streamCreated</li>
+</ul>
+<p>执行 <code>StreamCreated</code>任务时，会先根据方法名称从注册器中查找对应的方法处理器，然后调用 startCall 方法进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 流创建任务处理</span></span><br><span class="line">    <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">StreamCreated</span> <span class="keyword">extends</span> <span class="title">ContextRunnable</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">runInternal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            ServerStreamListener listener = NOOP_LISTENER;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 根据方法名称获取方法定义</span></span><br><span class="line">                ServerMethodDefinition&lt;?, ?&gt; method = registry.lookupMethod(methodName);</span><br><span class="line">                <span class="comment">// 如果没有则从回退的方法注册器中查找</span></span><br><span class="line">                <span class="keyword">if</span> (method == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    method = fallbackRegistry.lookupMethod(methodName, stream.getAuthority());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 如果没有则方法不存在，返回 UNIMPLEMENTED，关闭流，取消上下文</span></span><br><span class="line">                <span class="keyword">if</span> (method == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    Status status = Status.UNIMPLEMENTED.withDescription(<span class="string">&quot;Method not found: &quot;</span> + methodName);</span><br><span class="line">                    stream.close(status, <span class="keyword">new</span> Metadata());</span><br><span class="line">                    context.cancel(<span class="keyword">null</span>);</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 如果方法存在，则开始调用</span></span><br><span class="line">                listener = startCall(stream, methodName, method, headers, context, statsTraceCtx, tag);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">                stream.close(Status.fromThrowable(t), <span class="keyword">new</span> Metadata());</span><br><span class="line">                context.cancel(<span class="keyword">null</span>);</span><br><span class="line">                <span class="keyword">throw</span> t;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                 jumpListener.setListener(listener);</span><br><span class="line">            &#125;</span><br><span class="line">           </span><br><span class="line">            <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ServerStreamCancellationListener</span> <span class="keyword">implements</span> <span class="title">Context</span>.<span class="title">CancellationListener</span> </span>&#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancelled</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">                    Status status = statusFromCancelled(context);</span><br><span class="line">                    <span class="keyword">if</span> (DEADLINE_EXCEEDED.getCode().equals(status.getCode())) &#123;</span><br><span class="line">                        stream.cancel(status);</span><br><span class="line">                    &#125;</span><br><span class="line">                 &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            context.addListener(<span class="keyword">new</span> ServerStreamCancellationListener(), directExecutor());</span><br><span class="line">         &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.ServerTransportListenerImpl#startCall</li>
+</ul>
+<p>会获取方法的处理器，然后遍历拦截器，封装处理器，调用 <code>startWrappedCall</code> 处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;ReqT, RespT&gt; <span class="function">ServerStreamListener <span class="title">startCall</span><span class="params">(ServerStream stream,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     String fullMethodName,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     ServerMethodDefinition&lt;ReqT, RespT&gt; methodDef,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     Metadata headers,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     Context.CancellableContext context,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     StatsTraceContext statsTraceCtx,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     Tag tag)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 从方法描述获取调用处理器</span></span><br><span class="line">    ServerCallHandler&lt;ReqT, RespT&gt; handler = methodDef.getServerCallHandler();</span><br><span class="line">    <span class="comment">// 遍历拦截器，为处理器添加拦截器</span></span><br><span class="line">    <span class="keyword">for</span> (ServerInterceptor interceptor : interceptors) &#123;</span><br><span class="line">        handler = InternalServerInterceptors.interceptCallHandler(interceptor, handler);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 使用添加了拦截器后的处理器创建新的方法定义</span></span><br><span class="line">    ServerMethodDefinition&lt;ReqT, RespT&gt; interceptedDef = methodDef.withServerCallHandler(handler);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 处理封装后的调用</span></span><br><span class="line">    <span class="keyword">return</span> startWrappedCall(fullMethodName, wMethodDef, stream, headers, context, tag);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.ServerTransportListenerImpl#startWrappedCall</li>
+</ul>
+<p>创建请求处理器实例，然后调用方法处理器，开始处理请求，同时创建流监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;WReqT, WRespT&gt; <span class="function">ServerStreamListener <span class="title">startWrappedCall</span><span class="params">(String fullMethodName,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                              ServerMethodDefinition&lt;WReqT, WRespT&gt; methodDef,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                              ServerStream stream,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                              Metadata headers,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                              Context.CancellableContext context,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                              Tag tag)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建请求处理器</span></span><br><span class="line">    ServerCallImpl&lt;WReqT, WRespT&gt; call = <span class="keyword">new</span> ServerCallImpl&lt;&gt;(stream,</span><br><span class="line">            methodDef.getMethodDescriptor(),</span><br><span class="line">            headers,</span><br><span class="line">            context,</span><br><span class="line">            decompressorRegistry,</span><br><span class="line">            compressorRegistry,</span><br><span class="line">            serverCallTracer,</span><br><span class="line">            tag);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用方法处理器，真正调用实现逻辑的方法</span></span><br><span class="line">    ServerCall.Listener&lt;WReqT&gt; listener = methodDef.getServerCallHandler().startCall(call, headers);</span><br><span class="line">    <span class="keyword">if</span> (listener == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">&quot;startCall() returned a null listener for method &quot;</span> + fullMethodName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据调用监听器创建新的流监听器</span></span><br><span class="line">    <span class="keyword">return</span> call.newServerStreamListener(listener);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.stub.ServerCalls.UnaryServerCallHandler#startCall</li>
+</ul>
+<p>会创建响应观察器，要求指定数量的消息，并创建监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ServerCall.<span class="function">Listener&lt;ReqT&gt; <span class="title">startCall</span><span class="params">(ServerCall&lt;ReqT, RespT&gt; call, Metadata headers)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 创建响应处理器</span></span><br><span class="line">    ServerCallStreamObserverImpl&lt;ReqT, RespT&gt; responseObserver = <span class="keyword">new</span> ServerCallStreamObserverImpl&lt;&gt;(call);</span><br><span class="line">    <span class="comment">// 会调用 io.grpc.internal.AbstractStream#request 方法获取消息</span></span><br><span class="line">    call.request(<span class="number">2</span>);</span><br><span class="line">    <span class="comment">// 返回监听器</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> UnaryServerCallListener(responseObserver, call);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-提交要求指定数量的消息任务"><a href="#6-提交要求指定数量的消息任务" class="headerlink" title="6.  提交要求指定数量的消息任务"></a>6.  提交要求指定数量的消息任务</h4><p>在执行 <code>StreamCreated</code> 任务时，会调用 <code>startCall</code> 方法，提交 <code>RequestRunnable</code>任务，要求指定数量的消息</p>
+<ul>
+<li>io.grpc.internal.AbstractStream#request</li>
+</ul>
+<p>在执行 <code>StreamCreated</code> 任务时指定接收的帧的数量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">request</span><span class="params">(<span class="keyword">int</span> numMessages)</span> </span>&#123;</span><br><span class="line">    transportState().requestMessagesFromDeframer(numMessages);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractStream.TransportState#requestMessagesFromDeframer</li>
+</ul>
+<p>提交获取指定数量的帧的任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">requestMessagesFromDeframer</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> numMessages)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果不是线程安全的解帧器，则由 Transport 的线程执行</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">RequestRunnable</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                deframer.request(numMessages);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">                deframeFailed(t);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    runOnTransportThread(<span class="keyword">new</span> RequestRunnable());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="7-执行流-ready-任务"><a href="#7-执行流-ready-任务" class="headerlink" title="7. 执行流 ready 任务"></a>7. 执行流 ready 任务</h4><p>执行 <code>OnReady</code> 任务</p>
+<ul>
+<li>io.grpc.internal.ServerImpl.JumpToApplicationThreadServerStreamListener#onReady</li>
+</ul>
+<p>执行 onReady 时提交的 <code>OnReady</code> 任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">OnReady</span> <span class="keyword">extends</span> <span class="title">ContextRunnable</span> </span>&#123;</span><br><span class="line">    OnReady() &#123;</span><br><span class="line">        <span class="keyword">super</span>(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">runInContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 调用监听器的 ready 事件</span></span><br><span class="line">            getListener().onReady();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">            internalClose(t);</span><br><span class="line">            <span class="keyword">throw</span> t;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.stub.ServerCalls.UnaryServerCallHandler.UnaryServerCallListener#onReady</li>
+</ul>
+<p>处理流 ready 事件，如果有 <code>onReadyHandler</code> 则会执行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReady</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 将 ready 状态变为 true</span></span><br><span class="line">    wasReady = <span class="keyword">true</span>;</span><br><span class="line">    <span class="comment">// 如果响应有 readyHandler，则执行</span></span><br><span class="line">    <span class="keyword">if</span> (responseObserver.onReadyHandler != <span class="keyword">null</span>) &#123;</span><br><span class="line">        responseObserver.onReadyHandler.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="8-执行读取指定数量的消息任务并提交有可用消息任务"><a href="#8-执行读取指定数量的消息任务并提交有可用消息任务" class="headerlink" title="8. 执行读取指定数量的消息任务并提交有可用消息任务"></a>8. 执行读取指定数量的消息任务并提交有可用消息任务</h4><p>执行 <code>RequestRunnable</code>任务</p>
+<ul>
+<li>RequestRunnable</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RequestRunnable</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            deframer.request(numMessages);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">            deframeFailed(t);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.MessageDeframer#request</li>
+</ul>
+<p>读取指定数量的帧</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">request</span><span class="params">(<span class="keyword">int</span> numMessages)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (isClosed()) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  pendingDeliveries += numMessages;</span><br><span class="line">  deliver();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.MessageDeframer#deliver</li>
+</ul>
+<p>读取消息并投递给监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">deliver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 检查投递的状态</span></span><br><span class="line">  <span class="keyword">if</span> (inDelivery) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  inDelivery = <span class="keyword">true</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 如果没有停止投递，且有等待投递的消息，且读取成功，则根据相应状态进行处理</span></span><br><span class="line">    <span class="keyword">while</span> (!stopDelivery &amp;&amp; pendingDeliveries &gt; <span class="number">0</span> &amp;&amp; readRequiredBytes()) &#123;</span><br><span class="line">      <span class="keyword">switch</span> (state) &#123;</span><br><span class="line">        <span class="keyword">case</span> HEADER:</span><br><span class="line">          <span class="comment">// 处理 header</span></span><br><span class="line">          processHeader();</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> BODY:</span><br><span class="line">          <span class="comment">// 处理body</span></span><br><span class="line">          processBody();</span><br><span class="line">          pendingDeliveries--;</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError(<span class="string">&quot;Invalid state: &quot;</span> + state);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果已经停止投递，则关闭</span></span><br><span class="line">    <span class="keyword">if</span> (stopDelivery) &#123;</span><br><span class="line">      close();</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (closeWhenComplete &amp;&amp; isStalled()) &#123;</span><br><span class="line">      close();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    inDelivery = <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.MessageDeframer#processBody</li>
+</ul>
+<p>读取请求体并通知监听器有新的消息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processBody</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 读取请求体的流</span></span><br><span class="line">  InputStream stream = compressedFlag ? getCompressedBody() : getUncompressedBody();</span><br><span class="line">  nextFrame = <span class="keyword">null</span>;</span><br><span class="line">  <span class="comment">// 通知监听器有新的消息</span></span><br><span class="line">  listener.messagesAvailable(<span class="keyword">new</span> SingleMessageProducer(stream));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将状态改为处理 header</span></span><br><span class="line">  state = State.HEADER;</span><br><span class="line">  requiredLength = HEADER_LENGTH;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.JumpToApplicationThreadServerStreamListener#messagesAvailable</li>
+</ul>
+<p>通知有新的消息可用，会提交 <code>MessageAvailable</code> 任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">messagesAvailable</span><span class="params">(<span class="keyword">final</span> MessageProducer producer)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 执行任务</span></span><br><span class="line">        callExecutor.execute(<span class="keyword">new</span> MessagesAvailable());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="9-执行有新的可用消息任务"><a href="#9-执行有新的可用消息任务" class="headerlink" title="9. 执行有新的可用消息任务"></a>9. 执行有新的可用消息任务</h4><ul>
+<li>io.grpc.internal.ServerImpl.JumpToApplicationThreadServerStreamListener#messagesAvailable</li>
+</ul>
+<p>通知有新的消息可用，会提交 <code>MessageAvailable</code> 任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">MessagesAvailable</span> <span class="keyword">extends</span> <span class="title">ContextRunnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    MessagesAvailable() &#123;</span><br><span class="line">        <span class="keyword">super</span>(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">runInContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 获取监听器，通知有新的消息</span></span><br><span class="line">            getListener().messagesAvailable(producer);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">            internalClose(t);</span><br><span class="line">            <span class="keyword">throw</span> t;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerCallImpl.ServerStreamListenerImpl#messagesAvailableInternal</li>
+</ul>
+<p>执行时，会先将流解析为请求对象，然后调用监听器的 <code>onMessage</code>方法，处理消息 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">messagesAvailableInternal</span><span class="params">(<span class="keyword">final</span> MessageProducer producer)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果调用已经取消了，则关闭生产者</span></span><br><span class="line">    <span class="keyword">if</span> (call.cancelled) &#123;</span><br><span class="line">        GrpcUtil.closeQuietly(producer);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    InputStream message;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 从生产者中获取消息，</span></span><br><span class="line">        <span class="keyword">while</span> ((message = producer.next()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 将流解析为请求对象，发送给监听器</span></span><br><span class="line">                listener.onMessage(call.method.parseRequest(message));</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">                GrpcUtil.closeQuietly(message);</span><br><span class="line">                <span class="keyword">throw</span> t;</span><br><span class="line">            &#125;</span><br><span class="line">            message.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        GrpcUtil.closeQuietly(producer);</span><br><span class="line">        Throwables.throwIfUnchecked(t);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(t);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.stub.ServerCalls.UnaryServerCallHandler.UnaryServerCallListener#onMessage</li>
+</ul>
+<p>由监听器接收消息，并赋值给相应的对象，在 <code>halfClose</code> 事件时处理该请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(ReqT request)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果已经接收到了一个请求，则返回错误</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.request != <span class="keyword">null</span>) &#123;</span><br><span class="line">        call.close(Status.INTERNAL.withDescription(TOO_MANY_REQUESTS), <span class="keyword">new</span> Metadata());</span><br><span class="line">        canInvoke = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 延迟执行调用 method.invoke() 直到 onHalfClose() 以确保客户端执行了半关闭</span></span><br><span class="line">    <span class="keyword">this</span>.request = request;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="10-提交半关闭请求任务"><a href="#10-提交半关闭请求任务" class="headerlink" title="10. 提交半关闭请求任务"></a>10. 提交半关闭请求任务</h4><p>当执行完 <code>RequestRunnable</code> 任务完成时，会调用 <code>MessageDeframer#close</code> 方法关闭帧</p>
+<ul>
+<li>io.grpc.internal.MessageDeframer#close</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (isClosed()) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> hasPartialMessage = nextFrame != <span class="keyword">null</span> &amp;&amp; nextFrame.readableBytes() &gt; <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (fullStreamDecompressor != <span class="keyword">null</span>) &#123;</span><br><span class="line">        hasPartialMessage = hasPartialMessage || fullStreamDecompressor.hasPartialData();</span><br><span class="line">        fullStreamDecompressor.close();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (unprocessed != <span class="keyword">null</span>) &#123;</span><br><span class="line">        unprocessed.close();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (nextFrame != <span class="keyword">null</span>) &#123;</span><br><span class="line">        nextFrame.close();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      fullStreamDecompressor = <span class="keyword">null</span>;</span><br><span class="line">      unprocessed = <span class="keyword">null</span>;</span><br><span class="line">      nextFrame = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    listener.deframerClosed(hasPartialMessage);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractServerStream.TransportState#deframerClosed</li>
+</ul>
+<p>会执行关闭帧，然后调用 Stream 的监听器，通知半关闭</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deframerClosed</span><span class="params">(<span class="keyword">boolean</span> hasPartialMessage)</span> </span>&#123;</span><br><span class="line">    deframerClosed = <span class="keyword">true</span>;</span><br><span class="line">    <span class="comment">// 是否到达流结尾</span></span><br><span class="line">    <span class="keyword">if</span> (endOfStream) &#123;</span><br><span class="line">        <span class="comment">// 如果不需要立即关闭，且有未完成的消息，返回错误并抛出异常</span></span><br><span class="line">        <span class="keyword">if</span> (!immediateCloseRequested &amp;&amp; hasPartialMessage) &#123;</span><br><span class="line">            deframeFailed(Status.INTERNAL.withDescription(<span class="string">&quot;Encountered end-of-stream mid-frame&quot;</span>)</span><br><span class="line">                                         .asRuntimeException());</span><br><span class="line">            deframerClosedTask = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 通知半关闭</span></span><br><span class="line">        listener.halfClosed();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果有解帧器关闭的任务，则执行</span></span><br><span class="line">    <span class="keyword">if</span> (deframerClosedTask != <span class="keyword">null</span>) &#123;</span><br><span class="line">        deframerClosedTask.run();</span><br><span class="line">        deframerClosedTask = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.JumpToApplicationThreadServerStreamListener#halfClosed</li>
+</ul>
+<p>提交半关闭任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">halfClosed</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        callExecutor.execute(<span class="keyword">new</span> HalfClosed());</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="11-执行半关闭任务"><a href="#11-执行半关闭任务" class="headerlink" title="11. 执行半关闭任务"></a>11. 执行半关闭任务</h4><ul>
+<li>io.grpc.internal.ServerImpl.JumpToApplicationThreadServerStreamListener#halfClosed</li>
+</ul>
+<p>执行半关闭任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">HalfClosed</span> <span class="keyword">extends</span> <span class="title">ContextRunnable</span> </span>&#123;</span><br><span class="line">    HalfClosed() &#123;</span><br><span class="line">        <span class="keyword">super</span>(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">runInContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 调用监听器的半关闭事件</span></span><br><span class="line">            getListener().halfClosed();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">            internalClose(t);</span><br><span class="line">            <span class="keyword">throw</span> t;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.stub.ServerCalls.UnaryServerCallHandler.UnaryServerCallListener#onHalfClose</li>
+</ul>
+<p>最终在监听器中调用相应的方法处理器，处理请求，并冻结响应；还会再次调用 <code>onReady</code> 事件，如果有 <code>onReadyHandler</code> 会执行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onHalfClose</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果不能调用则直接返回</span></span><br><span class="line">    <span class="keyword">if</span> (!canInvoke) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果请求是 null，则返回错我</span></span><br><span class="line">    <span class="keyword">if</span> (request == <span class="keyword">null</span>) &#123;</span><br><span class="line">        call.close(Status.INTERNAL.withDescription(MISSING_REQUEST), <span class="keyword">new</span> Metadata());</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行方法调用</span></span><br><span class="line">    method.invoke(request, responseObserver);</span><br><span class="line">    <span class="comment">// 处理了请求之后将请求置为 null</span></span><br><span class="line">    request = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// 冻结响应</span></span><br><span class="line">    responseObserver.freeze();</span><br><span class="line">    <span class="comment">// 判断是否 ready</span></span><br><span class="line">    <span class="keyword">if</span> (wasReady) &#123;</span><br><span class="line">        <span class="comment">// 因为在 halfClose 中调用，错过了来自 Transport 的 onReady 事件，从这里恢复</span></span><br><span class="line">        <span class="comment">// 即在 ready 之后用于执行 onReadyHandler</span></span><br><span class="line">        onReady();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.github.helloworlde.HelloServiceGrpc.MethodHandlers#invoke(Req, io.grpc.stub.StreamObserver<Resp>)</li>
+</ul>
+<p>处理请求，这部分是生成的代码，会调用相应的实例，处理请求，并将响应内容通过 StreamObserver 发送出去</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">invoke</span><span class="params">(Req request, io.grpc.stub.StreamObserver&lt;Resp&gt; responseObserver)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (methodId) &#123;</span><br><span class="line">        <span class="keyword">case</span> METHODID_HOW_ARE_YOU:</span><br><span class="line">            serviceImpl.howAreYou((io.github.helloworlde.HelloMessage) request,</span><br><span class="line">                    (io.grpc.stub.StreamObserver&lt;io.github.helloworlde.HelloResponse&gt;) responseObserver);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="处理响应"><a href="#处理响应" class="headerlink" title="处理响应"></a>处理响应</h2><h3 id="1-执行业务逻辑处理"><a href="#1-执行业务逻辑处理" class="headerlink" title="1. 执行业务逻辑处理"></a>1. 执行业务逻辑处理</h3><ul>
+<li>io.github.helloworlde.service.HelloServiceImpl#howAreYou</li>
+</ul>
+<p>需要实现生成的接口，在方法中实现逻辑，并将响应通过 <code>StreamObserver</code> 发送出去 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">howAreYou</span><span class="params">(HelloMessage request, StreamObserver&lt;HelloResponse&gt; responseObserver)</span> </span>&#123;</span><br><span class="line">    responseObserver.onNext(HelloResponse.newBuilder().setResult(<span class="string">&quot;Hello : &quot;</span> + request.getMessage()).build());</span><br><span class="line">    responseObserver.onCompleted();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-发送响应内容"><a href="#2-发送响应内容" class="headerlink" title="2. 发送响应内容"></a>2. 发送响应内容</h3><ul>
+<li>io.grpc.stub.ServerCalls.ServerCallStreamObserverImpl#onNext</li>
+</ul>
+<p>发送单个响应时，会先检查请求是否取消了，如果已经取消了，则会抛出错误；接着检查请求的状态，如果是已经丢弃或者完成，也会抛出异常</p>
+<p>然后会检查是否发送了 header，如果没有发送，则会先发送 header；发送 header 完成后会发送消息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(RespT response)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果已经被取消调用了，则判断是否有取消回调，如果没有则返回取消状态</span></span><br><span class="line">    <span class="keyword">if</span> (cancelled) &#123;</span><br><span class="line">        <span class="keyword">if</span> (onCancelHandler == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> Status.CANCELLED.withDescription(<span class="string">&quot;call already cancelled&quot;</span>).asRuntimeException();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 检查是否已经丢弃或者完成</span></span><br><span class="line">    checkState(!aborted, <span class="string">&quot;Stream was terminated by error, no further calls are allowed&quot;</span>);</span><br><span class="line">    checkState(!completed, <span class="string">&quot;Stream is already completed, no further calls are allowed&quot;</span>);</span><br><span class="line">    <span class="comment">// 如果还没有发送 header，则发送 header</span></span><br><span class="line">    <span class="keyword">if</span> (!sentHeaders) &#123;</span><br><span class="line">        call.sendHeaders(<span class="keyword">new</span> Metadata());</span><br><span class="line">        <span class="comment">// 将发送 header 设置为 true</span></span><br><span class="line">        sentHeaders = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 然后发送响应</span></span><br><span class="line">    call.sendMessage(response);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-发送响应-header"><a href="#1-发送响应-header" class="headerlink" title="1. 发送响应 header"></a>1. 发送响应 header</h4><ul>
+<li>io.grpc.internal.ServerCallImpl#sendHeadersInternal</li>
+</ul>
+<p>设置 header 内容，发送 header</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sendHeadersInternal</span><span class="params">(Metadata headers)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 丢弃编码的 key</span></span><br><span class="line">        headers.discardAll(MESSAGE_ENCODING_KEY);</span><br><span class="line">        <span class="comment">// 设置压缩器类型</span></span><br><span class="line">        headers.put(MESSAGE_ENCODING_KEY, compressor.getMessageEncoding());</span><br><span class="line">        <span class="comment">// 为流设置压缩器</span></span><br><span class="line">        stream.setCompressor(compressor);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 丢弃消息编码的 key</span></span><br><span class="line">        headers.discardAll(MESSAGE_ACCEPT_ENCODING_KEY);</span><br><span class="line">        <span class="keyword">if</span> (advertisedEncodings.length != <span class="number">0</span>) &#123;</span><br><span class="line">            headers.put(MESSAGE_ACCEPT_ENCODING_KEY, advertisedEncodings);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将调用 header 状态改为 true</span></span><br><span class="line">        sendHeadersCalled = <span class="keyword">true</span>;</span><br><span class="line">        stream.writeHeaders(headers);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractServerStream#writeHeaders</li>
+</ul>
+<p>将 header 内容写入帧中，会调用 Netty 相关的方法发送内容</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">writeHeaders</span><span class="params">(Metadata headers)</span> </span>&#123;</span><br><span class="line">    Preconditions.checkNotNull(headers, <span class="string">&quot;headers&quot;</span>);</span><br><span class="line"></span><br><span class="line">    headersSent = <span class="keyword">true</span>;</span><br><span class="line">    abstractServerStreamSink().writeHeaders(headers);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-发送响应内容-1"><a href="#2-发送响应内容-1" class="headerlink" title="2. 发送响应内容"></a>2. 发送响应内容</h4><ul>
+<li>io.grpc.internal.ServerCallImpl#sendMessageInternal</li>
+</ul>
+<p>发送响应内容，会先检查是否已经发送了 header，且请求没有关闭，且响应的状态正确<br>如果都没有问题，则将响应内容序列化为流，然后发送并清空缓冲区</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sendMessageInternal</span><span class="params">(RespT message)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 检查是否已经发送了 header，和调用是否已经被关闭</span></span><br><span class="line">    checkState(sendHeadersCalled, <span class="string">&quot;sendHeaders has not been called&quot;</span>);</span><br><span class="line">    checkState(!closeCalled, <span class="string">&quot;call is closed&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果是 UNARY 或者 CLIENT_STREAMING 类型的消息，且已经发送过消息了，则不允许再发送，返回错误状态</span></span><br><span class="line">    <span class="keyword">if</span> (method.getType().serverSendsOneMessage() &amp;&amp; messageSent) &#123;</span><br><span class="line">        internalClose(Status.INTERNAL.withDescription(TOO_MANY_RESPONSES));</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将发送消息状态改为 true</span></span><br><span class="line">    messageSent = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 将消息序列化为流，写入消息，清空流</span></span><br><span class="line">        InputStream resp = method.streamResponse(message);</span><br><span class="line">        stream.writeMessage(resp);</span><br><span class="line">        stream.flush();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RuntimeException e) &#123;</span><br><span class="line">        close(Status.fromThrowable(e), <span class="keyword">new</span> Metadata());</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Error e) &#123;</span><br><span class="line">        close(Status.CANCELLED.withDescription(<span class="string">&quot;Server sendMessage() failed with Error&quot;</span>), <span class="keyword">new</span> Metadata());</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractStream#writeMessage</li>
+</ul>
+<p>检查帧的状态，如果帧没有关闭，则将流的内容写入帧中，并关闭流<br>最终消息内容通过 Netty 的相关方法发送给客户端</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">writeMessage</span><span class="params">(InputStream message)</span> </span>&#123;</span><br><span class="line">    checkNotNull(message, <span class="string">&quot;message&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!framer().isClosed()) &#123;</span><br><span class="line">            <span class="comment">// 写入消息体</span></span><br><span class="line">            framer().writePayload(message);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        GrpcUtil.closeQuietly(message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractStream#flush</li>
+</ul>
+<p>清空帧的缓冲，将所有内容都发送给客户端</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">flush</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果帧还没有关闭，则清空帧</span></span><br><span class="line">    <span class="keyword">if</span> (!framer().isClosed()) &#123;</span><br><span class="line">        framer().flush();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-完成请求"><a href="#3-完成请求" class="headerlink" title="3. 完成请求"></a>3. 完成请求</h3><p>当调用 <code>responseObserver.onCompleted</code> 后，会开始处理请求完成的逻辑</p>
+<ul>
+<li>io.grpc.stub.ServerCalls.ServerCallStreamObserverImpl#onCompleted</li>
+</ul>
+<p>会先检查请求的状态，如果已经被取消了，且没有取消处理任务，则直接抛出取消状态的异常<br>如果请求正常完成，会使用 OK 状态关闭情趣，修改请求状态为完成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果已经被取消，则返回取消的状态</span></span><br><span class="line">    <span class="keyword">if</span> (cancelled) &#123;</span><br><span class="line">        <span class="keyword">if</span> (onCancelHandler == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> Status.CANCELLED.withDescription(<span class="string">&quot;call already cancelled&quot;</span>).asRuntimeException();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 通知请求完成</span></span><br><span class="line">        call.close(Status.OK, <span class="keyword">new</span> Metadata());</span><br><span class="line">        <span class="comment">// 将完成状态改为 true</span></span><br><span class="line">        completed = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerCallImpl#closeInternal</li>
+</ul>
+<p>使用指定的状态和响应元数据关闭请求<br>如果没有发送响应，则会取消请求，并返回 INTERNAL 状态的错误；如果请求正常完成，则调用流关闭的接口，完成请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">closeInternal</span><span class="params">(Status status, Metadata trailers)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 检查是否已经关闭</span></span><br><span class="line">    checkState(!closeCalled, <span class="string">&quot;call already closed&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 将关闭状态改为 true</span></span><br><span class="line">        closeCalled = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 检查状态如果是 OK，且方法类型是 Server 端只能发送一次，且没有发送消息，则返回错误</span></span><br><span class="line">        <span class="keyword">if</span> (status.isOk() &amp;&amp; method.getType().serverSendsOneMessage() &amp;&amp; !messageSent) &#123;</span><br><span class="line">            internalClose(Status.INTERNAL.withDescription(MISSING_RESPONSE));</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 关闭流</span></span><br><span class="line">        stream.close(status, trailers);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// 统计结果</span></span><br><span class="line">        serverCallTracer.reportCallEnded(status.isOk());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractServerStream#close</li>
+</ul>
+<p>关闭流，将响应的 header 写入到帧中；最终通过 Netty 的方法将响应发送给客户端</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">(Status status, Metadata trailers)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果出站的流还未关闭，则将状态改为关闭</span></span><br><span class="line">    <span class="keyword">if</span> (!outboundClosed) &#123;</span><br><span class="line">        outboundClosed = <span class="keyword">true</span>;</span><br><span class="line">        <span class="comment">// 从服务端关闭 framer</span></span><br><span class="line">        endOfMessages();</span><br><span class="line">        <span class="comment">// 将响应状态加入到 header 中</span></span><br><span class="line">        addStatusToTrailers(trailers, status);</span><br><span class="line">        <span class="comment">// 安全设置，无需同步，因为访问被严格控制，只有这里设置关闭状态，保证在这里之后读取</span></span><br><span class="line">        <span class="comment">// 给 Transport 设置响应状态</span></span><br><span class="line">        transportState().setClosedStatus(status);</span><br><span class="line">        <span class="comment">// 将响应的 header 信息写入帧中</span></span><br><span class="line">        abstractServerStreamSink().writeTrailers(trailers, headersSent, status);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.AbstractStream#endOfMessages</li>
+</ul>
+<p>关闭帧</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">endOfMessages</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    framer().close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-发送响应结尾-header"><a href="#1-发送响应结尾-header" class="headerlink" title="1. 发送响应结尾 header"></a>1. 发送响应结尾 header</h4><p>在关闭流时，会将相应的状态和其他 header 发送给客户端</p>
+<ul>
+<li>io.grpc.internal.AbstractServerStream#close</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">abstractServerStreamSink().writeTrailers(trailers, headersSent, status);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.netty.NettyServerStream.Sink#writeTrailers</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeTrailers</span><span class="params">(Metadata trailers, <span class="keyword">boolean</span> headersSent, Status status)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Http2Headers http2Trailers = Utils.convertTrailers(trailers, headersSent);</span><br><span class="line">        <span class="comment">// 将发送 header 的指令写入到队列中</span></span><br><span class="line">        writeQueue.enqueue(SendResponseHeadersCommand.createTrailers(transportState(), http2Trailers, status), <span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-提交关闭任务"><a href="#2-提交关闭任务" class="headerlink" title="2. 提交关闭任务"></a>2. 提交关闭任务</h4><p>当发送完响应 Header 和 body 时，会因为已经到达帧末尾，调用<code>closeStreamWhenDone</code> 方法进行关闭</p>
+<ul>
+<li>io.grpc.netty.shaded.io.grpc.netty.NettyServerHandler#closeStreamWhenDone</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">closeStreamWhenDone</span><span class="params">(ChannelPromise promise, <span class="keyword">int</span> streamId)</span> <span class="keyword">throws</span> Http2Exception </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> TransportState stream = <span class="keyword">this</span>.serverStream(<span class="keyword">this</span>.requireHttp2Stream(streamId));</span><br><span class="line">    promise.addListener(<span class="keyword">new</span> ChannelFutureListener() &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(ChannelFuture future)</span> </span>&#123;</span><br><span class="line">            stream.complete();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>io.grpc.internal.AbstractServerStream.TransportState#complete</li>
+</ul>
+<p>然后调用流的完成事件，关闭监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">complete</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果解帧器已经关闭了，则关闭监听器</span></span><br><span class="line">    <span class="keyword">if</span> (deframerClosed) &#123;</span><br><span class="line">        deframerClosedTask = <span class="keyword">null</span>;</span><br><span class="line">        closeListener(Status.OK);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果还未关闭，则创建关闭监听器任务，并立即关闭解帧器</span></span><br><span class="line">        deframerClosedTask = <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                closeListener(Status.OK);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        immediateCloseRequested = <span class="keyword">true</span>;</span><br><span class="line">        closeDeframer(<span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerImpl.JumpToApplicationThreadServerStreamListener#closedInternal<br>提交流关闭任务<code>Closed</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">closedInternal</span><span class="params">(<span class="keyword">final</span> Status status)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果状态不是 OK，则直接提交关闭 Context 任务</span></span><br><span class="line">    <span class="keyword">if</span> (!status.isOk()) &#123;</span><br><span class="line">        cancelExecutor.execute(<span class="keyword">new</span> ContextCloser(context, status.getCause()));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Closed</span> <span class="keyword">extends</span> <span class="title">ContextRunnable</span> </span>&#123;</span><br><span class="line">        Closed() &#123;</span><br><span class="line">            <span class="keyword">super</span>(context);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">runInContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            PerfMark.startTask(<span class="string">&quot;ServerCallListener(app).closed&quot;</span>, tag);</span><br><span class="line">            PerfMark.linkIn(link);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 调用监听器的关闭事件</span></span><br><span class="line">                getListener().closed(status);</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                PerfMark.stopTask(<span class="string">&quot;ServerCallListener(app).closed&quot;</span>, tag);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    callExecutor.execute(<span class="keyword">new</span> Closed());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-执行关闭任务"><a href="#3-执行关闭任务" class="headerlink" title="3. 执行关闭任务"></a>3. 执行关闭任务</h4><p>执行 <code>Closed</code> 任务</p>
+<p>io.grpc.internal.ServerImpl.JumpToApplicationThreadServerStreamListener#closed$Closed</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Closed</span> <span class="keyword">extends</span> <span class="title">ContextRunnable</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">runInContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 调用监听器的关闭事件</span></span><br><span class="line">            getListener().closed(status);</span><br><span class="line">        &#125; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ServerCallImpl.ServerStreamListenerImpl#closedInternal</li>
+</ul>
+<p>根据状态通知流监听器完成或者取消，最终取消上下文</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">closedInternal</span><span class="params">(Status status)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 如果状态是 OK，通知监听器完成</span></span><br><span class="line">        <span class="keyword">if</span> (status.isOk()) &#123;</span><br><span class="line">            listener.onComplete();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 否则将状态改为取消，通知监听器取消</span></span><br><span class="line">            call.cancelled = <span class="keyword">true</span>;</span><br><span class="line">            listener.onCancel();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// 取消上下文</span></span><br><span class="line">        context.cancel(<span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.Context.CancellableContext#cancel<br>取消上下文，取消所有的超时时间任务</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">cancel</span><span class="params">(Throwable cause)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> triggeredCancel = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">        <span class="comment">// 如果没有取消，则取消，并修改状态</span></span><br><span class="line">        <span class="keyword">if</span> (!cancelled) &#123;</span><br><span class="line">            cancelled = <span class="keyword">true</span>;</span><br><span class="line">            <span class="comment">// 如果有等待取消的任务，则取消</span></span><br><span class="line">            <span class="keyword">if</span> (pendingDeadline != <span class="keyword">null</span>) &#123;</span><br><span class="line">                pendingDeadline.cancel(<span class="keyword">false</span>);</span><br><span class="line">                pendingDeadline = <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">this</span>.cancellationCause = cause;</span><br><span class="line">            triggeredCancel = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果取消成功了，则通知监听器</span></span><br><span class="line">    <span class="keyword">if</span> (triggeredCancel) &#123;</span><br><span class="line">        notifyAndClearListeners();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> triggeredCancel;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/12/05/gRPC-Server-%E7%AB%AF%E5%85%B3%E9%97%AD%E6%B5%81%E7%A8%8B/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC Server 端关闭流程
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/12/23/gRPC-%E4%B8%AD%E7%9B%91%E5%90%AC-Sream-%E5%92%8C-Transport-%E7%9A%84%E4%BA%8B%E4%BB%B6/">
+        
+          gRPC 中监听 Sream 和 Transport 的事件
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-Server-%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">gRPC Server 端请求处理流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-nav-text">初始化</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%A4%84%E7%90%86%E8%AF%B7%E6%B1%82"><span class="toc-nav-text">处理请求</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E8%AF%B7%E6%B1%82%E6%95%B4%E4%BD%93%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">请求整体处理流程</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#1-%E8%AF%BB%E5%8F%96-Settings-%E5%B8%A7"><span class="toc-nav-text">1. 读取 Settings 帧</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-%E6%8E%A5%E6%94%B6-header"><span class="toc-nav-text">2. 接收 header</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#3-%E6%B5%81%E5%88%9B%E5%BB%BA%E4%BA%8B%E4%BB%B6"><span class="toc-nav-text">3. 流创建事件</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#4-%E6%B5%81-ready-%E4%BA%8B%E4%BB%B6"><span class="toc-nav-text">4. 流 ready 事件</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#5-%E6%89%A7%E8%A1%8C%E6%B5%81%E5%88%9B%E5%BB%BA%E4%BB%BB%E5%8A%A1"><span class="toc-nav-text">5. 执行流创建任务</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#6-%E6%8F%90%E4%BA%A4%E8%A6%81%E6%B1%82%E6%8C%87%E5%AE%9A%E6%95%B0%E9%87%8F%E7%9A%84%E6%B6%88%E6%81%AF%E4%BB%BB%E5%8A%A1"><span class="toc-nav-text">6.  提交要求指定数量的消息任务</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#7-%E6%89%A7%E8%A1%8C%E6%B5%81-ready-%E4%BB%BB%E5%8A%A1"><span class="toc-nav-text">7. 执行流 ready 任务</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#8-%E6%89%A7%E8%A1%8C%E8%AF%BB%E5%8F%96%E6%8C%87%E5%AE%9A%E6%95%B0%E9%87%8F%E7%9A%84%E6%B6%88%E6%81%AF%E4%BB%BB%E5%8A%A1%E5%B9%B6%E6%8F%90%E4%BA%A4%E6%9C%89%E5%8F%AF%E7%94%A8%E6%B6%88%E6%81%AF%E4%BB%BB%E5%8A%A1"><span class="toc-nav-text">8. 执行读取指定数量的消息任务并提交有可用消息任务</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#9-%E6%89%A7%E8%A1%8C%E6%9C%89%E6%96%B0%E7%9A%84%E5%8F%AF%E7%94%A8%E6%B6%88%E6%81%AF%E4%BB%BB%E5%8A%A1"><span class="toc-nav-text">9. 执行有新的可用消息任务</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#10-%E6%8F%90%E4%BA%A4%E5%8D%8A%E5%85%B3%E9%97%AD%E8%AF%B7%E6%B1%82%E4%BB%BB%E5%8A%A1"><span class="toc-nav-text">10. 提交半关闭请求任务</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#11-%E6%89%A7%E8%A1%8C%E5%8D%8A%E5%85%B3%E9%97%AD%E4%BB%BB%E5%8A%A1"><span class="toc-nav-text">11. 执行半关闭任务</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%A4%84%E7%90%86%E5%93%8D%E5%BA%94"><span class="toc-nav-text">处理响应</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-%E6%89%A7%E8%A1%8C%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E5%A4%84%E7%90%86"><span class="toc-nav-text">1. 执行业务逻辑处理</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-%E5%8F%91%E9%80%81%E5%93%8D%E5%BA%94%E5%86%85%E5%AE%B9"><span class="toc-nav-text">2. 发送响应内容</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#1-%E5%8F%91%E9%80%81%E5%93%8D%E5%BA%94-header"><span class="toc-nav-text">1. 发送响应 header</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-%E5%8F%91%E9%80%81%E5%93%8D%E5%BA%94%E5%86%85%E5%AE%B9-1"><span class="toc-nav-text">2. 发送响应内容</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-%E5%AE%8C%E6%88%90%E8%AF%B7%E6%B1%82"><span class="toc-nav-text">3. 完成请求</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#1-%E5%8F%91%E9%80%81%E5%93%8D%E5%BA%94%E7%BB%93%E5%B0%BE-header"><span class="toc-nav-text">1. 发送响应结尾 header</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-%E6%8F%90%E4%BA%A4%E5%85%B3%E9%97%AD%E4%BB%BB%E5%8A%A1"><span class="toc-nav-text">2. 提交关闭任务</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#3-%E6%89%A7%E8%A1%8C%E5%85%B3%E9%97%AD%E4%BB%BB%E5%8A%A1"><span class="toc-nav-text">3. 执行关闭任务</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2020/12/15/gRPC-Server-端请求处理流程/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC Server 端请求处理流程",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

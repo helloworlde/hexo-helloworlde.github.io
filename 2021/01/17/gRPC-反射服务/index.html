@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC 反射服务 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC 反射服务</h2>
+  <p class="post-date">2021-01-17</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-反射服务"><a href="#gRPC-反射服务" class="headerlink" title="gRPC 反射服务"></a>gRPC 反射服务</h1><p>gRPC 提供了 <code>grpc.reflection.v1alpha.ServerReflection</code> 服务，在 Server 端添加后可以通过该服务获取所有服务的信息，包括服务定义，方法，属性等；</p>
+<p>可以根据获取到的服务信息调用其他的方法，实现泛化调用；gRPC 调试工具 <a href="">grpcurl</a> 和 <a target="_blank" rel="noopener" href="https://github.com/grpc-swagger/grpc-swagger">gRPC Swagger</a> 等工具都是通过这种方式实现的</p>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>参考 <a target="_blank" rel="noopener" href="https://github.com/grpc/grpc/blob/master/doc/server-reflection.md">GRPC Server Reflection Protocol</a> 和 <a target="_blank" rel="noopener" href="https://github.com/grpc/grpc/blob/master/src/proto/grpc/reflection/v1alpha/reflection.proto">reflection.proto</a></p>
+<p>该服务只有一个双向流的方法 <code>ServerReflectionInfo</code>，调用时根据请求参数不同，调用不同的方法进行处理，并返回响应；该方法的流控是非自动的，只有当一个请求完成之后才会获取下一个请求 </p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">ServerReflection</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> ServerReflectionInfo(stream ServerReflectionRequest) <span class="keyword">returns</span> (stream ServerReflectionResponse)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">ServerReflectionRequest</span> </span>&#123;</span><br><span class="line">  <span class="built_in">string</span> host = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">oneof</span> message_request &#123;</span><br><span class="line">    <span class="comment">// 根据服务名查询 proto 文件</span></span><br><span class="line">    <span class="built_in">string</span> file_by_filename = <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据名称获取 proto 文件，如 &lt;package&gt;.&lt;service&gt;[.&lt;method&gt;] 或 &lt;package&gt;.&lt;type&gt;</span></span><br><span class="line">    <span class="built_in">string</span> file_containing_symbol = <span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据 message 类型和序号获取 proto 文件</span></span><br><span class="line">    ExtensionRequest file_containing_extension = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 查找给定消息类型的所有已知扩展使用的标记号，并将它们以未定义的顺序附加到ExtensionNumberResponse</span></span><br><span class="line">    <span class="built_in">string</span> all_extension_numbers_of_type = <span class="number">6</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 查询所有的服务</span></span><br><span class="line">    <span class="built_in">string</span> list_services = <span class="number">7</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Server-端"><a href="#Server-端" class="headerlink" title="Server 端"></a>Server 端</h2><ul>
+<li>服务实现</li>
+</ul>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">@Slf4j</span><br><span class="line">public class ReflectionServer &#123;</span><br><span class="line"></span><br><span class="line">    @SneakyThrows</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        // 构建 Server</span><br><span class="line">        Server server = NettyServerBuilder.forAddress(new InetSocketAddress(9090))</span><br><span class="line">                                          // 添加服务</span><br><span class="line">                                          .addService(new HelloServiceImpl())</span><br><span class="line">                                          // 添加反射服务</span><br><span class="line"><span class="addition">+                                         .addService(ProtoReflectionService.newInstance())</span></span><br><span class="line">                                          .build();</span><br><span class="line"></span><br><span class="line">        // 启动 Server</span><br><span class="line">        server.start();</span><br><span class="line">        log.info(&quot;服务端启动成功&quot;);</span><br><span class="line"></span><br><span class="line">        Runtime.getRuntime().addShutdownHook(new Thread(() -&gt; &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                server.awaitTermination(10, TimeUnit.SECONDS);</span><br><span class="line">            &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;));</span><br><span class="line"></span><br><span class="line">        // 保持运行</span><br><span class="line">        server.awaitTermination();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
+
+<h2 id="Client-端"><a href="#Client-端" class="headerlink" title="Client 端"></a>Client 端</h2><p>发起双向流请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReflectionClient</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="comment">// 构建 Channel</span></span><br><span class="line">        ManagedChannel channel = ManagedChannelBuilder.forAddress(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">9090</span>)</span><br><span class="line">                                                      .usePlaintext()</span><br><span class="line">                                                      .build();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用 Channel 构建 BlockingStub</span></span><br><span class="line">        ServerReflectionGrpc.ServerReflectionStub reflectionStub = ServerReflectionGrpc.newStub(channel);</span><br><span class="line"></span><br><span class="line">        StreamObserver&lt;ServerReflectionResponse&gt; streamObserver = <span class="keyword">new</span> StreamObserver&lt;ServerReflectionResponse&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(ServerReflectionResponse response)</span> </span>&#123;</span><br><span class="line">                log.info(<span class="string">&quot;&#123;&#125;&quot;</span>, response);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable t)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                log.info(<span class="string">&quot;Complete&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        StreamObserver&lt;ServerReflectionRequest&gt; requestStreamObserver = reflectionStub.serverReflectionInfo(streamObserver);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 列举所有的服务</span></span><br><span class="line">        ServerReflectionRequest listServiceRequest = ServerReflectionRequest.newBuilder()</span><br><span class="line">                                                                            .setListServices(<span class="string">&quot;&quot;</span>)</span><br><span class="line">                                                                            .build();</span><br><span class="line">        requestStreamObserver.onNext(listServiceRequest);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其他的方法使用请参考 <a href="reflection/src/main/java/io/github/helloworlde/grpc/ReflectionClient.java">ReflectionClient</a></p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>在 Server 端启动时，将反射服务添加到服务中，当客户端触发调用后，会执行 <code>io.grpc.protobuf.services.ProtoReflectionService.getRefreshedIndex</code> 方法，会从 <code>Server</code> 中获取所有的可变和不可变的服务，遍历获取所有的服务、方法、属性，添加到 <code>ServerReflectionIndex</code> 对象中</p>
+<ul>
+<li>io.grpc.protobuf.services.ProtoReflectionService.getRefreshedIndex</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> ServerReflectionIndex <span class="title">getRefreshedIndex</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        Server server = InternalServer.SERVER_CONTEXT_KEY.get();</span><br><span class="line">        ServerReflectionIndex index = serverReflectionIndexes.get(server);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (index == <span class="keyword">null</span>) &#123;</span><br><span class="line">            index = <span class="keyword">new</span> ServerReflectionIndex(server.getImmutableServices(), server.getMutableServices());</span><br><span class="line">            serverReflectionIndexes.put(server, index);</span><br><span class="line">            <span class="keyword">return</span> index;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 更新可变服务信息 ... </span></span><br><span class="line">        <span class="keyword">return</span> index;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后处理请求，会调用 <code>io.grpc.protobuf.services.ProtoReflectionService.ProtoReflectionStreamObserver.handleReflectionRequest</code> 方法，根据请求参数进行判断，使用不同的方法处理，并返回响应</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleReflectionRequest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (serverCallStreamObserver.isReady()) &#123;</span><br><span class="line">        <span class="keyword">switch</span> (request.getMessageRequestCase()) &#123;</span><br><span class="line">            <span class="keyword">case</span> FILE_BY_FILENAME:</span><br><span class="line">                getFileByName(request);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> FILE_CONTAINING_SYMBOL:</span><br><span class="line">                getFileContainingSymbol(request);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> FILE_CONTAINING_EXTENSION:</span><br><span class="line">                getFileByExtension(request);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> ALL_EXTENSION_NUMBERS_OF_TYPE:</span><br><span class="line">                getAllExtensions(request);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> LIST_SERVICES:</span><br><span class="line">                listServices(request);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                sendErrorResponse(request, Status.Code.UNIMPLEMENTED, <span class="string">&quot;not implemented &quot;</span> + request.getMessageRequestCase());</span><br><span class="line">        &#125;</span><br><span class="line">        request = <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">// 如果在发送完成后关闭，则关闭流，否则要求下一个请求</span></span><br><span class="line">        <span class="keyword">if</span> (closeAfterSend) &#123;</span><br><span class="line">            serverCallStreamObserver.onCompleted();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            serverCallStreamObserver.request(<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/grpc/grpc-java/blob/master/documentation/server-reflection-tutorial.md#enable-server-reflection">gRPC Server Reflection Tutorial</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/grpc/grpc-go/tree/master/reflection">Reflection</a></li>
+<li><a target="_blank" rel="noopener" href="https://chromium.googlesource.com/external/github.com/grpc/grpc-go/+/HEAD/Documentation/server-reflection-tutorial.md">gRPC Server Reflection Tutorial</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/01/06/gRPC-Gateway-%E4%BD%BF%E7%94%A8/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC Gateway 使用
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/01/17/Thrfit-%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/">
+        
+          Thrfit 中的核心概念
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E5%8F%8D%E5%B0%84%E6%9C%8D%E5%8A%A1"><span class="toc-nav-text">gRPC 反射服务</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-nav-text">定义</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Server-%E7%AB%AF"><span class="toc-nav-text">Server 端</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Client-%E7%AB%AF"><span class="toc-nav-text">Client 端</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-nav-text">实现原理</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-nav-text">参考文档</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2021/01/17/gRPC-反射服务/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC 反射服务",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC 中打印请求二进制日志 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC 中打印请求二进制日志</h2>
+  <p class="post-date">2021-01-04</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-中打印请求二进制日志"><a href="#gRPC-中打印请求二进制日志" class="headerlink" title="gRPC 中打印请求二进制日志"></a>gRPC 中打印请求二进制日志</h1><p>gRPC 支持将请求调用的参数、Header 等信息以二进制的方式输出到文件中，方便在必要时排查问题</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h4 id="1-添加依赖"><a href="#1-添加依赖" class="headerlink" title="1. 添加依赖"></a>1. 添加依赖</h4><p>binlog 的依赖在 <code>grpc-services</code>中，所以需要有该依赖</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    implementation(<span class="string">&quot;io.grpc:grpc-services:<span class="subst">$&#123;grpcVersion&#125;</span>&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-添加-BinaryLogSink-实现"><a href="#2-添加-BinaryLogSink-实现" class="headerlink" title="2. 添加 BinaryLogSink 实现"></a>2. 添加 BinaryLogSink 实现</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomBinaryLogSink</span> <span class="keyword">implements</span> <span class="title">BinaryLogSink</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String outPath;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> OutputStream out;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> closed;</span><br><span class="line"></span><br><span class="line">    CustomBinaryLogSink(String path) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        File outFile = <span class="keyword">new</span> File(path);</span><br><span class="line">        outPath = outFile.getAbsolutePath();</span><br><span class="line">        log.info(<span class="string">&quot;Writing binary logs to &#123;&#125;&quot;</span>, outFile.getAbsolutePath());</span><br><span class="line">        out = <span class="keyword">new</span> BufferedOutputStream(<span class="keyword">new</span> FileOutputStream(outFile));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">String <span class="title">getPath</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.outPath;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(MessageLite message)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (closed) &#123;</span><br><span class="line">            log.info(<span class="string">&quot;Attempt to write after TempFileSink is closed.&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            message.writeDelimitedTo(out);</span><br><span class="line">            out.flush();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            log.info(<span class="string">&quot;Caught exception while writing&quot;</span>, e);</span><br><span class="line">            closeQuietly();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (closed) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        closed = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            out.flush();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            out.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">closeQuietly</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            close();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            log.info(<span class="string">&quot;Caught exception while closing&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-创建-Channel-时指定-BinaryLog"><a href="#3-创建-Channel-时指定-BinaryLog" class="headerlink" title="3. 创建 Channel 时指定 BinaryLog"></a>3. 创建 Channel 时指定 BinaryLog</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">BinaryLog binaryLog = BinaryLogs.createBinaryLog(<span class="keyword">new</span> CustomBinaryLogSink(<span class="string">&quot;CUSTOM_PATH&quot;</span>), <span class="string">&quot;*&quot;</span>);</span><br><span class="line"><span class="keyword">this</span>.channel = ManagedChannelBuilder.forAddress(host, port)</span><br><span class="line">                                    .usePlaintext()</span><br><span class="line">                                    .setBinaryLog(binaryLog)</span><br><span class="line">                                    .build();</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-指定环境变量"><a href="#4-指定环境变量" class="headerlink" title="4. 指定环境变量"></a>4. 指定环境变量</h4><p>需要指定环境变量，设置需要输出的方法才会生效，设置 <code>GRPC_BINARY_LOG_CONFIG=*</code>，<code>*</code>代表打印所有的方法，具体指定可以参考 <a target="_blank" rel="noopener" href="https://github.com/helloworlde/proposal/blob/master/A16-binary-logging.md#control-interface">Control Interface</a></p>
+<p>然后就会将请求的 header、message 等内容以二进制输出到文件中，如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">]</span><br><span class="line"></span><br><span class="line">�������� (2E</span><br><span class="line">1&#x2F;io.github.helloworlde.grpc.HelloService&#x2F;SayHello127.0.0.1:9090$</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-修改输出内容"><a href="#5-修改输出内容" class="headerlink" title="5. 修改输出内容"></a>5. 修改输出内容</h4><p>二进制文件无法直接读取，依赖读取之后再将其输出为其他格式才可以，可以在写入时从 <code>MessageLite</code> 读取内容，修改为想要输出的格式</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">    public synchronized void write(MessageLite message) &#123;</span><br><span class="line">        if (closed) &#123;</span><br><span class="line">            log.info(&quot;Attempt to write after TempFileSink is closed.&quot;);</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        try &#123;</span><br><span class="line"><span class="deletion">-           // message.writeDelimitedTo(out);</span></span><br><span class="line"></span><br><span class="line"><span class="addition">+            out.write(message.toString().getBytes(StandardCharsets.UTF_8));</span></span><br><span class="line">            out.flush();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            log.info(&quot;Caught exception while writing&quot;, e);</span><br><span class="line">            closeQuietly();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样，就会将 <code>MessageLite</code> 的内容直接转为 String 后输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">timestamp &#123;</span><br><span class="line">  seconds: 1609735898</span><br><span class="line">  nanos: 879000000</span><br><span class="line">&#125;</span><br><span class="line">call_id: 1</span><br><span class="line">sequence_id_within_call: 5</span><br><span class="line">type: EVENT_TYPE_SERVER_MESSAGE</span><br><span class="line">logger: LOGGER_CLIENT</span><br><span class="line">message &#123;</span><br><span class="line">  length: 14</span><br><span class="line">  data: &quot;\n\fHello Binlog&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">timestamp &#123;</span><br><span class="line">  seconds: 1609735898</span><br><span class="line">  nanos: 882000000</span><br><span class="line">&#125;</span><br><span class="line">call_id: 1</span><br><span class="line">sequence_id_within_call: 6</span><br><span class="line">type: EVENT_TYPE_SERVER_TRAILER</span><br><span class="line">logger: LOGGER_CLIENT</span><br><span class="line">trailer &#123;</span><br><span class="line">  metadata &#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>在方法调用时，会判断有没有设置 binlog 对象，如果有则会封装方法，添加处理器和监听器；然后重新创建 <code>ServerMethodDefinition</code>；通过二进制日志拦截器 <code>io.grpc.services.BinlogHelper#getClientInterceptor</code> 拦截请求并写入日志</p>
+<ul>
+<li>io.grpc.internal.ServerImpl.ServerTransportListenerImpl#startCall</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;ReqT, RespT&gt; <span class="function">ServerStreamListener <span class="title">startCall</span><span class="params">(ServerStream stream, String fullMethodName,</span></span></span><br><span class="line"><span class="function"><span class="params">    ServerMethodDefinition&lt;ReqT, RespT&gt; methodDef, Metadata headers,</span></span></span><br><span class="line"><span class="function"><span class="params">    Context.CancellableContext context, StatsTraceContext statsTraceCtx, Tag tag)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果 binlog 不为空，即需要记录binlog，则添加请求监听器和方法处理器记录 binlog</span></span><br><span class="line">  ServerMethodDefinition&lt;?, ?&gt; wMethodDef = binlog == <span class="keyword">null</span> ? interceptedDef : binlog.wrapMethodDefinition(interceptedDef);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> startWrappedCall(fullMethodName, wMethodDef, stream, headers, context, tag);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.services.BinaryLogProvider#wrapMethodDefinition</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> &lt;ReqT, RespT&gt; ServerMethodDefinition&lt;?, ?&gt; wrapMethodDefinition(ServerMethodDefinition&lt;ReqT, RespT&gt; oMethodDef) &#123;</span><br><span class="line">  <span class="comment">// 根据方法获取二进制日志拦截器，如果没有该方法则不拦截</span></span><br><span class="line">  ServerInterceptor binlogInterceptor = getServerInterceptor(oMethodDef.getMethodDescriptor().getFullMethodName());</span><br><span class="line">  <span class="keyword">if</span> (binlogInterceptor == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> oMethodDef;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  MethodDescriptor&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt; binMethod = BinaryLogProvider.toByteBufferMethod(oMethodDef.getMethodDescriptor());</span><br><span class="line">  <span class="comment">// 包装方法，添加了处理器和监听器</span></span><br><span class="line">  ServerMethodDefinition&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt; binDef = InternalServerInterceptors.wrapMethod(oMethodDef, binMethod);</span><br><span class="line">  <span class="comment">// 创建处理器</span></span><br><span class="line">  ServerCallHandler&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt; binlogHandler =</span><br><span class="line">          InternalServerInterceptors.interceptCallHandlerCreate(binlogInterceptor, binDef.getServerCallHandler());</span><br><span class="line">  <span class="comment">// 创建服务方法定义</span></span><br><span class="line">  <span class="keyword">return</span> ServerMethodDefinition.create(binMethod, binlogHandler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.services.BinlogHelper#getClientInterceptor</li>
+</ul>
+<p>会在每一个事件中输出具体的信息到 BinaryLog 中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ClientInterceptor <span class="title">getClientInterceptor</span><span class="params">(<span class="keyword">final</span> <span class="keyword">long</span> callId)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> ClientInterceptor() &#123;</span><br><span class="line">    <span class="keyword">boolean</span> trailersOnlyResponse = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> &lt;ReqT, RespT&gt; <span class="function">ClientCall&lt;ReqT, RespT&gt; <span class="title">interceptCall</span><span class="params">(<span class="keyword">final</span> MethodDescriptor&lt;ReqT, RespT&gt; method, CallOptions callOptions, Channel next)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">final</span> String methodName = method.getFullMethodName();</span><br><span class="line">      <span class="keyword">final</span> String authority = next.authority();</span><br><span class="line">      <span class="keyword">final</span> Deadline deadline = min(callOptions.getDeadline(), Context.current().getDeadline());</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> SimpleForwardingClientCall&lt;ReqT, RespT&gt;(next.newCall(method, callOptions)) &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">(<span class="keyword">final</span> ClientCall.Listener&lt;RespT&gt; responseListener, Metadata headers)</span> </span>&#123;</span><br><span class="line">          <span class="keyword">final</span> Duration timeout = deadline == <span class="keyword">null</span> ? <span class="keyword">null</span> : Durations.fromNanos(deadline.timeRemaining(TimeUnit.NANOSECONDS));</span><br><span class="line">          writer.logClientHeader(seq.getAndIncrement(), methodName, authority, timeout, headers, GrpcLogEntry.Logger.LOGGER_CLIENT,callId, <span class="comment">/*peerAddress=*/</span> <span class="keyword">null</span>);</span><br><span class="line">          ClientCall.Listener&lt;RespT&gt; wListener =</span><br><span class="line">                  <span class="keyword">new</span> SimpleForwardingClientCallListener&lt;RespT&gt;(responseListener) &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(RespT message)</span> </span>&#123;</span><br><span class="line">                      writer.logRpcMessage(seq.getAndIncrement(), EventType.EVENT_TYPE_SERVER_MESSAGE, method.getResponseMarshaller(), message, GrpcLogEntry.Logger.LOGGER_CLIENT, callId);</span><br><span class="line">                      <span class="keyword">super</span>.onMessage(message);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onHeaders</span><span class="params">(Metadata headers)</span> </span>&#123;</span><br><span class="line">                      trailersOnlyResponse = <span class="keyword">false</span>;</span><br><span class="line">                      writer.logServerHeader(seq.getAndIncrement(), headers, GrpcLogEntry.Logger.LOGGER_CLIENT, callId, getPeerSocket(getAttributes()));</span><br><span class="line">                      <span class="keyword">super</span>.onHeaders(headers);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClose</span><span class="params">(Status status, Metadata trailers)</span> </span>&#123;</span><br><span class="line">                      SocketAddress peer = trailersOnlyResponse ? getPeerSocket(getAttributes()) : <span class="keyword">null</span>;</span><br><span class="line">                      writer.logTrailer(seq.getAndIncrement(), status, trailers, GrpcLogEntry.Logger.LOGGER_CLIENT, callId, peer);</span><br><span class="line">                      <span class="keyword">super</span>.onClose(status, trailers);</span><br><span class="line">                    &#125;</span><br><span class="line">                  &#125;;</span><br><span class="line">          <span class="keyword">super</span>.start(wListener, headers);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendMessage</span><span class="params">(ReqT message)</span> </span>&#123;</span><br><span class="line">          writer.logRpcMessage(seq.getAndIncrement(), EventType.EVENT_TYPE_CLIENT_MESSAGE, method.getRequestMarshaller(), message, GrpcLogEntry.Logger.LOGGER_CLIENT, callId);</span><br><span class="line">          <span class="keyword">super</span>.sendMessage(message);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">halfClose</span><span class="params">()</span> </span>&#123;</span><br><span class="line">          writer.logHalfClose(seq.getAndIncrement(), GrpcLogEntry.Logger.LOGGER_CLIENT, callId);</span><br><span class="line">          <span class="keyword">super</span>.halfClose();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancel</span><span class="params">(String message, Throwable cause)</span> </span>&#123;</span><br><span class="line">          writer.logCancel(seq.getAndIncrement(), GrpcLogEntry.Logger.LOGGER_CLIENT, callId);</span><br><span class="line">          <span class="keyword">super</span>.cancel(message, cause);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/01/03/gRPC-%E6%8B%A6%E6%88%AA%E5%99%A8%E5%92%8C%E7%9B%91%E5%90%AC%E5%99%A8/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC 拦截器和监听器
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/01/04/gRPC-%E4%B8%AD%E4%BD%BF%E7%94%A8-Channelz/">
+        
+          gRPC 中使用 Channelz
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E4%B8%AD%E6%89%93%E5%8D%B0%E8%AF%B7%E6%B1%82%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%97%A5%E5%BF%97"><span class="toc-nav-text">gRPC 中打印请求二进制日志</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#1-%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">1. 添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-%E6%B7%BB%E5%8A%A0-BinaryLogSink-%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">2. 添加 BinaryLogSink 实现</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#3-%E5%88%9B%E5%BB%BA-Channel-%E6%97%B6%E6%8C%87%E5%AE%9A-BinaryLog"><span class="toc-nav-text">3. 创建 Channel 时指定 BinaryLog</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#4-%E6%8C%87%E5%AE%9A%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-nav-text">4. 指定环境变量</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#5-%E4%BF%AE%E6%94%B9%E8%BE%93%E5%87%BA%E5%86%85%E5%AE%B9"><span class="toc-nav-text">5. 修改输出内容</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-nav-text">实现原理</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2021/01/04/gRPC-中打印请求二进制日志/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC 中打印请求二进制日志",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Thrfit 中的 Server | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Thrfit 中的 Server</h2>
+  <p class="post-date">2021-01-18</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Thrfit-中的-Server"><a href="#Thrfit-中的-Server" class="headerlink" title="Thrfit 中的 Server"></a>Thrfit 中的 Server</h1><p>Thrift 中有多种 Server 的实现，支持单线程、多线程、异步等多种方式</p>
+<h2 id="Server-定义"><a href="#Server-定义" class="headerlink" title="Server 定义"></a>Server 定义</h2><h3 id="属性"><a href="#属性" class="headerlink" title="属性"></a>属性</h3><ul>
+<li><code>processorFactory_</code> : 处理器工厂</li>
+<li><code>serverTransport_</code>: 服务端 Transport</li>
+<li><code>eventHandler_</code> : 事件监听器，可以监听 Server 所有启动、关闭、处理请求相关的事件</li>
+<li><code>inputTransportFactory_</code> : 输入流工厂</li>
+<li><code>outputTransportFactory_</code> : 输出流工厂</li>
+<li><code>inputProtocolFactory_</code> : 输入流协议工厂</li>
+<li><code>outputProtocolFactory_</code> : 输出流协议工厂</li>
+</ul>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><ul>
+<li>serve</li>
+</ul>
+<p>启动 Server，监听端口，对外提供服务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">serve</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>stop </li>
+</ul>
+<p>关闭 Server，断开连接，释放并清除资源</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">stop</span><span class="params">()</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="实现类"><a href="#实现类" class="headerlink" title="实现类"></a>实现类</h2><p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/thrift-source-server-subclass.png" alt="thrift-source-server-subclass.png"></p>
+<h3 id="阻塞"><a href="#阻塞" class="headerlink" title="阻塞"></a>阻塞</h3><ul>
+<li>TSimpleServer </li>
+</ul>
+<p>Server 的简单实现，是单线程阻塞的 Server，连接实现取决于 <code>TServerTransport</code>具体类型；用于测试场景</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serve</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 监听 Socket</span></span><br><span class="line">    serverTransport_.listen();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果有事件处理器，则调用其 preSever 方法</span></span><br><span class="line">    eventHandler_.preServe();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置运行状态</span></span><br><span class="line">    setServing(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只要没有关闭，就获取连接</span></span><br><span class="line">    <span class="keyword">while</span> (!stopped_) &#123;</span><br><span class="line">        <span class="comment">// 接受连接</span></span><br><span class="line">        client = serverTransport_.accept();</span><br><span class="line">        connectionContext = eventHandler_.createContext(inputProtocol, outputProtocol);</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="comment">// 处理上下文事件</span></span><br><span class="line">            eventHandler_.processContext(connectionContext, inputTransport, outputTransport);</span><br><span class="line">            <span class="comment">// 处理请求</span></span><br><span class="line">            processor.process(inputProtocol, outputProtocol);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 上下文删除事件</span></span><br><span class="line">    eventHandler_.deleteContext(connectionContext, inputProtocol, outputProtocol);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 关闭 Transport</span></span><br><span class="line">    inputTransport.close();</span><br><span class="line">    outputTransport.close();</span><br><span class="line">    <span class="comment">// 修改服务状态</span></span><br><span class="line">    setServing(<span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<ul>
+<li>TThreadPoolServer </li>
+</ul>
+<p>在 <code>TSimpleServer</code> 的基础上优化，使用了线程池处理请求；构建参数中可以指定创建线程池的参数，支持线程池饱和后超时；连接实现取决于 <code>TServerTransport</code>具体类型</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serve</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 启动监听</span></span><br><span class="line">    <span class="keyword">if</span> (!preServe()) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 处理事件</span></span><br><span class="line">    execute();</span><br><span class="line">    <span class="comment">// 等待关闭</span></span><br><span class="line">    waitForShutdown();</span><br><span class="line"></span><br><span class="line">    setServing(<span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">preServe</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 监听端口</span></span><br><span class="line">    serverTransport_.listen();</span><br><span class="line">    <span class="comment">// Run the preServe event</span></span><br><span class="line">    <span class="comment">// 启动事件</span></span><br><span class="line">    eventHandler_.preServe();</span><br><span class="line">    stopped_ = <span class="keyword">false</span>;</span><br><span class="line">    setServing(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (!stopped_) &#123;</span><br><span class="line">        <span class="comment">// 接受连接</span></span><br><span class="line">        TTransport client = serverTransport_.accept();</span><br><span class="line">        WorkerProcess wp = <span class="keyword">new</span> WorkerProcess(client);</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="comment">// 执行任务</span></span><br><span class="line">            executorService_.execute(wp);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="非阻塞"><a href="#非阻塞" class="headerlink" title="非阻塞"></a>非阻塞</h3><ul>
+<li>AbstractNonblockingServer</li>
+</ul>
+<p><code>AbstractNonblockingServer</code> 是非阻塞的 Server 的抽象类；非阻塞 Server 有独立的线程分别处理连接和处理请求；底层实现变为 NIO，读取和写入由 <code>FrameBuffer</code> 处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 启动 Server</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serve</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 启动</span></span><br><span class="line">    <span class="keyword">if</span> (!startThreads()) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 开始监听</span></span><br><span class="line">    <span class="keyword">if</span> (!startListening()) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 修改状态</span></span><br><span class="line">    setServing(<span class="keyword">true</span>);</span><br><span class="line">    <span class="comment">// 阻塞直到关闭</span></span><br><span class="line">    waitForShutdown();</span><br><span class="line">    setServing(<span class="keyword">false</span>);</span><br><span class="line">    <span class="comment">// 停止监听器</span></span><br><span class="line">    stopListening();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 处理读取</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">handleRead</span><span class="params">(SelectionKey key)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取帧</span></span><br><span class="line">    FrameBuffer buffer = (FrameBuffer) key.attachment();</span><br><span class="line">    <span class="comment">// 如果没有可读取的，则清理</span></span><br><span class="line">    <span class="keyword">if</span> (!buffer.read()) &#123;</span><br><span class="line">        cleanupSelectionKey(key);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果 buffer 完全读取，则执行处理，如果失败则清理</span></span><br><span class="line">    <span class="keyword">if</span> (buffer.isFrameFullyRead()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!requestInvoke(buffer)) &#123;</span><br><span class="line">            cleanupSelectionKey(key);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 处理写入</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">handleWrite</span><span class="params">(SelectionKey key)</span> </span>&#123;</span><br><span class="line">    FrameBuffer buffer = (FrameBuffer) key.attachment();</span><br><span class="line">    <span class="keyword">if</span> (!buffer.write()) &#123;</span><br><span class="line">        cleanupSelectionKey(key);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>THsHaServer</li>
+</ul>
+<p><code>THsHaServer</code> 是半同步半异步的 Server，继承自<code>TNonblockingServer</code>，是指处理连接和 IO 事件是同步的，处理请求使用线程池，是异步的；与 <code>TThreadPoolServer</code>类似，不过连接使用的是 NIO；处理连接和 IO 事件的逻辑使用 <code>AbstractNonblockingServer</code> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 处理 IO 事件</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Server 开始对外工作</span></span><br><span class="line">    eventHandler_.preServe();</span><br><span class="line">    <span class="comment">// 只要没有停止，就执行 select 和处理连接变化</span></span><br><span class="line">    <span class="keyword">while</span> (!stopped_) &#123;</span><br><span class="line">        select();</span><br><span class="line">        processInterestChanges();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (SelectionKey selectionKey : selector.keys()) &#123;</span><br><span class="line">        cleanupSelectionKey(selectionKey);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 处理请求</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">requestInvoke</span><span class="params">(FrameBuffer frameBuffer)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 封装并执行调用</span></span><br><span class="line">    Runnable invocation = getRunnable(frameBuffer);</span><br><span class="line">    invoker.execute(invocation);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>TThreadedSelectorServer</li>
+</ul>
+<p><code>TThreadedSelectorServer</code> 的性能优于 <code>TNonblockingServer</code> 和 <code>THsHaServer</code>，可以配置多个处理 IO 事件的线程，有独立的处理连接的线程，以及单独执行请求的线程池</p>
+<p>会由 <code>AcceptThread</code> 建立连接，将连接信息添加到队列中；由 <code>SelectorThread</code> 处理 IO 事件，由线程池执行请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 处理连接(AcceptThread)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 通知 Server 开始启动</span></span><br><span class="line">    eventHandler_.preServe();</span><br><span class="line">    <span class="keyword">while</span> (!stopped_) &#123;</span><br><span class="line">        <span class="comment">// 选择处理连接</span></span><br><span class="line">        select();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 处理 IO 事件及连接(SelectorThread)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; </span><br><span class="line">    <span class="keyword">while</span> (!stopped_) &#123;</span><br><span class="line">        <span class="comment">// 选择读取或写入事件</span></span><br><span class="line">        select();</span><br><span class="line">        <span class="comment">// 处理新的连接</span></span><br><span class="line">        processAcceptedConnections();</span><br><span class="line">        <span class="comment">// 改变需要改变的状态</span></span><br><span class="line">        processInterestChanges();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果停止了，则清理选择</span></span><br><span class="line">    <span class="keyword">for</span> (SelectionKey selectionKey : selector.keys()) &#123;</span><br><span class="line">        cleanupSelectionKey(selectionKey);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 处理请求</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">requestInvoke</span><span class="params">(FrameBuffer frameBuffer)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 封装为 Runnable</span></span><br><span class="line">    Runnable invocation = getRunnable(frameBuffer);</span><br><span class="line">    <span class="keyword">if</span> (invoker != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 执行处理</span></span><br><span class="line">        invoker.execute(invocation);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Invoke on the caller&#x27;s thread</span></span><br><span class="line">        <span class="comment">// 如果没有线程池，由当前线程直接处理</span></span><br><span class="line">        invocation.run();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/01/17/Thrfit-%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/">
+        <span class="nav-arrow">← </span>
+        
+          Thrfit 中的核心概念
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/01/29/gRPC-%E4%B8%AD%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3/">
+        
+          gRPC 中泛化调用服务接口
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Thrfit-%E4%B8%AD%E7%9A%84-Server"><span class="toc-nav-text">Thrfit 中的 Server</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Server-%E5%AE%9A%E4%B9%89"><span class="toc-nav-text">Server 定义</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%B1%9E%E6%80%A7"><span class="toc-nav-text">属性</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%96%B9%E6%B3%95"><span class="toc-nav-text">方法</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%B1%BB"><span class="toc-nav-text">实现类</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%98%BB%E5%A1%9E"><span class="toc-nav-text">阻塞</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%9D%9E%E9%98%BB%E5%A1%9E"><span class="toc-nav-text">非阻塞</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2021/01/18/Thrfit-中的-Server/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Thrfit 中的 Server",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

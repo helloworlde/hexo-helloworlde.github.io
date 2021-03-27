@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Thrift 客户端异步请求 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Thrift 客户端异步请求</h2>
+  <p class="post-date">2021-02-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Thrift-客户端异步请求"><a href="#Thrift-客户端异步请求" class="headerlink" title="Thrift 客户端异步请求"></a>Thrift 客户端异步请求</h1><h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><h3 id="IDL"><a href="#IDL" class="headerlink" title="IDL"></a>IDL</h3><ul>
+<li>helloworld.thrift</li>
+</ul>
+<figure class="highlight thrift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> java io.github.helloworlde.thrift</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">HelloMessage</span> </span>&#123;</span><br><span class="line">    <span class="number">1</span>: <span class="keyword">required</span> <span class="built_in">string</span> message,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">HelloResponse</span> </span>&#123;</span><br><span class="line">    <span class="number">1</span>: <span class="keyword">required</span> <span class="built_in">string</span> message,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">HelloService</span> </span>&#123;</span><br><span class="line">    HelloResponse sayHello(<span class="number">1</span>: HelloMessage request);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><p>异步客户端调用使用 <code>AsyncClient</code>，传输层使用 <code>TNonblockingSocket</code>；需要实现 <code>AsyncMethodCallback</code>作为回调，用于处理请求结果</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AsyncClient</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 构建异步客户端</span></span><br><span class="line">            TAsyncClientManager clientManager = <span class="keyword">new</span> TAsyncClientManager();</span><br><span class="line">            TProtocolFactory protocolFactory = <span class="keyword">new</span> TBinaryProtocol.Factory();</span><br><span class="line"></span><br><span class="line">            HelloService.AsyncClient.Factory factory = <span class="keyword">new</span> HelloService.AsyncClient.Factory(clientManager, protocolFactory);</span><br><span class="line"></span><br><span class="line">            TNonblockingTransport nonblockingTransport = <span class="keyword">new</span> TNonblockingSocket(<span class="string">&quot;localhost&quot;</span>, <span class="number">9090</span>);</span><br><span class="line">            HelloService.AsyncClient asyncClient = factory.getAsyncClient(nonblockingTransport);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 异步回调</span></span><br><span class="line">            AsyncMethodCallback&lt;HelloResponse&gt; callback = <span class="keyword">new</span> AsyncMethodCallback&lt;HelloResponse&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onComplete</span><span class="params">(HelloResponse response)</span> </span>&#123;</span><br><span class="line">                    log.info(<span class="string">&quot;响应结果: &#123;&#125;&quot;</span>, response.getMessage());</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Exception exception)</span> </span>&#123;</span><br><span class="line">                    log.error(<span class="string">&quot;请求失败: &#123;&#125;&quot;</span>, exception.getMessage(), exception);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 构建请求</span></span><br><span class="line">            HelloMessage request = <span class="keyword">new</span> HelloMessage();</span><br><span class="line">            request.setMessage(<span class="string">&quot;Async Thrift&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 调用</span></span><br><span class="line">            asyncClient.sayHello(request, callback);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (TException | IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        Thread.sleep(<span class="number">3_000</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="请求处理流程"><a href="#请求处理流程" class="headerlink" title="请求处理流程"></a>请求处理流程</h2><h3 id="构建-Client-和回调"><a href="#构建-Client-和回调" class="headerlink" title="构建 Client 和回调"></a>构建 Client 和回调</h3><h4 id="1-构建-Client"><a href="#1-构建-Client" class="headerlink" title="1. 构建 Client"></a>1. 构建 Client</h4><p>异步的客户端由抽象类 <code>TAsyncClient</code> 定义，实现类继承了 <code>TAsyncClient</code>，同时实现了 <code>AsyncIface</code>；<br>在构建其 Factory 时需要三个参数，分别是 <code>TAsyncClientManager</code>，用于管理调用请求的所有流程；和 <code>TProtocolFactory</code>，用于获取协议；还有 <code>TNonblockingTransport</code>，用于底层的传输，必须是非阻塞的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 构建异步客户端</span></span><br><span class="line">TAsyncClientManager clientManager = <span class="keyword">new</span> TAsyncClientManager();</span><br><span class="line">TProtocolFactory protocolFactory = <span class="keyword">new</span> TBinaryProtocol.Factory();</span><br><span class="line"></span><br><span class="line">HelloService.AsyncClient.Factory factory = <span class="keyword">new</span> HelloService.AsyncClient.Factory(clientManager, protocolFactory);</span><br><span class="line"></span><br><span class="line">TNonblockingTransport nonblockingTransport = <span class="keyword">new</span> TNonblockingSocket(<span class="string">&quot;localhost&quot;</span>, <span class="number">9090</span>);</span><br><span class="line">HelloService.AsyncClient asyncClient = factory.getAsyncClient(nonblockingTransport);</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-构建回调"><a href="#2-构建回调" class="headerlink" title="2. 构建回调"></a>2. 构建回调</h4><p>回调由 <code>AsyncMethodCallback</code> 接口定义，有两个方法，分别是用于处理正常返回的 <code>onComplete</code> 和处理异常结果的 <code>onError</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">AsyncMethodCallback&lt;HelloResponse&gt; callback = <span class="keyword">new</span> AsyncMethodCallback&lt;HelloResponse&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onComplete</span><span class="params">(HelloResponse response)</span> </span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;响应结果: &#123;&#125;&quot;</span>, response.getMessage());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Exception exception)</span> </span>&#123;</span><br><span class="line">        log.error(<span class="string">&quot;请求失败: &#123;&#125;&quot;</span>, exception.getMessage(), exception);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="执行请求"><a href="#执行请求" class="headerlink" title="执行请求"></a>执行请求</h3><h4 id="发起请求"><a href="#发起请求" class="headerlink" title="发起请求"></a>发起请求</h4><p>调用接口时需要两个参数，请求内容和响应回调</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HelloMessage request = <span class="keyword">new</span> HelloMessage();</span><br><span class="line">request.setMessage(<span class="string">&quot;Async Thrift&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用</span></span><br><span class="line">asyncClient.sayHello(request, callback);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.github.helloworlde.thrift.HelloService.AsyncClient#sayHello</li>
+</ul>
+<p>会构建 <code>sayHello_call</code>，该类是 <code>TAsyncMethodCall</code> 的实现类，支持写入消息和获取结果，然后将该实例作为参数调用 <code>org.apache.thrift.async.TAsyncClientManager#call</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sayHello</span><span class="params">(HelloMessage request, org.apache.thrift.async.AsyncMethodCallback&lt;HelloResponse&gt; resultHandler)</span> <span class="keyword">throws</span> org.apache.thrift.TException </span>&#123;</span><br><span class="line">    checkReady();</span><br><span class="line">    sayHello_call method_call = <span class="keyword">new</span> sayHello_call(request, resultHandler, <span class="keyword">this</span>, ___protocolFactory, ___transport);</span><br><span class="line">    <span class="keyword">this</span>.___currentMethod = method_call;</span><br><span class="line">    ___manager.call(method_call);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.async.TAsyncClientManager#call</li>
+</ul>
+<p>初始化请求，将请求加入到队列中，然后唤醒 Selector 执行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">(TAsyncMethodCall method)</span> <span class="keyword">throws</span> TException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!isRunning()) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> TException(<span class="string">&quot;SelectThread is not running&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 初始化缓冲区</span></span><br><span class="line">    method.prepareMethodCall();</span><br><span class="line">    <span class="comment">// 添加到待执行方法中，由 SelectThread 处理</span></span><br><span class="line">    pendingCalls.add(method);</span><br><span class="line">    selectThread.getSelector().wakeup();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.async.TAsyncMethodCall#prepareMethodCall</li>
+</ul>
+<p>执行初始化请求，，将请求消息写入到 Protocol 中，然后封装为 ByteBuffer </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">prepareMethodCall</span><span class="params">()</span> <span class="keyword">throws</span> TException </span>&#123;</span><br><span class="line">    TMemoryBuffer memoryBuffer = <span class="keyword">new</span> TMemoryBuffer(INITIAL_MEMORY_BUFFER_SIZE);</span><br><span class="line">    TProtocol protocol = protocolFactory.getProtocol(memoryBuffer);</span><br><span class="line">    write_args(protocol);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> length = memoryBuffer.length();</span><br><span class="line">    frameBuffer = ByteBuffer.wrap(memoryBuffer.getArray(), <span class="number">0</span>, length);</span><br><span class="line"></span><br><span class="line">    TFramedTransport.encodeFrameSize(length, sizeBufferArray);</span><br><span class="line">    sizeBuffer = ByteBuffer.wrap(sizeBufferArray);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.github.helloworlde.thrift.HelloService.AsyncClient.sayHello_call#write_args</li>
+</ul>
+<p>将消息写入到流中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write_args</span><span class="params">(org.apache.thrift.protocol.TProtocol prot)</span> <span class="keyword">throws</span> org.apache.thrift.TException </span>&#123;</span><br><span class="line">    prot.writeMessageBegin(<span class="keyword">new</span> org.apache.thrift.protocol.TMessage(<span class="string">&quot;sayHello&quot;</span>, org.apache.thrift.protocol.TMessageType.CALL, <span class="number">0</span>));</span><br><span class="line">    sayHello_args args = <span class="keyword">new</span> sayHello_args();</span><br><span class="line">    args.setRequest(request);</span><br><span class="line">    args.write(prot);</span><br><span class="line">    prot.writeMessageEnd();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.async.TAsyncClientManager.SelectThread#run</li>
+</ul>
+<p>由 <code>SelectThread</code> 处理请求，在执行时，会先修改 <code>TAsyncMethodCall</code> 的状态，如果需要连接，则执行建立连接；如果需要写入或者读取则执行写入或者读取；然后会检查请求是否超时，如果没有超时，则开始执行待调用的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (running) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (timeoutWatchSet.size() == <span class="number">0</span>) &#123;</span><br><span class="line">                    selector.select();</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">long</span> nextTimeout = timeoutWatchSet.first().getTimeoutTimestamp();</span><br><span class="line">                    <span class="keyword">long</span> selectTime = nextTimeout - System.currentTimeMillis();</span><br><span class="line">                    <span class="keyword">if</span> (selectTime &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                        selector.select(selectTime);</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="comment">// Next timeout is now or in past, select immediately so we can time out</span></span><br><span class="line">                        selector.selectNow();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                LOGGER.error(<span class="string">&quot;Caught IOException in TAsyncClientManager!&quot;</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 过渡状态</span></span><br><span class="line">            transitionMethods();</span><br><span class="line">            <span class="comment">// 检查是否超时</span></span><br><span class="line">            timeoutMethods();</span><br><span class="line">            <span class="comment">// 开始待执行的方法</span></span><br><span class="line">            startPendingMethods();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception exception) &#123;</span><br><span class="line">            LOGGER.error(<span class="string">&quot;Ignoring uncaught exception in SelectThread&quot;</span>, exception);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        selector.close();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">        LOGGER.warn(<span class="string">&quot;Could not close selector. This may result in leaked resources!&quot;</span>, ex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.async.TAsyncClientManager.SelectThread#startPendingMethods</li>
+</ul>
+<p>从队列中获取待执行的请求，然后注册选择器，根据状态进行相应的操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">startPendingMethods</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    TAsyncMethodCall methodCall;</span><br><span class="line">    <span class="keyword">while</span> ((methodCall = pendingCalls.poll()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 注册 Selector，开始第一个状态，既可以用于连接，也可以用于写入</span></span><br><span class="line">            methodCall.start(selector);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 如果有超时则添加超时</span></span><br><span class="line">            TAsyncClient client = methodCall.getClient();</span><br><span class="line">            <span class="keyword">if</span> (client.hasTimeout() &amp;&amp; !client.hasError()) &#123;</span><br><span class="line">                timeoutWatchSet.add(methodCall);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception exception) &#123;</span><br><span class="line">            LOGGER.warn(<span class="string">&quot;Caught exception in TAsyncClientManager!&quot;</span>, exception);</span><br><span class="line">            methodCall.onError(exception);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.async.TAsyncMethodCall#start</li>
+</ul>
+<p>根据状态向 Transport 注册相应的操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">start</span><span class="params">(Selector sel)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    SelectionKey key;</span><br><span class="line">    <span class="comment">// 如果 Transport 是开启的，则修改状态为 WRITING_REQUEST_SIZE，注册写操作</span></span><br><span class="line">    <span class="keyword">if</span> (transport.isOpen()) &#123;</span><br><span class="line">        state = State.WRITING_REQUEST_SIZE;</span><br><span class="line">        key = transport.registerSelector(sel, SelectionKey.OP_WRITE);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Transport 状态不是开启的，修改状态为 CONNECTING，注册连接操作</span></span><br><span class="line">        state = State.CONNECTING;</span><br><span class="line">        key = transport.registerSelector(sel, SelectionKey.OP_CONNECT);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// non-blocking connect can complete immediately,</span></span><br><span class="line">        <span class="comment">// in which case we should not expect the OP_CONNECT</span></span><br><span class="line">        <span class="comment">// 开启连接后注册写入</span></span><br><span class="line">        <span class="keyword">if</span> (transport.startConnect()) &#123;</span><br><span class="line">            registerForFirstWrite(key);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    key.attach(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<ul>
+<li>org.apache.thrift.async.TAsyncMethodCall#doWritingRequestBody</li>
+</ul>
+<p>在 <code>org.apache.thrift.async.TAsyncMethodCall#transition</code> 执行建立连接，写入请求头后开始写入请求体；当写入完成后，，会根据请求类型做相应操作；如果是 oneway，则执行请求回调流程并完成请求；如果不是，则修改状态，等待读取</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doWritingRequestBody</span><span class="params">(SelectionKey key)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (transport.write(frameBuffer) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">&quot;Write call frame failed&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (frameBuffer.remaining() == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (isOneway) &#123;</span><br><span class="line">            cleanUpAndFireCallback(key);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            state = State.READING_RESPONSE_SIZE;</span><br><span class="line">            sizeBuffer.rewind();  <span class="comment">// Prepare to read incoming frame size</span></span><br><span class="line">            key.interestOps(SelectionKey.OP_READ);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="处理响应"><a href="#处理响应" class="headerlink" title="处理响应"></a>处理响应</h4><p>在请求发送完成后，<code>SelectionKey</code>的状态被修改为 <code>READING_RESPONSE_SIZE</code>，当接收到服务端的响应后，会先读取响应大小，然后将状态修改为 <code>READING_RESPONSE_BODY</code>，然后读取响应内容</p>
+<ul>
+<li>org.apache.thrift.async.TAsyncMethodCall#doReadingResponseBody</li>
+</ul>
+<p>会读取所有的响应内容到缓冲区，然后执行请求完成流程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doReadingResponseBody</span><span class="params">(SelectionKey key)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (transport.read(frameBuffer) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">&quot;Read call frame failed&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (frameBuffer.remaining() == <span class="number">0</span>) &#123;</span><br><span class="line">        cleanUpAndFireCallback(key);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.async.TAsyncMethodCall#cleanUpAndFireCallback</li>
+</ul>
+<p>修改请求状态，释放 <code>SelectionKey</code>，然后获取响应结果，执行回调</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">cleanUpAndFireCallback</span><span class="params">(SelectionKey key)</span> </span>&#123;</span><br><span class="line">    state = State.RESPONSE_READ;</span><br><span class="line">    key.interestOps(<span class="number">0</span>);</span><br><span class="line">    <span class="comment">// this ensures that the TAsyncMethod instance doesn&#x27;t hang around</span></span><br><span class="line">    key.attach(<span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        T result = <span class="keyword">this</span>.getResult();</span><br><span class="line">        client.onComplete();</span><br><span class="line">        callback.onComplete(result);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        key.cancel();</span><br><span class="line">        onError(e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.github.helloworlde.thrift.HelloService.AsyncClient.sayHello_call#getResult</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> HelloResponse <span class="title">getResult</span><span class="params">()</span> <span class="keyword">throws</span> org.apache.thrift.TException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> java.lang.IllegalStateException(<span class="string">&quot;Method call not finished!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    org.apache.thrift.transport.TMemoryInputTransport memoryTransport = <span class="keyword">new</span> org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());</span><br><span class="line">    org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">new</span> Client(prot)).recv_sayHello();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.github.helloworlde.thrift.HelloService.Client#recv_sayHello</li>
+</ul>
+<p>会先构建响应对象，然后获取结果内容，作为结果返回</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> HelloResponse <span class="title">recv_sayHello</span><span class="params">()</span> <span class="keyword">throws</span> org.apache.thrift.TException </span>&#123;</span><br><span class="line">    sayHello_result result = <span class="keyword">new</span> sayHello_result();</span><br><span class="line">    receiveBase(result, <span class="string">&quot;sayHello&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (result.isSetSuccess()) &#123;</span><br><span class="line">        <span class="keyword">return</span> result.success;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, <span class="string">&quot;sayHello failed: unknown result&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.TServiceClient#receiveBase</li>
+</ul>
+<p>从 <code>TProtocol</code> 中读取响应内容，根据响应的结果，如果是正常则由相应类读取并解析为其实例，如果异常则抛出</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">receiveBase</span><span class="params">(TBase&lt;?, ?&gt; result, String methodName)</span> <span class="keyword">throws</span> TException </span>&#123;</span><br><span class="line">    <span class="comment">// 读取消息</span></span><br><span class="line">    TMessage msg = iprot_.readMessageBegin();</span><br><span class="line">    <span class="comment">// 如果是异常，则读取异常并抛出</span></span><br><span class="line">    <span class="keyword">if</span> (msg.type == TMessageType.EXCEPTION) &#123;</span><br><span class="line">        TApplicationException x = <span class="keyword">new</span> TApplicationException();</span><br><span class="line">        x.read(iprot_);</span><br><span class="line">        iprot_.readMessageEnd();</span><br><span class="line">        <span class="keyword">throw</span> x;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果请求序号不匹配，则抛出异常</span></span><br><span class="line">    <span class="keyword">if</span> (msg.seqid != seqid_) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> TApplicationException(TApplicationException.BAD_SEQUENCE_ID,</span><br><span class="line">                String.format(<span class="string">&quot;%s failed: out of sequence response: expected %d but got %d&quot;</span>, methodName, seqid_, msg.seqid));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 读取响应内容</span></span><br><span class="line">    result.read(iprot_);</span><br><span class="line">    iprot_.readMessageEnd();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.async.AsyncMethodCallback#onComplete</li>
+</ul>
+<p>最终执行回调</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onComplete</span><span class="params">(HelloResponse response)</span> </span>&#123;</span><br><span class="line">    log.info(<span class="string">&quot;响应结果: &#123;&#125;&quot;</span>, response.getMessage());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/helloworlde/thrift-java-sample">helloworlde/thrift-java-sample</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/02/20/gRPC-%E6%9C%8D%E5%8A%A1%E9%97%B4%E8%B0%83%E7%94%A8%E4%BA%8B%E4%BB%B6%E6%B5%81%E7%A8%8B/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC 服务间调用事件流程
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/02/20/Thrfit-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">
+        
+          Thrfit 服务端请求处理流程
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Thrift-%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%82%E6%AD%A5%E8%AF%B7%E6%B1%82"><span class="toc-nav-text">Thrift 客户端异步请求</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">实现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#IDL"><span class="toc-nav-text">IDL</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-nav-text">客户端</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">请求处理流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%9E%84%E5%BB%BA-Client-%E5%92%8C%E5%9B%9E%E8%B0%83"><span class="toc-nav-text">构建 Client 和回调</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#1-%E6%9E%84%E5%BB%BA-Client"><span class="toc-nav-text">1. 构建 Client</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-%E6%9E%84%E5%BB%BA%E5%9B%9E%E8%B0%83"><span class="toc-nav-text">2. 构建回调</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%89%A7%E8%A1%8C%E8%AF%B7%E6%B1%82"><span class="toc-nav-text">执行请求</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82"><span class="toc-nav-text">发起请求</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%A4%84%E7%90%86%E5%93%8D%E5%BA%94"><span class="toc-nav-text">处理响应</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-nav-text">参考文档</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2021/02/20/Thrift-客户端异步请求/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Thrift 客户端异步请求",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

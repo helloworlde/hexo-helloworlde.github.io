@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Thrfit 服务端请求处理流程 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Thrfit 服务端请求处理流程</h2>
+  <p class="post-date">2021-02-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Thrfit-服务端请求处理流程"><a href="#Thrfit-服务端请求处理流程" class="headerlink" title="Thrfit 服务端请求处理流程"></a>Thrfit 服务端请求处理流程</h1><p>使用同步的非阻塞的服务端的请求处理流程</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><h3 id="IDL"><a href="#IDL" class="headerlink" title="IDL"></a>IDL</h3><ul>
+<li>helloworld.thrift</li>
+</ul>
+<figure class="highlight thrift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> java io.github.helloworlde.thrift</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">HelloMessage</span> </span>&#123;</span><br><span class="line">    <span class="number">1</span>: <span class="keyword">required</span> <span class="built_in">string</span> message,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">HelloResponse</span> </span>&#123;</span><br><span class="line">    <span class="number">1</span>: <span class="keyword">required</span> <span class="built_in">string</span> message,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">HelloService</span> </span>&#123;</span><br><span class="line">    HelloResponse sayHello(<span class="number">1</span>: HelloMessage request);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h3><p>使用 <code>TThreadedSelectorServer</code> 作为服务端，支持接收连接，处理 IO 事件，执行请求由不同的线程实现；底层连接使用 <code>ServerSocket</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NonblockingServer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SneakyThrows</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        HelloServiceImpl helloService = <span class="keyword">new</span> HelloServiceImpl();</span><br><span class="line">        HelloService.Processor&lt;HelloService.Iface&gt; helloServiceProcessor = <span class="keyword">new</span> HelloService.Processor&lt;&gt;(helloService);</span><br><span class="line"></span><br><span class="line">        TNonblockingServerTransport transport = <span class="keyword">new</span> TNonblockingServerSocket(<span class="number">9090</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 配置参数以及处理器</span></span><br><span class="line">        TThreadedSelectorServer.Args serverArgs = <span class="keyword">new</span> TThreadedSelectorServer.Args(transport)</span><br><span class="line">                .selectorThreads(<span class="number">4</span>)</span><br><span class="line">                .workerThreads(<span class="number">10</span>)</span><br><span class="line">                .acceptQueueSizePerThread(<span class="number">20</span>)</span><br><span class="line">                .processor(helloServiceProcessor);</span><br><span class="line"></span><br><span class="line">        TServer server = <span class="keyword">new</span> TThreadedSelectorServer(serverArgs);</span><br><span class="line">        server.serve();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="请求处理流程"><a href="#请求处理流程" class="headerlink" title="请求处理流程"></a>请求处理流程</h2><h3 id="1-启动-Server"><a href="#1-启动-Server" class="headerlink" title="1. 启动 Server"></a>1. 启动 Server</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">TServer server = <span class="keyword">new</span> TThreadedSelectorServer(serverArgs);</span><br><span class="line">server.serve();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li> org.apache.thrift.server.AbstractNonblockingServer#serve</li>
+</ul>
+<p>启动 Server，启动用于连接的线程 <code>AcceptThread</code> 和用于处理 IO 事件的多个线程  <code>SelectorThread</code>；然后开始监听 IO 事件，由线程池处理请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serve</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 启动</span></span><br><span class="line">    <span class="keyword">if</span> (!startThreads()) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 开始监听</span></span><br><span class="line">    <span class="keyword">if</span> (!startListening()) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 修改状态</span></span><br><span class="line">    setServing(<span class="keyword">true</span>);</span><br><span class="line">    <span class="comment">// 阻塞直到关闭</span></span><br><span class="line">    waitForShutdown();</span><br><span class="line">    setServing(<span class="keyword">false</span>);</span><br><span class="line">    <span class="comment">// 停止监听器</span></span><br><span class="line">    stopListening();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.server.TThreadedSelectorServer#startThreads</li>
+</ul>
+<p>启动用于连接的线程 <code>AcceptThread</code> 和用于处理 IO 事件的多个线程  <code>SelectorThread</code> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">startThreads</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 创建选择线程，并添加到集合中</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; args.selectorThreads; ++i) &#123;</span><br><span class="line">            selectorThreads.add(<span class="keyword">new</span> SelectorThread(args.acceptQueueSizePerThread));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 创建处理连接的负载均衡， 创建处理连接的线程</span></span><br><span class="line">        acceptThread = <span class="keyword">new</span> AcceptThread((TNonblockingServerTransport) serverTransport_, createSelectorThreadLoadBalancer(selectorThreads));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动选择线程</span></span><br><span class="line">        <span class="keyword">for</span> (SelectorThread thread : selectorThreads) &#123;</span><br><span class="line">            thread.start();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 启动连接的线程</span></span><br><span class="line">        acceptThread.start();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        LOGGER.error(<span class="string">&quot;Failed to start threads!&quot;</span>, e);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.transport.TNonblockingServerSocket#listen</li>
+</ul>
+<p>开始监听</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">listen</span><span class="params">()</span> <span class="keyword">throws</span> TTransportException </span>&#123;</span><br><span class="line">    <span class="comment">// Make sure not to block on accept</span></span><br><span class="line">    <span class="keyword">if</span> (serverSocket_ != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            serverSocket_.setSoTimeout(<span class="number">0</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SocketException sx) &#123;</span><br><span class="line">            LOGGER.error(<span class="string">&quot;Socket exception while setting socket timeout&quot;</span>, sx);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-处理连接事件"><a href="#2-处理连接事件" class="headerlink" title="2. 处理连接事件"></a>2. 处理连接事件</h3><ul>
+<li>org.apache.thrift.server.TThreadedSelectorServer.AcceptThread#run</li>
+</ul>
+<p>连接事件由 <code>AcceptThread</code> 线程独立处理；会循环监听 <code>Selector</code>事件，当有新的连接事件时，会建立连接</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (eventHandler_ != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 通知 Server 开始启动</span></span><br><span class="line">            eventHandler_.preServe();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (!stopped_) &#123;</span><br><span class="line">            <span class="comment">// 选择处理连接</span></span><br><span class="line">            select();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        acceptSelector.close();</span><br><span class="line">        TThreadedSelectorServer.<span class="keyword">this</span>.stop();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.server.TThreadedSelectorServer.AcceptThread#select</li>
+</ul>
+<p>会不断从 <code>Selector</code>获取事件，判断如果是 accept 事件，则处理，并建立连接</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">select</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 等待连接事件</span></span><br><span class="line">        acceptSelector.select();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理接收到的事件</span></span><br><span class="line">        Iterator&lt;SelectionKey&gt; selectedKeys = acceptSelector.selectedKeys().iterator();</span><br><span class="line">        <span class="keyword">while</span> (!stopped_ &amp;&amp; selectedKeys.hasNext()) &#123;</span><br><span class="line">            SelectionKey key = selectedKeys.next();</span><br><span class="line">            selectedKeys.remove();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!key.isValid()) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (key.isAcceptable()) &#123;</span><br><span class="line">                <span class="comment">// 建立连接</span></span><br><span class="line">                handleAccept();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                LOGGER.warn(<span class="string">&quot;Unexpected state in select! &quot;</span> + key.interestOps());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        LOGGER.warn(<span class="string">&quot;Got an IOException while selecting!&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.server.TThreadedSelectorServer.AcceptThread#handleAccept</li>
+</ul>
+<p>会通过底层的 <code>ServerSocketChannel</code> 建立连接，然后将这个连接添加到 <code>SelectorThread</code> 的队列中，由 <code>SelectorThread</code>处理 IO 事件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleAccept</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 建立连接</span></span><br><span class="line">    <span class="keyword">final</span> TNonblockingTransport client = doAccept();</span><br><span class="line">    <span class="keyword">if</span> (client != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 将连接传递给选择线程</span></span><br><span class="line">        <span class="keyword">final</span> SelectorThread targetThread = threadChooser.nextThread();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果策略是尽快建立连接，则添加到处理的队列中</span></span><br><span class="line">        <span class="keyword">if</span> (args.acceptPolicy == Args.AcceptPolicy.FAST_ACCEPT || invoker == <span class="keyword">null</span>) &#123;</span><br><span class="line">            doAddAccept(targetThread, client);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 如果是 FAIR_ACCEPT，则提交异步任务进行添加</span></span><br><span class="line">                invoker.submit(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                        doAddAccept(targetThread, client);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (RejectedExecutionException rx) &#123;</span><br><span class="line">                LOGGER.warn(<span class="string">&quot;ExecutorService rejected accept registration!&quot;</span>, rx);</span><br><span class="line">                <span class="comment">// close immediately</span></span><br><span class="line">                client.close();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.transport.TNonblockingServerSocket#acceptImpl</li>
+</ul>
+<p>建立连接，返回新的 <code>TNonblockingSocket</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> TNonblockingSocket <span class="title">acceptImpl</span><span class="params">()</span> <span class="keyword">throws</span> TTransportException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (serverSocket_ == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> TTransportException(TTransportException.NOT_OPEN, <span class="string">&quot;No underlying server socket.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 接受连接</span></span><br><span class="line">        SocketChannel socketChannel = serverSocketChannel.accept();</span><br><span class="line">        <span class="keyword">if</span> (socketChannel == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用 Channel 构建 Socket</span></span><br><span class="line">        TNonblockingSocket tsocket = <span class="keyword">new</span> TNonblockingSocket(socketChannel);</span><br><span class="line">        tsocket.setTimeout(clientTimeout_);</span><br><span class="line">        <span class="keyword">return</span> tsocket;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException iox) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> TTransportException(iox);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.server.TThreadedSelectorServer.SelectorThread#addAcceptedConnection</li>
+</ul>
+<p>将连接添加到 <code>SelectorThread</code>的队列中，由 <code>SelectorThread</code>处理 IO 事件 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">addAcceptedConnection</span><span class="params">(TNonblockingTransport accepted)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 放入队列中</span></span><br><span class="line">        acceptedQueue.put(accepted);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        LOGGER.warn(<span class="string">&quot;Interrupted while adding accepted connection!&quot;</span>, e);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    selector.wakeup();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-处理-IO-事件"><a href="#3-处理-IO-事件" class="headerlink" title="3. 处理 IO 事件"></a>3. 处理 IO 事件</h3><p>IO  事件由 <code>SelectorThread</code> 处理</p>
+<ul>
+<li>org.apache.thrift.server.TThreadedSelectorServer.SelectorThread#run</li>
+</ul>
+<p>轮询读取事件，如果是 IO 事件，则分别处理；如果是新的连接，则注册 <code>Selector</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (!stopped_) &#123;</span><br><span class="line">            <span class="comment">// 选择读取或写入事件</span></span><br><span class="line">            select();</span><br><span class="line">            <span class="comment">// 处理新的连接</span></span><br><span class="line">            processAcceptedConnections();</span><br><span class="line">            <span class="comment">// 改变需要改变的状态</span></span><br><span class="line">            processInterestChanges();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果停止了，则清理选择</span></span><br><span class="line">        <span class="keyword">for</span> (SelectionKey selectionKey : selector.keys()) &#123;</span><br><span class="line">            cleanupSelectionKey(selectionKey);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        LOGGER.error(<span class="string">&quot;run() on SelectorThread exiting due to uncaught error&quot;</span>, t);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// 关闭</span></span><br><span class="line">        selector.close();</span><br><span class="line">        TThreadedSelectorServer.<span class="keyword">this</span>.stop();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.server.TThreadedSelectorServer.SelectorThread#select</li>
+</ul>
+<p>处理 IO 事件，根据事件类型分别处理读取或者写入</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">select</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 获取事件</span></span><br><span class="line">        doSelect();</span><br><span class="line"></span><br><span class="line">        Iterator&lt;SelectionKey&gt; selectedKeys = selector.selectedKeys().iterator();</span><br><span class="line">        <span class="keyword">while</span> (!stopped_ &amp;&amp; selectedKeys.hasNext()) &#123;</span><br><span class="line">            SelectionKey key = selectedKeys.next();</span><br><span class="line">            selectedKeys.remove();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 如果无效则跳过</span></span><br><span class="line">            <span class="keyword">if</span> (!key.isValid()) &#123;</span><br><span class="line">                cleanupSelectionKey(key);</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (key.isReadable()) &#123;</span><br><span class="line">                <span class="comment">// 如果是读取则处理读取事件</span></span><br><span class="line">                handleRead(key);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (key.isWritable()) &#123;</span><br><span class="line">                <span class="comment">// 如果是写入则处理写入</span></span><br><span class="line">                handleWrite(key);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                LOGGER.warn(<span class="string">&quot;Unexpected state in select! &quot;</span> + key.interestOps());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        LOGGER.warn(<span class="string">&quot;Got an IOException while selecting!&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="处理读取事件"><a href="#处理读取事件" class="headerlink" title="处理读取事件"></a>处理读取事件</h4><ul>
+<li>org.apache.thrift.server.AbstractNonblockingServer.AbstractSelectThread#handleRead</li>
+</ul>
+<p>在处理读取事件时，会读取整个帧，当完全读取时，会调用 <code>requestInvoke</code> 方法，通过线程池处理请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">handleRead</span><span class="params">(SelectionKey key)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取帧</span></span><br><span class="line">    FrameBuffer buffer = (FrameBuffer) key.attachment();</span><br><span class="line">    <span class="comment">// 如果没有可读取的，则清理</span></span><br><span class="line">    <span class="keyword">if</span> (!buffer.read()) &#123;</span><br><span class="line">        cleanupSelectionKey(key);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// if the buffer&#x27;s frame read is complete, invoke the method.</span></span><br><span class="line">    <span class="comment">// 如果 buffer 完全读取，则执行处理，如果失败则清理</span></span><br><span class="line">    <span class="keyword">if</span> (buffer.isFrameFullyRead()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!requestInvoke(buffer)) &#123;</span><br><span class="line">            cleanupSelectionKey(key);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.server.TThreadedSelectorServer#requestInvoke</li>
+</ul>
+<p>处理调用，会将帧封装为 Runnable 任务，提交给线程池执行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">requestInvoke</span><span class="params">(FrameBuffer frameBuffer)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 封装为 Runnable</span></span><br><span class="line">    Runnable invocation = getRunnable(frameBuffer);</span><br><span class="line">    <span class="keyword">if</span> (invoker != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 执行处理</span></span><br><span class="line">            invoker.execute(invocation);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (RejectedExecutionException rx) &#123;</span><br><span class="line">            LOGGER.warn(<span class="string">&quot;ExecutorService rejected execution!&quot;</span>, rx);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Invoke on the caller&#x27;s thread</span></span><br><span class="line">        <span class="comment">// 如果没有线程池，由当前线程直接处理</span></span><br><span class="line">        invocation.run();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="处理写入事件"><a href="#处理写入事件" class="headerlink" title="处理写入事件"></a>处理写入事件</h4><ul>
+<li>org.apache.thrift.server.AbstractNonblockingServer.AbstractSelectThread#handleWrite</li>
+</ul>
+<p>处理写入事件，调用 <code>FrameBuffer</code> 的写入方法进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">handleWrite</span><span class="params">(SelectionKey key)</span> </span>&#123;</span><br><span class="line">    FrameBuffer buffer = (FrameBuffer) key.attachment();</span><br><span class="line">    <span class="keyword">if</span> (!buffer.write()) &#123;</span><br><span class="line">        cleanupSelectionKey(key);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.server.AbstractNonblockingServer.FrameBuffer#write</li>
+</ul>
+<p>由 Transport 执行写入，最终由 <code>SocketChannel</code> 执行，将响应内容发送给客户端</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">write</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (state_ == FrameBufferState.WRITING) &#123;</span><br><span class="line">        <span class="comment">// 写入</span></span><br><span class="line">        <span class="keyword">if</span> (trans_.write(buffer_) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果没有待写入的，则切换到读取</span></span><br><span class="line">        <span class="keyword">if</span> (buffer_.remaining() == <span class="number">0</span>) &#123;</span><br><span class="line">            prepareRead();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-执行请求"><a href="#4-执行请求" class="headerlink" title="4. 执行请求"></a>4. 执行请求</h3><ul>
+<li>org.apache.thrift.server.AbstractNonblockingServer.FrameBuffer#invoke</li>
+</ul>
+<p>在处理读取事件时，会将 <code>FrameBuffer</code> 包装为 <code>Runnable</code>，提交给线程池执行；最终由 <code>FrameBuffer</code>处理<br>会获取  Processor，然后调用  process 方法进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">invoke</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    frameTrans_.reset(buffer_.array());</span><br><span class="line">    response_.reset();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 如果有事件处理器，则触发</span></span><br><span class="line">        <span class="keyword">if</span> (eventHandler_ != <span class="keyword">null</span>) &#123;</span><br><span class="line">            eventHandler_.processContext(context_, inTrans_, outTrans_);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 获取处理器，调用处理方法</span></span><br><span class="line">        processorFactory_.getProcessor(inTrans_).process(inProt_, outProt_);</span><br><span class="line">        responseReady();</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (TException te) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// This will only be reached when there is a throwable.</span></span><br><span class="line">    state_ = FrameBufferState.AWAITING_CLOSE;</span><br><span class="line">    requestSelectInterestChange();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.TBaseProcessor#process</li>
+</ul>
+<p>在处理时，根据方法名获取具体的处理函数，然后调用响应的处理方法进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(TProtocol in, TProtocol out)</span> <span class="keyword">throws</span> TException </span>&#123;</span><br><span class="line">  TMessage msg = in.readMessageBegin();</span><br><span class="line">  ProcessFunction fn = processMap.get(msg.name);</span><br><span class="line">  <span class="keyword">if</span> (fn == <span class="keyword">null</span>) &#123;</span><br><span class="line">    TProtocolUtil.skip(in, TType.STRUCT);</span><br><span class="line">    in.readMessageEnd();</span><br><span class="line">    TApplicationException x = <span class="keyword">new</span> TApplicationException(TApplicationException.UNKNOWN_METHOD, <span class="string">&quot;Invalid method name: &#x27;&quot;</span>+msg.name+<span class="string">&quot;&#x27;&quot;</span>);</span><br><span class="line">    out.writeMessageBegin(<span class="keyword">new</span> TMessage(msg.name, TMessageType.EXCEPTION, msg.seqid));</span><br><span class="line">    x.write(out);</span><br><span class="line">    out.writeMessageEnd();</span><br><span class="line">    out.getTransport().flush();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    fn.process(msg.seqid, in, out, iface);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.ProcessFunction#process</li>
+</ul>
+<p>读取请求信息，反序列化为对象，然后调用 <code>getResult</code> 方法执行实现逻辑，获取响应；如果不是 oneway 的请求，则将相应结果写入流中，发送给客户端</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(<span class="keyword">int</span> seqid,</span></span></span><br><span class="line"><span class="function"><span class="params">                          TProtocol iprot,</span></span></span><br><span class="line"><span class="function"><span class="params">                          TProtocol oprot,</span></span></span><br><span class="line"><span class="function"><span class="params">                          I iface)</span> <span class="keyword">throws</span> TException </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取空参数实例</span></span><br><span class="line">    T args = getEmptyArgsInstance();</span><br><span class="line">    <span class="comment">// 读取</span></span><br><span class="line">    args.read(iprot);</span><br><span class="line">    iprot.readMessageEnd();</span><br><span class="line">    TSerializable result = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">byte</span> msgType = TMessageType.REPLY;</span><br><span class="line">    <span class="comment">// 获取结果</span></span><br><span class="line">    result = getResult(iface, args);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果不是 oneway 的，则写入响应结果</span></span><br><span class="line">    <span class="keyword">if</span> (!isOneway()) &#123;</span><br><span class="line">        oprot.writeMessageBegin(<span class="keyword">new</span> TMessage(getMethodName(), msgType, seqid));</span><br><span class="line">        result.write(oprot);</span><br><span class="line">        oprot.writeMessageEnd();</span><br><span class="line">        oprot.getTransport().flush();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.github.helloworlde.thrift.HelloService.Processor.sayHello#getResult</li>
+</ul>
+<p>由生成的代码处理，会先构建一个响应结构体，然后调用相应的方法进行处理，返回结果</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> sayHello_result <span class="title">getResult</span><span class="params">(I iface, sayHello_args args)</span> <span class="keyword">throws</span> org.apache.thrift.TException </span>&#123;</span><br><span class="line">  sayHello_result result = <span class="keyword">new</span> sayHello_result();</span><br><span class="line">  result.success = iface.sayHello(args.request);</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.github.helloworlde.thrift.HelloServiceImpl#sayHello</li>
+</ul>
+<p>具体的逻辑处理，返回响应</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> HelloResponse <span class="title">sayHello</span><span class="params">(HelloMessage request)</span> <span class="keyword">throws</span> TException </span>&#123;</span><br><span class="line">    String message = request.getMessage();</span><br><span class="line">    HelloResponse response = <span class="keyword">new</span> HelloResponse();</span><br><span class="line">    response.setMessage(<span class="string">&quot;Hello &quot;</span> + message);</span><br><span class="line">    <span class="keyword">return</span> response;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-写入响应"><a href="#4-写入响应" class="headerlink" title="4. 写入响应"></a>4. 写入响应</h3><ul>
+<li>org.apache.thrift.ProcessFunction#process</li>
+</ul>
+<p>在处理完请求之后，会判断是否是 oneway 请求，如果不是，则会执行写入响应</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(!isOneway()) &#123;</span><br><span class="line">  oprot.writeMessageBegin(<span class="keyword">new</span> TMessage(getMethodName(), msgType, seqid));</span><br><span class="line">  result.write(oprot);</span><br><span class="line">  oprot.writeMessageEnd();</span><br><span class="line">  oprot.getTransport().flush();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.thrift.protocol.TBinaryProtocol#writeMessageBegin</li>
+</ul>
+<p>写入响应时，会先写入响应头；会将版本信息，消息类型，方法的名称和请求 ID 一起写入</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeMessageBegin</span><span class="params">(TMessage message)</span> <span class="keyword">throws</span> TException </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (strictWrite_) &#123;</span><br><span class="line">    <span class="keyword">int</span> version = VERSION_1 | message.type;</span><br><span class="line">    writeI32(version);</span><br><span class="line">    writeString(message.name);</span><br><span class="line">    writeI32(message.seqid);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    writeString(message.name);</span><br><span class="line">    writeByte(message.type);</span><br><span class="line">    writeI32(message.seqid);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.github.helloworlde.thrift.HelloResponse.HelloResponseStandardScheme#write</li>
+</ul>
+<p>随后写入响应内容，将对象序列化为字节</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(org.apache.thrift.protocol.TProtocol oprot, HelloResponse struct)</span> <span class="keyword">throws</span> org.apache.thrift.TException </span>&#123;</span><br><span class="line">  struct.validate();</span><br><span class="line"></span><br><span class="line">  oprot.writeStructBegin(STRUCT_DESC);</span><br><span class="line">  <span class="keyword">if</span> (struct.message != <span class="keyword">null</span>) &#123;</span><br><span class="line">    oprot.writeFieldBegin(MESSAGE_FIELD_DESC);</span><br><span class="line">    oprot.writeString(struct.message);</span><br><span class="line">    oprot.writeFieldEnd();</span><br><span class="line">  &#125;</span><br><span class="line">  oprot.writeFieldStop();</span><br><span class="line">  oprot.writeStructEnd();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后会写入响应结尾符，由 <code>SelectorThread</code> 处理写入事件，最终将请求发送给客户端</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/helloworlde/thrift-java-sample">helloworlde/thrift-java-sample</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/02/20/Thrift-%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%82%E6%AD%A5%E8%AF%B7%E6%B1%82/">
+        <span class="nav-arrow">← </span>
+        
+          Thrift 客户端异步请求
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/02/20/Thrfit-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">
+        
+          Thrfit 客户端请求处理流程
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Thrfit-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">Thrfit 服务端请求处理流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">实现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#IDL"><span class="toc-nav-text">IDL</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">服务端实现</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">请求处理流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-%E5%90%AF%E5%8A%A8-Server"><span class="toc-nav-text">1. 启动 Server</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-%E5%A4%84%E7%90%86%E8%BF%9E%E6%8E%A5%E4%BA%8B%E4%BB%B6"><span class="toc-nav-text">2. 处理连接事件</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-%E5%A4%84%E7%90%86-IO-%E4%BA%8B%E4%BB%B6"><span class="toc-nav-text">3. 处理 IO 事件</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%A4%84%E7%90%86%E8%AF%BB%E5%8F%96%E4%BA%8B%E4%BB%B6"><span class="toc-nav-text">处理读取事件</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%A4%84%E7%90%86%E5%86%99%E5%85%A5%E4%BA%8B%E4%BB%B6"><span class="toc-nav-text">处理写入事件</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-%E6%89%A7%E8%A1%8C%E8%AF%B7%E6%B1%82"><span class="toc-nav-text">4. 执行请求</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4-%E5%86%99%E5%85%A5%E5%93%8D%E5%BA%94"><span class="toc-nav-text">4. 写入响应</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-nav-text">参考文档</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2021/02/20/Thrfit-服务端请求处理流程/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Thrfit 服务端请求处理流程",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>
