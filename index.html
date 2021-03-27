@@ -10,7 +10,7 @@
   
   <title>
     
-      Hexo
+      HelloWood
     
   </title>
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -70,7 +70,7 @@
   <div class="header-container">
     <a class="home-link" href="/">
       <div class="logo"></div>
-      <span>Hexo</span>
+      <span>HelloWood</span>
     </a>
     <ul class="right-list">
       
@@ -379,6 +379,251 @@ NameResolver 包含有多个子类，用于实现命名解析每个 NameResolve 
         
       </div>
       <a class="more" href="/2020/09/20/gRPC-%E5%91%BD%E5%90%8D%E8%A7%A3%E6%9E%90/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-NameResolver/">gRPC 使用自定义的 NameResolver</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 使用自定义的 NameResolver在使用注册中心时，gRPC 并未提供注册中心的服务发现，需要自己实现 NameResolverProvider 和 NameResolver
+
+NameResolver
+
+NameResolver 里面重写了 start 和 refresh 方 ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-NameResolver/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/gRPC-%E4%B8%AD-Binlog-%E6%89%93%E5%8D%B0%E5%8E%9F%E7%90%86/">gRPC 中 Binlog 打印原理</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 中 Binlog 打印原理gRPC 支持将请求调用的参数、Header 等信息以二进制的方式输出到文件中
+使用binlog 的依赖在 grpc-services中，所以需要有该依赖
+
+创建 Channel 时指定
+
+12345BinaryLog binaryLog = Binary ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/gRPC-%E4%B8%AD-Binlog-%E6%89%93%E5%8D%B0%E5%8E%9F%E7%90%86/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/Spring-Boot-2-3-Liveness-%E5%92%8C-Readness-%E6%8E%A5%E5%8F%A3%E4%BD%BF%E7%94%A8/">Spring Boot 2.3+ Liveness 和 Readness 接口使用</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Boot 2.3+ Liveness 和 Readness 接口使用在 Spring Boot  2.3+ 中，提供了单独的 liveness 和 readness，用于为 Kubernetes 提供相应检查接口
+
+liveness用于检查应用是否存活，当应用组件因故障不健康时 ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/Spring-Boot-2-3-Liveness-%E5%92%8C-Readness-%E6%8E%A5%E5%8F%A3%E4%BD%BF%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/SpringBoot-%E6%A1%86%E6%9E%B6%E8%87%AA%E5%B8%A6%E6%8F%92%E4%BB%B6%E6%9E%84%E5%BB%BA-Docker-%E9%95%9C%E5%83%8F/">SpringBoot 框架自带插件构建 Docker 镜像</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          SpringBoot 框架自带插件构建 Docker 镜像Spring Boot 2.3.0 之后支持通过 buildpacks 插件构建 Docker 镜像，原理和执行过程与 Jib 类似，支持 Spring Boot 项目的分层构建，当代码改动后，只需更新代码部分，可以减少构建后 pus ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/SpringBoot-%E6%A1%86%E6%9E%B6%E8%87%AA%E5%B8%A6%E6%8F%92%E4%BB%B6%E6%9E%84%E5%BB%BA-Docker-%E9%95%9C%E5%83%8F/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-Grafana-%E7%9B%91%E6%8E%A7/">Raspberry Pi 4 使用 Grafana 监控</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#Grafana" >
+    <span class="tag-code">Grafana</span>
+  </a>
+
+  <a href="/tags#RaspberryPi" >
+    <span class="tag-code">RaspberryPi</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Raspberry Pi 4 使用 Grafana 监控运行 InfluxdbInfluxdb 和 Prometheus 一样都是时序数据库，不同的是它能够作为一个转发代理接受来自不同程序的消息，这里使用 Telegraf 采集数据，存放到 Influxdb 中
+
+启动
+
+挂载的目的是为了将 ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-Grafana-%E7%9B%91%E6%8E%A7/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-USB-%E4%BB%8E-SSD-%E5%90%AF%E5%8A%A8/">Raspberry Pi 4 使用 USB 从 SSD 启动</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#RaspberryPi" >
+    <span class="tag-code">RaspberryPi</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Raspberry Pi 4 使用 USB 从 SSD 启动树莓派 4 的最新固件已经支持从USB 启动，通过外接 U盘或者硬盘，能够摆脱 SD 卡的IO 速度限制，这里通过 USB 从 SSD 硬盘启动系统
+安装 Raspberry Pi OS
+下载 Imager 
+
+从 https:// ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-USB-%E4%BB%8E-SSD-%E5%90%AF%E5%8A%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Consul-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">Spring Cloud 使用 Consul 作为配置中心</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Cloud 使用 Consul 作为配置中心加载配置加载配置是通过 ConsulPropertySourceLocator 来实现的，该类是 PropertySourceLocator接口的实现类
+Bean 初始化1234@Beanpublic ConsulPropertySo ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Consul-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-1/">Spring Cloud 使用 Kubernetes 作为配置中心</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Cloud 使用 Kubernetes 作为配置中心Spring Cloud 支持使用 Kubernetes 作为配置中心，通过 ConfigMap 或 Secret，将配置添加到应用中
+加载配置加载配置是通过 PropertySourceLocator 来实现的，Config ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-1/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/Spring-Cloud-Consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/">Spring Cloud Consul 服务注册和发现</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Cloud Consul 服务注册和发现Spring Cloud Kubernetes 使用，可以通过引入 org.springframework.cloud:spring-cloud-starter-consul-discovery，这个 starter 依赖于 org.sp ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/Spring-Cloud-Consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/Spring-Cloud-Kubernetes-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/">Spring Cloud Kubernetes 服务注册和发现</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Cloud Kubernetes 服务注册和发现Spring Cloud Kubernetes 使用，可以通过引入 org.springframework.cloud:spring-cloud-starter-kubernetes，这个 starter 依赖于 org.spri ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/Spring-Cloud-Kubernetes-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/">Read more</a>
     </article>
   
 

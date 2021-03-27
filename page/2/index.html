@@ -10,7 +10,7 @@
   
   <title>
     
-      Hexo
+      HelloWood
     
   </title>
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -70,7 +70,7 @@
   <div class="header-container">
     <a class="home-link" href="/">
       <div class="logo"></div>
-      <span>Hexo</span>
+      <span>HelloWood</span>
     </a>
     <ul class="right-list">
       
@@ -152,110 +152,240 @@
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-NameResolver/">gRPC 使用自定义的 NameResolver</a>
+        <a href="/2020/09/20/Spring-Cloud-Gateway-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/">Spring Cloud Gateway 使用 Kubernetes 作为服务发现</a>
       </h2>
       <p class="article-date">September 20, 2020</p>
       
         
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
   </a>
 
       
       <div class="article-summary">
         
-          gRPC 使用自定义的 NameResolver在使用注册中心时，gRPC 并未提供注册中心的服务发现，需要自己实现 NameResolverProvider 和 NameResolver
-
-NameResolver
-
-NameResolver 里面重写了 start 和 refresh 方 ...
+          Spring Cloud Gateway 使用 Kubernetes 作为服务发现Spring Cloud Gateway 作为网关，通过用于执行一些通用逻辑后做请求转发，后端可能涉及到多个服务，每个服务又有多个实例，调用服务实例就需要动态的更新，可以通过注册中心来实现，如果部署在K8S集群 ...
         
       </div>
-      <a class="more" href="/2020/09/20/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-NameResolver/">Read more</a>
+      <a class="more" href="/2020/09/20/Spring-Cloud-Gateway-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E4%B8%AD-Binlog-%E6%89%93%E5%8D%B0%E5%8E%9F%E7%90%86/">gRPC 中 Binlog 打印原理</a>
+        <a href="/2020/09/20/Spring-Cloud-Gateway-%E4%BD%BF%E7%94%A8-Kubernetes-%E5%AE%9E%E7%8E%B0%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">Spring Cloud Gateway 使用 Kubernetes 实现负载均衡</a>
       </h2>
       <p class="article-date">September 20, 2020</p>
       
         
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
   </a>
 
       
       <div class="article-summary">
         
-          gRPC 中 Binlog 打印原理gRPC 支持将请求调用的参数、Header 等信息以二进制的方式输出到文件中
-使用binlog 的依赖在 grpc-services中，所以需要有该依赖
-
-创建 Channel 时指定
-
-12345BinaryLog binaryLog = Binary ...
+          Spring Cloud Gateway 使用 Kubernetes 实现负载均衡在使用 Spring Cloud Gateway 作为服务服务发现时，可能会遇到 Gateway 并没有部署在服务所在的 Kubernetes 集群中，或者存在网络隔离，无法直接通过 Service Name  ...
         
       </div>
-      <a class="more" href="/2020/09/20/gRPC-%E4%B8%AD-Binlog-%E6%89%93%E5%8D%B0%E5%8E%9F%E7%90%86/">Read more</a>
+      <a class="more" href="/2020/09/20/Spring-Cloud-Gateway-%E4%BD%BF%E7%94%A8-Kubernetes-%E5%AE%9E%E7%8E%B0%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/Spring-Boot-2-3-Liveness-%E5%92%8C-Readness-%E6%8E%A5%E5%8F%A3%E4%BD%BF%E7%94%A8/">Spring Boot 2.3+ Liveness 和 Readness 接口使用</a>
+        <a href="/2020/05/16/Prometheus-%E4%BD%BF%E7%94%A8-Consul-%E8%87%AA%E5%8A%A8%E5%8F%91%E7%8E%B0-Spring-Boot-%E6%9C%8D%E5%8A%A1%E5%B9%B6%E6%8B%89%E5%8F%96%E6%95%B0%E6%8D%AE/">Prometheus 使用 Consul 自动发现 Spring Boot 服务并拉取数据</a>
       </h2>
-      <p class="article-date">September 20, 2020</p>
+      <p class="article-date">May 16, 2020</p>
       
         
   <a href="/tags#SpringBoot" >
     <span class="tag-code">SpringBoot</span>
   </a>
 
-      
-      <div class="article-summary">
-        
-          Spring Boot 2.3+ Liveness 和 Readness 接口使用在 Spring Boot  2.3+ 中，提供了单独的 liveness 和 readness，用于为 Kubernetes 提供相应检查接口
-
-liveness用于检查应用是否存活，当应用组件因故障不健康时 ...
-        
-      </div>
-      <a class="more" href="/2020/09/20/Spring-Boot-2-3-Liveness-%E5%92%8C-Readness-%E6%8E%A5%E5%8F%A3%E4%BD%BF%E7%94%A8/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/SpringBoot-%E6%A1%86%E6%9E%B6%E8%87%AA%E5%B8%A6%E6%8F%92%E4%BB%B6%E6%9E%84%E5%BB%BA-Docker-%E9%95%9C%E5%83%8F/">SpringBoot 框架自带插件构建 Docker 镜像</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
-      
-        
-  <a href="/tags#SpringBoot" >
-    <span class="tag-code">SpringBoot</span>
+  <a href="/tags#Prometheus" >
+    <span class="tag-code">Prometheus</span>
   </a>
 
-  <a href="/tags#Docker" >
-    <span class="tag-code">Docker</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          SpringBoot 框架自带插件构建 Docker 镜像Spring Boot 2.3.0 之后支持通过 buildpacks 插件构建 Docker 镜像，原理和执行过程与 Jib 类似，支持 Spring Boot 项目的分层构建，当代码改动后，只需更新代码部分，可以减少构建后 pus ...
-        
-      </div>
-      <a class="more" href="/2020/09/20/SpringBoot-%E6%A1%86%E6%9E%B6%E8%87%AA%E5%B8%A6%E6%8F%92%E4%BB%B6%E6%9E%84%E5%BB%BA-Docker-%E9%95%9C%E5%83%8F/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-Grafana-%E7%9B%91%E6%8E%A7/">Raspberry Pi 4 使用 Grafana 监控</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
-      
-        
   <a href="/tags#Grafana" >
     <span class="tag-code">Grafana</span>
   </a>
 
+  <a href="/tags#Consul" >
+    <span class="tag-code">Consul</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Prometheus 使用 Consul 自动发现 Spring Boot 服务并拉取数据使用 Prometheus监控 SpringBoot 应用，当应用很多，且上下线频繁时，需要不断的更改 Prometheus 的配置文件，不能灵活的使用，可以通过为 Prometheus配置注册中心，从 ...
+        
+      </div>
+      <a class="more" href="/2020/05/16/Prometheus-%E4%BD%BF%E7%94%A8-Consul-%E8%87%AA%E5%8A%A8%E5%8F%91%E7%8E%B0-Spring-Boot-%E6%9C%8D%E5%8A%A1%E5%B9%B6%E6%8B%89%E5%8F%96%E6%95%B0%E6%8D%AE/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/05/16/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89-Grafana-%E9%9D%A2%E6%9D%BF%E7%9B%91%E6%8E%A7-Consul/">使用自定义 Grafana 面板监控 Consul</a>
+      </h2>
+      <p class="article-date">May 16, 2020</p>
+      
+        
+  <a href="/tags#Prometheus" >
+    <span class="tag-code">Prometheus</span>
+  </a>
+
+  <a href="/tags#Grafana" >
+    <span class="tag-code">Grafana</span>
+  </a>
+
+  <a href="/tags#Consul" >
+    <span class="tag-code">Consul</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          使用自定义 Grafana 面板监控 Consul使用 Prometheus和 Grafana监控 Consul，Dashboard 中的基本都是Consul 自身的状态，除此之外，还需要一些业务相关的监控，比如当前注册的服务数量，健康和不健康的服务数量，拉取服务请求响应时间等数据
+使用已有 ...
+        
+      </div>
+      <a class="more" href="/2020/05/16/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89-Grafana-%E9%9D%A2%E6%9D%BF%E7%9B%91%E6%8E%A7-Consul/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/05/16/%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-SpringBoot-%E5%BA%94%E7%94%A8/">使用 Prometheus 和 Grafana 监控 SpringBoot 应用</a>
+      </h2>
+      <p class="article-date">May 16, 2020</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Prometheus" >
+    <span class="tag-code">Prometheus</span>
+  </a>
+
+  <a href="/tags#Grafana" >
+    <span class="tag-code">Grafana</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          使用 Prometheus 和 Grafana 监控 Spring Boot 应用监控 Spring Boot 应用的状态，以及一些自定义的业务数据
+监控 Spring Boot 应用
+添加依赖 build.gradle 
+
+123compile(&#x27;org.springframew ...
+        
+      </div>
+      <a class="more" href="/2020/05/16/%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-SpringBoot-%E5%BA%94%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/05/16/%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-Consul/">使用 Prometheus 和 Grafana 监控 Consul</a>
+      </h2>
+      <p class="article-date">May 16, 2020</p>
+      
+        
+  <a href="/tags#Prometheus" >
+    <span class="tag-code">Prometheus</span>
+  </a>
+
+  <a href="/tags#Grafana" >
+    <span class="tag-code">Grafana</span>
+  </a>
+
+  <a href="/tags#Consul" >
+    <span class="tag-code">Consul</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          使用 Prometheus 和 Grafana 监控 Consul使用 Prometheus  和 Grafana 监控 Consul ，便于了解 Consul当前的状态，使用 Docker分别启动多个容器
+启动 Consul
+创建配置文件 
+
+12mkdir -p ~/docker/con ...
+        
+      </div>
+      <a class="more" href="/2020/05/16/%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-Consul/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/04/10/Seata-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%83%A8%E7%BD%B2%E5%AE%9E%E8%B7%B5/">Seata 高可用部署实践</a>
+      </h2>
+      <p class="article-date">April 10, 2020</p>
+      
+        
+  <a href="/tags#Seata" >
+    <span class="tag-code">Seata</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Seata 高可用部署实践使用配置中心和数据库来实现 Seata 的高可用，以 Nacos 和 MySQL 为例，将cloud-seata-nacos应用部署到 Kubernetes 集群中
+该应用使用 Nacos 作为配置和注册中心，总共有三个服务: order-service, pay- ...
+        
+      </div>
+      <a class="more" href="/2020/04/10/Seata-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%83%A8%E7%BD%B2%E5%AE%9E%E8%B7%B5/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/12/29/Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E4%BD%BF%E7%94%A8-Prometheus/">Kubernetes 中使用 Helm 部署使用 Prometheus</a>
+      </h2>
+      <p class="article-date">December 29, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#Helm" >
+    <span class="tag-code">Helm</span>
+  </a>
+
+  <a href="/tags#Prometheus" >
+    <span class="tag-code">Prometheus</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Kubernetes 中使用 Helm 部署使用 Prometheus
+使用 Helm 在 Kubernetes 中部署 Prometheus，并使用 Grafana 监控集群状态，Helm 版本为 Helm3
+
+安装 Prometheus 和 Grafana添加标准仓库如果没有 stabl ...
+        
+      </div>
+      <a class="more" href="/2019/12/29/Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E4%BD%BF%E7%94%A8-Prometheus/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/12/15/%E6%A0%91%E8%8E%93%E6%B4%BE-4b-%E6%97%A0%E7%BD%91%E7%BA%BF%E5%AE%89%E8%A3%85-Ubuntu-%E5%B9%B6%E5%88%9D%E5%A7%8B%E5%8C%96/">树莓派 4b 无网线安装 Ubuntu 并初始化</a>
+      </h2>
+      <p class="article-date">December 15, 2019</p>
+      
+        
+  <a href="/tags#Ubuntu" >
+    <span class="tag-code">Ubuntu</span>
+  </a>
+
   <a href="/tags#RaspberryPi" >
     <span class="tag-code">RaspberryPi</span>
   </a>
@@ -263,49 +393,113 @@ liveness用于检查应用是否存活，当应用组件因故障不健康时 ..
       
       <div class="article-summary">
         
-          Raspberry Pi 4 使用 Grafana 监控运行 InfluxdbInfluxdb 和 Prometheus 一样都是时序数据库，不同的是它能够作为一个转发代理接受来自不同程序的消息，这里使用 Telegraf 采集数据，存放到 Influxdb 中
+          树莓派 4b 无网线安装 Ubuntu 并初始化
+必需设备：
 
-启动
 
-挂载的目的是为了将 ...
+树莓派 4b
+SD 卡
+HDMI 线
+显示器
+键盘
+电源及数据线
+
+设置镜像在树莓派官网的连接，找到 Ubuntu，根据指引，找到 Ubuntu 的镜像，即https://ubuntu.com/download/raspber ...
         
       </div>
-      <a class="more" href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-Grafana-%E7%9B%91%E6%8E%A7/">Read more</a>
+      <a class="more" href="/2019/12/15/%E6%A0%91%E8%8E%93%E6%B4%BE-4b-%E6%97%A0%E7%BD%91%E7%BA%BF%E5%AE%89%E8%A3%85-Ubuntu-%E5%B9%B6%E5%88%9D%E5%A7%8B%E5%8C%96/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-USB-%E4%BB%8E-SSD-%E5%90%AF%E5%8A%A8/">Raspberry Pi 4 使用 USB 从 SSD 启动</a>
+        <a href="/2019/12/07/%E4%BD%BF%E7%94%A8-GitHub-%E4%BD%9C%E4%B8%BA-Helm-%E4%BB%93%E5%BA%93/">使用 GitHub 作为 Helm 仓库</a>
       </h2>
-      <p class="article-date">September 20, 2020</p>
+      <p class="article-date">December 7, 2019</p>
       
         
-  <a href="/tags#RaspberryPi" >
-    <span class="tag-code">RaspberryPi</span>
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#Helm" >
+    <span class="tag-code">Helm</span>
   </a>
 
       
       <div class="article-summary">
         
-          Raspberry Pi 4 使用 USB 从 SSD 启动树莓派 4 的最新固件已经支持从USB 启动，通过外接 U盘或者硬盘，能够摆脱 SD 卡的IO 速度限制，这里通过 USB 从 SSD 硬盘启动系统
-安装 Raspberry Pi OS
-下载 Imager 
+          使用 GitHub 作为 Helm 仓库
+使用 GitHub 作为 Helm 的仓库；在创建前需要按照 Helm，以 Helm3 为例
 
-从 https:// ...
+准备工作
+创建仓库 
+
+在 GitHub 上创建名为 helm-chart的仓库
+
+本地创建 helm-chart文件夹
+
+创建并配置仓库
+进入文件夹，并 ...
         
       </div>
-      <a class="more" href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-USB-%E4%BB%8E-SSD-%E5%90%AF%E5%8A%A8/">Read more</a>
+      <a class="more" href="/2019/12/07/%E4%BD%BF%E7%94%A8-GitHub-%E4%BD%9C%E4%B8%BA-Helm-%E4%BB%93%E5%BA%93/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Consul-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">Spring Cloud 使用 Consul 作为配置中心</a>
+        <a href="/2019/09/15/Go-%E8%B0%83%E7%94%A8-Windows-%E7%9A%84%E7%B3%BB%E7%BB%9F-API%EF%BC%8C%E6%A3%80%E6%B5%8B%E6%98%AF%E5%90%A6%E9%94%81%E5%B1%8F/">Go 调用 Windows 的系统 API，检测是否锁屏</a>
       </h2>
-      <p class="article-date">September 20, 2020</p>
+      <p class="article-date">September 15, 2019</p>
       
         
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
+  <a href="/tags#Go" >
+    <span class="tag-code">Go</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Go 调用 Windows 的系统 API，检测是否锁屏
+因为应用需要根据当前电脑是否处于活跃状态来执行不同的动作，所以需要获取电脑当前活跃的窗口判断是否处于锁屏可以通过调用Windows 的库来执行相应的API
+
+12345678910111213141516171819import (  ...
+        
+      </div>
+      <a class="more" href="/2019/09/15/Go-%E8%B0%83%E7%94%A8-Windows-%E7%9A%84%E7%B3%BB%E7%BB%9F-API%EF%BC%8C%E6%A3%80%E6%B5%8B%E6%98%AF%E5%90%A6%E9%94%81%E5%B1%8F/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Kubenetes-%E9%83%A8%E7%BD%B2-Dashboard/">Kubenetes 部署 Dashboard</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Kubenetes 部署 Dashboard
+Kubenestes Dashboard 是提供 Kubernetes信息可视化的 Web 插件
+
+部署1kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboar ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Kubenetes-%E9%83%A8%E7%BD%B2-Dashboard/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-%E4%BD%BF%E7%94%A8%E5%8A%A0%E5%AF%86%E9%85%8D%E7%BD%AE/">Spring Cloud 使用 Kubernetes 作为配置中心 - 使用加密配置</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
   </a>
 
   <a href="/tags#SpringCloud" >
@@ -315,22 +509,27 @@ liveness用于检查应用是否存活，当应用组件因故障不健康时 ..
       
       <div class="article-summary">
         
-          Spring Cloud 使用 Consul 作为配置中心加载配置加载配置是通过 ConsulPropertySourceLocator 来实现的，该类是 PropertySourceLocator接口的实现类
-Bean 初始化1234@Beanpublic ConsulPropertySo ...
+          Spring Cloud 使用 Kubernetes 作为配置中心 - 使用加密配置
+Spring Cloud 可以通过使用 Kubernetes 的 Secrets 作为加密配置
+
+创建应用添加依赖
+build.gradle
+
+123dependencies &#123;	implemen ...
         
       </div>
-      <a class="more" href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Consul-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">Read more</a>
+      <a class="more" href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-%E4%BD%BF%E7%94%A8%E5%8A%A0%E5%AF%86%E9%85%8D%E7%BD%AE/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-1/">Spring Cloud 使用 Kubernetes 作为配置中心</a>
+        <a href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">Spring Cloud 使用 Kubernetes 作为配置中心</a>
       </h2>
-      <p class="article-date">September 20, 2020</p>
+      <p class="article-date">September 8, 2019</p>
       
         
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
   </a>
 
   <a href="/tags#SpringCloud" >
@@ -340,22 +539,27 @@ Bean 初始化1234@Beanpublic ConsulPropertySo ...
       
       <div class="article-summary">
         
-          Spring Cloud 使用 Kubernetes 作为配置中心Spring Cloud 支持使用 Kubernetes 作为配置中心，通过 ConfigMap 或 Secret，将配置添加到应用中
-加载配置加载配置是通过 PropertySourceLocator 来实现的，Config ...
+          Spring Cloud 使用 Kubernetes 作为配置中心
+Spring Cloud 可以通过使用 Kubernetes 的 ConfigMap 作为配置中心，实现配置的拉取和刷新
+
+创建应用添加依赖
+build.gradle 
+
+123dependencies &#123;	imp ...
         
       </div>
-      <a class="more" href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-1/">Read more</a>
+      <a class="more" href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/Spring-Cloud-Consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/">Spring Cloud Consul 服务注册和发现</a>
+        <a href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">Spring Cloud 使用 Kubernetes 作为注册中心</a>
       </h2>
-      <p class="article-date">September 20, 2020</p>
+      <p class="article-date">September 8, 2019</p>
       
         
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
   </a>
 
   <a href="/tags#SpringCloud" >
@@ -365,34 +569,176 @@ Bean 初始化1234@Beanpublic ConsulPropertySo ...
       
       <div class="article-summary">
         
-          Spring Cloud Consul 服务注册和发现Spring Cloud Kubernetes 使用，可以通过引入 org.springframework.cloud:spring-cloud-starter-consul-discovery，这个 starter 依赖于 org.sp ...
+          Spring Cloud 使用 Kubernetes 作为注册中心
+Spring Cloud 可以使用 Kubernetes 作为注册中心，实现服务注册和发现
+
+创建两个应用，Consumer 和 Provider，Provider 提供一个 REST 接口供 Consumer 调用
+Pro ...
         
       </div>
-      <a class="more" href="/2020/09/20/Spring-Cloud-Consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/">Read more</a>
+      <a class="more" href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/Spring-Cloud-Kubernetes-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/">Spring Cloud Kubernetes 服务注册和发现</a>
+        <a href="/2019/09/08/Kubenetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Traefik-%E4%BD%9C%E4%B8%BA-Ingress-%E8%BD%AC%E5%8F%91%E6%B5%81%E9%87%8F/">Kubenetes 中使用 Traefik 作为 Ingress 转发流量</a>
       </h2>
-      <p class="article-date">September 20, 2020</p>
+      <p class="article-date">September 8, 2019</p>
       
         
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
   </a>
 
-  <a href="/tags#SpringCloud" >
-    <span class="tag-code">SpringCloud</span>
+  <a href="/tags#Helm" >
+    <span class="tag-code">Helm</span>
+  </a>
+
+  <a href="/tags#Traefik" >
+    <span class="tag-code">Traefik</span>
+  </a>
+
+  <a href="/tags#Ingress" >
+    <span class="tag-code">Ingress</span>
   </a>
 
       
       <div class="article-summary">
         
-          Spring Cloud Kubernetes 服务注册和发现Spring Cloud Kubernetes 使用，可以通过引入 org.springframework.cloud:spring-cloud-starter-kubernetes，这个 starter 依赖于 org.spri ...
+          Kubenetes 中使用 Traefik 作为 Ingress 转发流量Ingress 就是 Kubernetes 机器外访问集群的入口，将请求的 URL 转发到不同的 Service 上，相当于 Nginx 等代理服务器路由信息由 Ingress Controller 提供，Ingres ...
         
       </div>
-      <a class="more" href="/2020/09/20/Spring-Cloud-Kubernetes-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/">Read more</a>
+      <a class="more" href="/2019/09/08/Kubenetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Traefik-%E4%BD%9C%E4%B8%BA-Ingress-%E8%BD%AC%E5%8F%91%E6%B5%81%E9%87%8F/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/">Kubernetes 中使用 Helm 部署应用</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#Helm" >
+    <span class="tag-code">Helm</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Kubernetes 中使用 Helm 部署应用创建应用创建一个简单的应用，提供一个 REST 接口；使用 Golang 编写，然后将镜像 push 到 Docker Hub
+
+go.mod
+
+123module github.com/helloworlde/restgo 1.12
+
+
+ma ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Kubernetes-%E4%B8%AD%E5%AE%89%E8%A3%85-Helm/">Kubernetes 中安装 Helm</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#Helm" >
+    <span class="tag-code">Helm</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Kubernetes 中安装 Helm
+Helm 是构建于 Kubernetes 之上的包管理器，可以理解为 yum，homebrew 或者 pip，用于简化包分发，安装，版本管理等操作流程
+
+基本概念
+Chart
+
+chart 就是 Helm 所管理的包，包含着一个应用要部署至 Kuber ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Kubernetes-%E4%B8%AD%E5%AE%89%E8%A3%85-Helm/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Go-%E5%BC%80%E5%8F%91%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7-OSS%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">Go 开发命令行工具-OSS文件上传</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Go" >
+    <span class="tag-code">Go</span>
+  </a>
+
+  <a href="/tags#Cobra" >
+    <span class="tag-code">Cobra</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          使用 Go 开发命令行工具-OSS 文件上
+使用 Go 语言开发一个命令行工具，用于向 OSS 文件上传文件命令行工具有很多框架，选择使用 Cobra
+
+准备
+安装 Cobra
+
+1go get -u github.com/spf13/cobra/cobra
+
+初始化项目
+创建项目
+
+123 ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Go-%E5%BC%80%E5%8F%91%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7-OSS%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8Spring-Cloud-Stream/">Spring Boot 中使用Spring Cloud Stream</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Stream" >
+    <span class="tag-code">Stream</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Boot 中使用Spring Cloud Stream
+Spring Cloud Stream 用于构建高可扩展的使用消息系统连接的事件驱动服务的框架
+
+
+Binder: 负责提供与外部消息系统集成的组件
+Binding: 提供外部消息系统与应用之间桥接的生产者和消费者
+Mes ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8Spring-Cloud-Stream/">Read more</a>
     </article>
   
 
