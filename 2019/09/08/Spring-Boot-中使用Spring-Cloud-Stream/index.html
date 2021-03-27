@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Boot 中使用Spring Cloud Stream | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Boot 中使用Spring Cloud Stream</h2>
+  <p class="post-date">2019-09-08</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Spring-Boot-中使用Spring-Cloud-Stream"><a href="#Spring-Boot-中使用Spring-Cloud-Stream" class="headerlink" title="Spring Boot 中使用Spring Cloud Stream"></a>Spring Boot 中使用Spring Cloud Stream</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://spring.io/projects/spring-cloud-stream">Spring Cloud Stream</a> 用于构建高可扩展的使用消息系统连接的事件驱动服务的框架</p>
+</blockquote>
+<ul>
+<li>Binder: 负责提供与外部消息系统集成的组件</li>
+<li>Binding: 提供外部消息系统与应用之间桥接的生产者和消费者</li>
+<li>Message: 生产者和消费者与外部消息系统之间通信的数据结构</li>
+</ul>
+<h2 id="构建应用"><a href="#构建应用" class="headerlink" title="构建应用"></a>构建应用</h2><p>假设一个点咖啡场景：调用下单接口后，需要通知店员制作咖啡，待制作完成后，需要更新订单状态为完成，并通知客户；假设有两个服务，一个是订单服务(Order Service)，一个是店员服务(Waiter Service)</p>
+<p>使用 RabbitMQ 作为MQ 服务</p>
+<h3 id="Order-Service"><a href="#Order-Service" class="headerlink" title="Order Service"></a>Order Service</h3><h5 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h5><ul>
+<li>build.gradle</li>
+</ul>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">dependencies</span> &#123;</span><br><span class="line">    implementation <span class="string">&#x27;org.springframework.boot:spring-boot-starter-web&#x27;</span></span><br><span class="line">    implementation <span class="string">&#x27;org.springframework.cloud:spring-cloud-stream-binder-rabbit&#x27;</span></span><br><span class="line"></span><br><span class="line">    compileOnly <span class="string">&#x27;org.projectlombok:lombok&#x27;</span></span><br><span class="line">    annotationProcessor <span class="string">&#x27;org.projectlombok:lombok&#x27;</span></span><br><span class="line">    testImplementation <span class="string">&#x27;org.springframework.boot:spring-boot-starter-test&#x27;</span></span><br><span class="line">    testImplementation <span class="string">&#x27;org.springframework.cloud:spring-cloud-stream-test-support&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="添加配置"><a href="#添加配置" class="headerlink" title="添加配置"></a>添加配置</h5><ul>
+<li>application.properties</li>
+</ul>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.application.name</span>=<span class="string">producer</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">8082</span></span><br><span class="line"><span class="meta">spring.rabbitmq.host</span>=<span class="string">localhost</span></span><br><span class="line"><span class="meta">spring.rabbitmq.port</span>=<span class="string">5672</span></span><br><span class="line"><span class="meta">spring.rabbitmq.username</span>=<span class="string">guest</span></span><br><span class="line"><span class="meta">spring.rabbitmq.password</span>=<span class="string">guest</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="Binding"><a href="#Binding" class="headerlink" title="Binding"></a>Binding</h5><ul>
+<li>OrderBinding</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OrderBinding</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    String NEW_ORDERS = <span class="string">&quot;newOrders&quot;</span>;</span><br><span class="line">    String FINISHED_ORDERS = <span class="string">&quot;finishedOrders&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Input</span></span><br><span class="line">    <span class="function">SubscribableChannel <span class="title">finishedOrders</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Output</span></span><br><span class="line">    <span class="function">MessageChannel <span class="title">newOrders</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>@Input</code>用于指定订阅消息Topic，当有该 Topic 的消息时会调用监听该消息的处理器<br><code>@Output</code>用于指定发送消息Topic，可以通过该MessageChannel发送消息 </p>
+<h5 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> OrderBinding orderBinding;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/newOrder&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">sendMessage</span><span class="params">(Long orderId, Long userId)</span> </span>&#123;</span><br><span class="line">        OrderVO orderVO = OrderVO.builder()</span><br><span class="line">                                 .orderId(orderId)</span><br><span class="line">                                 .userId(userId)</span><br><span class="line">                                 .build();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">boolean</span> result = orderBinding.newOrders().send(MessageBuilder.withPayload(orderVO).build());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> HashMap&lt;String, String&gt;() &#123;&#123;</span><br><span class="line">            put(<span class="string">&quot;message&quot;</span>, result ? <span class="string">&quot;下单成功&quot;</span> : <span class="string">&quot;下单失败&quot;</span>);</span><br><span class="line">        &#125;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>发送消息可以通过注入 Binding 对象，或者注入 <code>MessageChannel</code>对象时指定 Bean 来实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">   <span class="meta">@Autowired</span></span><br><span class="line">   <span class="keyword">private</span> OrderBinding orderBinding;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或者</span></span><br><span class="line"></span><br><span class="line">   <span class="meta">@Autowired</span></span><br><span class="line">   <span class="meta">@Qualifier(OrderBinding.FINISHED_ORDERS)</span></span><br><span class="line">   <span class="keyword">private</span> MessageChannel messageChannel;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>OrderServiceApplication.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableBinding(&#123;OrderBinding.class&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderServiceApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(OrderServiceApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Waiter-Service"><a href="#Waiter-Service" class="headerlink" title="Waiter Service"></a>Waiter Service</h3><h5 id="添加依赖-1"><a href="#添加依赖-1" class="headerlink" title="添加依赖"></a>添加依赖</h5><ul>
+<li>build.gradle</li>
+</ul>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">dependencies</span> &#123;</span><br><span class="line">    implementation <span class="string">&#x27;org.springframework.cloud:spring-cloud-stream-binder-rabbit&#x27;</span></span><br><span class="line"></span><br><span class="line">    compileOnly <span class="string">&#x27;org.projectlombok:lombok&#x27;</span></span><br><span class="line">    annotationProcessor <span class="string">&#x27;org.projectlombok:lombok&#x27;</span></span><br><span class="line">    testImplementation <span class="string">&#x27;org.springframework.boot:spring-boot-starter-test&#x27;</span></span><br><span class="line">    testImplementation <span class="string">&#x27;org.springframework.cloud:spring-cloud-stream-test-support&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="添加配置-1"><a href="#添加配置-1" class="headerlink" title="添加配置"></a>添加配置</h5><ul>
+<li>application.properties</li>
+</ul>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.rabbitmq.host</span>=<span class="string">localhost</span></span><br><span class="line"><span class="meta">spring.rabbitmq.port</span>=<span class="string">5672</span></span><br><span class="line"><span class="meta">spring.rabbitmq.username</span>=<span class="string">guest</span></span><br><span class="line"><span class="meta">spring.rabbitmq.password</span>=<span class="string">guest</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="监听消息"><a href="#监听消息" class="headerlink" title="监听消息"></a>监听消息</h5><ul>
+<li>OrderBinding </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OrderBinding</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    String NEW_ORDERS = <span class="string">&quot;newOrders&quot;</span>;</span><br><span class="line">    String FINISHED_ORDERS = <span class="string">&quot;finishedOrders&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Input</span></span><br><span class="line">    <span class="function">SubscribableChannel <span class="title">newOrders</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Output</span></span><br><span class="line">    <span class="function">MessageChannel <span class="title">finishedOrders</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>WaiterListener</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WaiterListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@StreamListener(OrderBinding.NEW_ORDERS)</span></span><br><span class="line">    <span class="meta">@SendTo(OrderBinding.FINISHED_ORDERS)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> OrderVO <span class="title">newOrders</span><span class="params">(OrderVO orderVO)</span> </span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;收到用户:&#123;&#125; 的新订单:&#123;&#125;&quot;</span>, orderVO.getUserId(), orderVO.getOrderId());</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">10000</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;制作失败&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> orderVO;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里在收到消息后等待制作完成，发送订单完成的消息给 Order Service，执行后续动作</p>
+<p><code>@StreamListener</code>用于监听指定 Topic 并处理<br><code>@SendTo</code>用于指定处理的结果要发送的下一个 Topic</p>
+<ul>
+<li>WaiterServiceApplication.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableBinding(&#123;OrderBinding.class&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WaiterServiceApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(WaiterServiceApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Order-Service-处理后续消息"><a href="#Order-Service-处理后续消息" class="headerlink" title="Order Service 处理后续消息"></a>Order Service 处理后续消息</h3><h5 id="订单完成消息"><a href="#订单完成消息" class="headerlink" title="订单完成消息"></a>订单完成消息</h5><p>收到订单完成的消息后发送通知消息</p>
+<ul>
+<li>NotifyBinding.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">NotifyBinding</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    String SEND_NOTIFY = <span class="string">&quot;sendNotify&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Output</span></span><br><span class="line">    <span class="function">MessageChannel <span class="title">sendNotify</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>OrderListener.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@StreamListener(OrderBinding.FINISHED_ORDERS)</span></span><br><span class="line">    <span class="meta">@SendTo(NotifyBinding.SEND_NOTIFY)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> NotifyMessage <span class="title">finishedOrdersHandler</span><span class="params">(OrderVO orderVO)</span> </span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;用户:&#123;&#125; 的订单:&#123;&#125; 已完成&quot;</span>, orderVO.getUserId(), orderVO.getOrderId());</span><br><span class="line">        <span class="keyword">return</span> NotifyMessage.builder()</span><br><span class="line">                            .title(<span class="string">&quot;订单已完成&quot;</span>)</span><br><span class="line">                            .userId(orderVO.getUserId())</span><br><span class="line">                            .sendTime(LocalDateTime.now())</span><br><span class="line">                            .build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="处理通知消息"><a href="#处理通知消息" class="headerlink" title="处理通知消息"></a>处理通知消息</h5><ul>
+<li>NotifyListener.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NotifyListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@StreamListener(NotifyBinding.SEND_NOTIFY)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendNotifyHandler</span><span class="params">(NotifyMessage notifyMessage)</span> </span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;发送标题为:&#123;&#125; 的消息给用户:&#123;&#125;&quot;</span>, notifyMessage.getTitle(), notifyMessage.getUserId());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><ul>
+<li>启动RabbitMQ</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name rabbit -p 4369:4369 -p 5672:5672 -p 15671:15671 -p 15672:15672 -p 25672:25672 --hostname localhost -e RABBITMQ_DEFAULT_USER=guest -e RABBITMQ_DEFAULT_PASS=guest rabbitmq:3-management</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动 WaiterService 和 OrderService</li>
+<li>发送下单请求</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;localhost:8082/newOrder?orderId=1&amp;userId=2&#x27;</span></span><br><span class="line">&#123;<span class="string">&quot;message&quot;</span>:<span class="string">&quot;下单成功&quot;</span>&#125;%</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>然后会看到 WaiterService 和 OrderService 的相应的监听器都接收到了消息并打印日志</li>
+</ul>
+<hr>
+<h2 id="其他类型消息"><a href="#其他类型消息" class="headerlink" title="其他类型消息"></a>其他类型消息</h2><ul>
+<li>Transform</li>
+</ul>
+<p>如果一个消息需要处理加工后继续发给下一个，可以直接使用<code>@Transformer</code>注解来代替<code>@StreamListener</code>和<code>@SendTo</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TransformerListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Transformer(inputChannel = TransoformBinding.INPUT, outputChannel = TransoformBinding.OUTPUT)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">transform</span><span class="params">(String message)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> message.toUpperCase();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>定时消息</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TimerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@InboundChannelAdapter(value = OrderBinding.NEW_ORDERS, poller = @Poller(fixedDelay = &quot;10&quot;, maxMessagesPerPoll = &quot;1&quot;))</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> MessageSource&lt;OrderVO&gt; <span class="title">timerMessageSource</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        OrderVO orderVO = OrderVO.builder()</span><br><span class="line">                                 .userId(<span class="number">1L</span>)</span><br><span class="line">                                 .orderId(<span class="number">1L</span>)</span><br><span class="line">                                 .build();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> () -&gt; <span class="keyword">new</span> GenericMessage&lt;&gt;(orderVO);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h3><p><a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBootCollection/tree/master/SpringBoot-Stream">https://github.com/helloworlde/SpringBootCollection/tree/master/SpringBoot-Stream</a></p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Stream" >
+    <span class="tag-code">Stream</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8-WebSocket/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Boot 中使用 WebSocket
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/09/08/Go-%E5%BC%80%E5%8F%91%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7-OSS%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">
+        
+          Go 开发命令行工具-OSS文件上传
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8Spring-Cloud-Stream"><span class="toc-nav-text">Spring Boot 中使用Spring Cloud Stream</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%9E%84%E5%BB%BA%E5%BA%94%E7%94%A8"><span class="toc-nav-text">构建应用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Order-Service"><span class="toc-nav-text">Order Service</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">添加配置</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#Binding"><span class="toc-nav-text">Binding</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF"><span class="toc-nav-text">发送消息</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Waiter-Service"><span class="toc-nav-text">Waiter Service</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96-1"><span class="toc-nav-text">添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE-1"><span class="toc-nav-text">添加配置</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E7%9B%91%E5%90%AC%E6%B6%88%E6%81%AF"><span class="toc-nav-text">监听消息</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Order-Service-%E5%A4%84%E7%90%86%E5%90%8E%E7%BB%AD%E6%B6%88%E6%81%AF"><span class="toc-nav-text">Order Service 处理后续消息</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E8%AE%A2%E5%8D%95%E5%AE%8C%E6%88%90%E6%B6%88%E6%81%AF"><span class="toc-nav-text">订单完成消息</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E5%A4%84%E7%90%86%E9%80%9A%E7%9F%A5%E6%B6%88%E6%81%AF"><span class="toc-nav-text">处理通知消息</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%85%B6%E4%BB%96%E7%B1%BB%E5%9E%8B%E6%B6%88%E6%81%AF"><span class="toc-nav-text">其他类型消息</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%A1%B9%E7%9B%AE%E5%9C%B0%E5%9D%80"><span class="toc-nav-text">项目地址</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2019/09/08/Spring-Boot-中使用Spring-Cloud-Stream/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Boot 中使用Spring Cloud Stream",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

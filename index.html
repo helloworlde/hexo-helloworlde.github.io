@@ -156,34 +156,245 @@
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2021/03/27/Test/">Test</a>
+        <a href="/2021/03/27/%E4%BD%BF%E7%94%A8%E8%85%BE%E8%AE%AF%E4%BA%91%E7%9A%84Serverless%E9%83%A8%E7%BD%B2%E5%A4%A9%E6%B0%94%E5%BA%94%E7%94%A8/">使用腾讯云的Serverless部署天气应用</a>
       </h2>
       <p class="article-date">March 27, 2021</p>
       
       <div class="article-summary">
         
-          HelloThis is for test
+          使用腾讯云的Serverless部署应用
+使用腾讯云的Serverless服务，部署一个Go编写的天气变化的提醒应用该应用通过定时查询高德地图的天气API，当当前天气或未来几天天气不好时，通过Server酱在微信中进行提醒
 
+构建应用应用使用 go modules开发
+
+go.mod
+
+12 ...
         
       </div>
-      <a class="more" href="/2021/03/27/Test/">Read more</a>
+      <a class="more" href="/2021/03/27/%E4%BD%BF%E7%94%A8%E8%85%BE%E8%AE%AF%E4%BA%91%E7%9A%84Serverless%E9%83%A8%E7%BD%B2%E5%A4%A9%E6%B0%94%E5%BA%94%E7%94%A8/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2021/03/27/hello-world/">Hello World</a>
+        <a href="/2020/09/20/gRPC-%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%E4%B8%8E%E9%87%8D%E8%AF%95%E6%97%B6%E9%97%B4%E9%97%B4%E9%9A%94/">gRPC 超时时间与重试时间间隔</a>
       </h2>
-      <p class="article-date">March 27, 2021</p>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
       
       <div class="article-summary">
         
-          Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer ...
+          gRPC 超时时间与重试时间间隔
+gRPC 的超时时间生效机制以及重试超时时间间隔 
+
+超时时间配置对指定的服务和方法单独设置超时时间，timeout 作用于所有的 RPC 请求（无论是否重试，都会在 timeout 的时间之后超时，进行中的重试请求会被取消）
+123456789101112 ...
         
       </div>
-      <a class="more" href="/2021/03/27/hello-world/">Read more</a>
+      <a class="more" href="/2020/09/20/gRPC-%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%E4%B8%8E%E9%87%8D%E8%AF%95%E6%97%B6%E9%97%B4%E9%97%B4%E9%9A%94/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/gRPC-%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/">gRPC 中的核心概念</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 中的核心概念StubStub 层暴露给开发者，提供类型安全的绑定到正在适应的数据模型/IDL/接口
+ChannelChannel 层是传输处理之上的抽象，适合拦截器、装饰器，并比 Stub 层暴露更多的行为给应用一个 Channel 可能有多个 Subchannel 
+Subcha ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/gRPC-%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/gRPC-%E9%87%8D%E8%AF%95%E6%B5%81%E7%A8%8B/">gRPC 重试流程</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 重试流程当第一次调用失败，流监听器关闭的时候，会根据请求的处理状态和方法的配置，判断是否需要重试
+请求的处理状态有三种，在io.grpc.internal.ClientStreamListener.RpcProgress中定义：
+
+PROCESSED: 请求被正常处理，按照返回的状 ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/gRPC-%E9%87%8D%E8%AF%95%E6%B5%81%E7%A8%8B/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/gRPC-%E5%AF%B9%E5%86%B2%E5%8E%9F%E7%90%86/">gRPC 对冲原理</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 对冲原理gRPC 对冲开启后，当请求在指定的时间间隔后没有返回时，会发起对冲请求，继续等待，如果依然没有返回，则重复发送直到接收到返回结果或者超时取消
+对冲适用于当下游服务部分节点故障无法及时响应或者响应不及时的场景，通过对冲可以减少请求的失败率，但是可能会导致延时增加
+对冲和重试 ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/gRPC-%E5%AF%B9%E5%86%B2%E5%8E%9F%E7%90%86/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/gRPC-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">gRPC  自定义健康检查</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC  自定义健康检查在 gRPC 中自定义健康检查逻辑，用于检查特定的组件(如检查 Redis、MQ 等)，或者结合其他的服务组件一起使用(如使用 Spring Boot 的健康检查)
+实现gRPC 的健康检查服务是通过 health.proto定义的
+
+health.proto
+
+1 ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/gRPC-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/gRPC-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">gRPC  健康检查</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC  健康检查在 gRPC 中使用健康检查，在负载均衡前通过健康检查，只对健康的 Subchannel 发起请求，保证请求的成功率
+使用Server 端健康检查是一个独立的 Service，需要在 Server 端显式添加健康检查服务
+健康检查定义了两个方法，一个适用于单次请求的 ch ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/gRPC-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/gRPC-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">gRPC  负载均衡</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC  负载均衡gRPC 内定义了  LoadBalancer 接口，用于负载均衡
+
+LoadBalancer 中的主要方法
+
+handleResolvedAddress：处理  NameResolver 解析的地址，用于创建 Subchannel
+handleNameResolutio ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/gRPC-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/HPA-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E6%8C%87%E6%A0%87%E8%87%AA%E5%8A%A8%E6%89%A9%E7%BC%A9%E5%AE%B9/">HPA 使用自定义的指标自动扩缩容</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          HPA 使用自定义的指标自动扩缩容Kubernetes 支持使用自定义的指标作为 HPA 的依据；
+KEDA 是基于事件驱动的自动扩缩容组件；主要有两部分：
+
+Agent: 用于触发和停用扩缩容，通过 keda-operator 实现
+Metrics: 用于收集指标，提供给 Agent，通过 ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/HPA-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E6%8C%87%E6%A0%87%E8%87%AA%E5%8A%A8%E6%89%A9%E7%BC%A9%E5%AE%B9/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/09/20/gRPC-%E5%91%BD%E5%90%8D%E8%A7%A3%E6%9E%90/">gRPC 命名解析</a>
+      </h2>
+      <p class="article-date">September 20, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 命名解析命名解析根据服务的 URI，从注册中心获取并解析服务实例 IP，默认支持 schema 为 DNS，grpclb，xds 等
+
+gRPC 的命名解析的父类接口是 NameResolver
+NameResolver 包含有多个子类，用于实现命名解析每个 NameResolve ...
+        
+      </div>
+      <a class="more" href="/2020/09/20/gRPC-%E5%91%BD%E5%90%8D%E8%A7%A3%E6%9E%90/">Read more</a>
     </article>
   
 
+  
+    <div class="guide-pager">
+  
+    <a class="unvisible" href="/"><span class="page-arrow">←</span> Prev</a>
+  
+  
+    <a href="/page/2/">Next<span class="page-arrow"> →</span></a>
+  
+</div>
   
 </main>
 

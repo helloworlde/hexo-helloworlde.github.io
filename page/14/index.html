@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link active">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link mobile-active">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <main class="app-body">
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Association-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/">MyBatis 中使用 Association 嵌套查询</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#MyBatis" >
+    <span class="tag-code">MyBatis</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          
+当使用 MyBatis 进行查询的时候如果一个 JavaBean 中包含另一个 JavaBean 或者 Collection 时，可以通过 MyBatis 的嵌套查询来获取需要的结果;以下以用户登录时的用户、角色和菜单直接的关系为例使用嵌套查询
+
+
+JavaBean
+UserModel12 ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Association-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Collection-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/">MyBatis 中使用 Collection 嵌套查询</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#MyBatis" >
+    <span class="tag-code">MyBatis</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          
+当使用 MyBatis 进行查询的时候如果一个 JavaBean 中包含另一个 JavaBean 或者 Collection 时，可以通过 MyBatis 的嵌套查询来获取需要的结果;以下以用户登录时的角色和菜单直接的关系为例使用嵌套查询
+
+
+JavaBean
+RoleModel
+1234 ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Collection-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Spring-Security-%E7%9A%84-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">在使用 Spring Security 的 Remember Me 记住密码功能时遇到的问题和解决方法</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Spring Security" >
+    <span class="tag-code">Spring Security</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          
+在使用 Spring Security 的 Remember Me 记住密码功能时遇到的问题和解决方法
+
+
+java.lang.IllegalStateException: UserDetailsService is required.
+配置信息(Security.java)1234567 ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Spring-Security-%E7%9A%84-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Spring-Security-%E4%B8%AD%E5%AE%9E%E7%8E%B0-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD/">Spring Security 中实现 Remember Me 记住密码功能</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Spring Security" >
+    <span class="tag-code">Spring Security</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          
+在 Spring Boot 应用中使用 Spring Security 并实现 Remember Me 记住密码功能，实现自动登录
+
+
+
+前置条件：在 Spring Boot 应用中已正确配置 Spring Security
+
+##在页面添加记住密码的复选框
+1&lt;input type ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Spring-Security-%E4%B8%AD%E5%AE%9E%E7%8E%B0-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Spring-Boot-%E4%B8%AD%E9%9B%86%E6%88%90-Spring-Security/">Spring Boot 中集成 Spring Security</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Spring Security" >
+    <span class="tag-code">Spring Security</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          
+Spring Boot 集成 Spring Security的简单应用，从数据库读取数据校验用户，页面使用Thymeleaf模板
+
+
+项目地址 https://github.com/helloworlde/SpringSecurity演示 http://project.hellowood. ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Spring-Boot-%E4%B8%AD%E9%9B%86%E6%88%90-Spring-Security/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Spring-MVC-%E4%BD%BF%E7%94%A8-Spring-Session-%E5%AE%9E%E7%8E%B0-Session-%E5%85%B1%E4%BA%AB-Redis/">Spring MVC 使用 Spring Session 实现 Session 共享-Redis</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SrpingMVC" >
+    <span class="tag-code">SrpingMVC</span>
+  </a>
+
+  <a href="/tags#Spring Session" >
+    <span class="tag-code">Spring Session</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          
+使用Spring Session 通过 Redis 实现 Session 共享，用于多实例应用
+
+
+Spring Session 官方文档https://docs.spring.io/spring-session/docs/2.0.0.M4/reference/html5/#introdu ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Spring-MVC-%E4%BD%BF%E7%94%A8-Spring-Session-%E5%AE%9E%E7%8E%B0-Session-%E5%85%B1%E4%BA%AB-Redis/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-%E5%A4%9A%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA/">Gradle 添加多项，依赖其他项目</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Gradle" >
+    <span class="tag-code">Gradle</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Gradle 使用-多项目构建配置
+如该项目有四个模块，分别是Controller, Service, Dao,Model，根目录仅为父级目录，不存在任何代码；子目录为各个相应的模块或单独的项目
+
+
+项目根目录下添加 build.gradle
+
+12345678910111213141516 ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-%E5%A4%9A%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Gradle-%E6%B7%BB%E5%8A%A0%E5%A4%9A%E6%A8%A1%E5%9D%97%EF%BC%8C%E4%BE%9D%E8%B5%96%E5%85%B6%E4%BB%96%E9%A1%B9%E7%9B%AE/">Gradle 使用-多项目构建</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Gradle" >
+    <span class="tag-code">Gradle</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Gradle 使用-多项目构建配置
+如该项目有三个模块，分别是Controller, Service, Dao,Model，根目录仅为父级目录，不存在任何代码；子目录为各个相应的模块或单独的项目
+
+
+项目根目录下添加 build.gradle
+
+12345678910111213141516 ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Gradle-%E6%B7%BB%E5%8A%A0%E5%A4%9A%E6%A8%A1%E5%9D%97%EF%BC%8C%E4%BE%9D%E8%B5%96%E5%85%B6%E4%BB%96%E9%A1%B9%E7%9B%AE/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-Jacoco-%E5%88%86%E6%9E%90%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E5%B7%A5%E5%85%B7/">Gradle 使用-添加 Jacoco 分析单元测试覆盖率工具</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Gradle" >
+    <span class="tag-code">Gradle</span>
+  </a>
+
+  <a href="/tags#Test" >
+    <span class="tag-code">Test</span>
+  </a>
+
+  <a href="/tags#Junit" >
+    <span class="tag-code">Junit</span>
+  </a>
+
+  <a href="/tags#Jacoco" >
+    <span class="tag-code">Jacoco</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Gradle 添加 Jacoco 分析单元测试覆盖率工具
+Jacoco  是一个免费的 Java 单元测试覆盖率分析工具，在 Gradle 中添加插件，在编译的同事进行单元测试覆盖率分析
+
+配置1234567891011121314151617181920212223242526272829 ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-Jacoco-%E5%88%86%E6%9E%90%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E5%B7%A5%E5%85%B7/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/01/01/Java-%E5%B0%86%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E4%B8%8A%E4%BC%A0%E5%88%B0-Codecov/">Java 将单元测试覆盖率上传到 Codecov</a>
+      </h2>
+      <p class="article-date">January 1, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Gradle" >
+    <span class="tag-code">Gradle</span>
+  </a>
+
+  <a href="/tags#Test" >
+    <span class="tag-code">Test</span>
+  </a>
+
+  <a href="/tags#Junit" >
+    <span class="tag-code">Junit</span>
+  </a>
+
+  <a href="/tags#Codecov" >
+    <span class="tag-code">Codecov</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          将单元测试覆盖率上传到 Codecov
+通过使用 Jacoco 生成单元测试覆盖率报告，并将该报告上传到 Codecov
+
+配置 Jacoco
+配置 build.gradle 文件(以 SpringBoot 应用为例)
+
+12345678910111213141516171819202122 ...
+        
+      </div>
+      <a class="more" href="/2018/01/01/Java-%E5%B0%86%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E4%B8%8A%E4%BC%A0%E5%88%B0-Codecov/">Read more</a>
+    </article>
+  
+
+  
+    <div class="guide-pager">
+  
+    <a href="/page/13/"><span class="page-arrow">← </span>Prev</a>
+  
+  
+    <a href="/page/15/">Next<span class="page-arrow"> →</span></a>
+  
+</div>
+  
+</main>
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

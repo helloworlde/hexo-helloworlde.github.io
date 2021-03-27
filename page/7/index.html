@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link active">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link mobile-active">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <main class="app-body">
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/07/31/%E6%9C%8D%E5%8A%A1%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7-SkyWorking-%E6%90%AD%E5%BB%BA%E4%BD%BF%E7%94%A8/">服务追踪工具 SkyWorking 搭建使用</a>
+      </h2>
+      <p class="article-date">July 31, 2018</p>
+      
+        
+  <a href="/tags#Tool" >
+    <span class="tag-code">Tool</span>
+  </a>
+
+  <a href="/tags#SkyWalking" >
+    <span class="tag-code">SkyWalking</span>
+  </a>
+
+  <a href="/tags#Trace" >
+    <span class="tag-code">Trace</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          服务追踪工具 SkyWorking 搭建使用
+SkyWalking 是用于对微服务，Cloud Native，容器等提供应用性能监控和分布式调用链追踪的工具
+
+
+ Demo
+
+截图
+
+
+
+
+
+
+
+环境
+
+SkyWalking 5.0.0-beat2
+Mac OS
+ElasticSearch  ...
+        
+      </div>
+      <a class="more" href="/2018/07/31/%E6%9C%8D%E5%8A%A1%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7-SkyWorking-%E6%90%AD%E5%BB%BA%E4%BD%BF%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/07/16/%E4%BD%BF%E7%94%A8-Jib-%E7%94%9F%E6%88%90-Java-Docker-%E9%95%9C%E5%83%8F/">使用 Jib 生成 Java Docker 镜像</a>
+      </h2>
+      <p class="article-date">July 16, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Jib" >
+    <span class="tag-code">Jib</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          使用 Jib 生成  Java Docker 镜像
+Jib 是谷歌最新开源的 Java 应用的 Docker 镜像生成工具，可以通过 Gradle 或 Maven 直接生成镜像并上传到仓库而不需要 Dockerfile 文件或者其他插件；Jib 支持将资源文件和类分层打包，可以大幅度提升生成 ...
+        
+      </div>
+      <a class="more" href="/2018/07/16/%E4%BD%BF%E7%94%A8-Jib-%E7%94%9F%E6%88%90-Java-Docker-%E9%95%9C%E5%83%8F/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/05/30/JRebel-%E5%AE%89%E8%A3%85%E6%BF%80%E6%B4%BB/">JRebel 安装激活</a>
+      </h2>
+      <p class="article-date">May 30, 2018</p>
+      
+        
+  <a href="/tags#Tool" >
+    <span class="tag-code">Tool</span>
+  </a>
+
+  <a href="/tags#JRebel" >
+    <span class="tag-code">JRebel</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          JRebel 安装激活
+JRebel 是适用于 Java IDE 的代码热更新工具，可以直接更新代码，避免重启应用，可以提高开发效率，官网是 https://zeroturnaround.com/software/jrebel/
+
+安装Eclipse
+Help &gt; Eclipse Ma ...
+        
+      </div>
+      <a class="more" href="/2018/05/30/JRebel-%E5%AE%89%E8%A3%85%E6%BF%80%E6%B4%BB/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/04/10/SpringBoot-%E4%BD%BF%E7%94%A8-FastJSON-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E-JSON-%E6%A0%BC%E5%BC%8F/">SpringBoot 使用 FastJSON 自定义接口返回 JSON 格式</a>
+      </h2>
+      <p class="article-date">April 10, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#FastJSON" >
+    <span class="tag-code">FastJSON</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          SpringBoot 使用 FastJSON 自定义接口返回 JSON 格式在 SpringBoot 中如果想要自定义接口返回的值格式，可以通过重写 WebMvcConfigurerAdapter 类的 configureMessageConverters 方法实现
+
+添加依赖
+
+1com ...
+        
+      </div>
+      <a class="more" href="/2018/04/10/SpringBoot-%E4%BD%BF%E7%94%A8-FastJSON-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E-JSON-%E6%A0%BC%E5%BC%8F/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/04/10/Ubuntu-%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E4%BC%A0%E5%92%8C%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6/">Ubuntu 服务器上传和下载文件</a>
+      </h2>
+      <p class="article-date">April 10, 2018</p>
+      
+        
+  <a href="/tags#Ubuntu" >
+    <span class="tag-code">Ubuntu</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Ubuntu 服务器上传和下载文件使用 scp 命令完成文件的上传和下载 
+上传
+上传单个文件 
+
+1scp -p port source_dictionary_file user@ServerIp:target_dictionary_file
+
+
+prot 默认是22，如果使用默认可以不写 ...
+        
+      </div>
+      <a class="more" href="/2018/04/10/Ubuntu-%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E4%BC%A0%E5%92%8C%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/04/10/Docker-%E9%85%8D%E7%BD%AE-Nginx-%E8%AE%BF%E9%97%AE%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84%E5%BA%94%E7%94%A8/">Docker 配置 Nginx 访问宿主机目录下的应用</a>
+      </h2>
+      <p class="article-date">April 10, 2018</p>
+      
+        
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+  <a href="/tags#Ubuntu" >
+    <span class="tag-code">Ubuntu</span>
+  </a>
+
+  <a href="/tags#Tomcat" >
+    <span class="tag-code">Tomcat</span>
+  </a>
+
+  <a href="/tags#Nginx" >
+    <span class="tag-code">Nginx</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Docker 配置 Nginx 访问宿主机目录下的应用
+使用 Nginx 将请求转发到宿主机的 Tomcat 应用
+
+配置并启动 Tomcat安装 Docker配置 Nginx
+创建配置和日志文件夹
+
+12mkdir &#x2F;home&#x2F;nginx&#x2F;confmkdir  ...
+        
+      </div>
+      <a class="more" href="/2018/04/10/Docker-%E9%85%8D%E7%BD%AE-Nginx-%E8%AE%BF%E9%97%AE%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84%E5%BA%94%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/04/08/Docker-%E6%9E%84%E5%BB%BA-SpringBoot-%E5%BA%94%E7%94%A8/">Docker 构建 SpringBoot 应用</a>
+      </h2>
+      <p class="article-date">April 8, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          用 Docker 构建 SpringBoot 应用
+启动 Docker，并生成 SpringBoot 应用
+
+修改 build.gradle 文件
+
+
+123456789101112131415161718192021222324252627282930313233343536373839b ...
+        
+      </div>
+      <a class="more" href="/2018/04/08/Docker-%E6%9E%84%E5%BB%BA-SpringBoot-%E5%BA%94%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/04/08/Docker-%E9%85%8D%E7%BD%AEUbuntu-%E4%B8%8B-Tomcat-%E5%92%8C-Nginx-%E4%BD%BF%E7%94%A8-HTTPS-%E8%AE%BF%E9%97%AE/">Docker 配置Ubuntu 下 Tomcat 和 Nginx 使用 HTTPS 访问</a>
+      </h2>
+      <p class="article-date">April 8, 2018</p>
+      
+        
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+  <a href="/tags#Ubuntu" >
+    <span class="tag-code">Ubuntu</span>
+  </a>
+
+  <a href="/tags#Tomcat" >
+    <span class="tag-code">Tomcat</span>
+  </a>
+
+  <a href="/tags#Nginx" >
+    <span class="tag-code">Nginx</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Ubuntu Docker 配置 Tomcat 和 Nginx 使用 HTTPS 访问安装 Docker使用脚本自动安装12curl -fsSL get.docker.com -o get-docker.shsudo sh get-docker.sh --mirror Aliyun
+
+更改镜 ...
+        
+      </div>
+      <a class="more" href="/2018/04/08/Docker-%E9%85%8D%E7%BD%AEUbuntu-%E4%B8%8B-Tomcat-%E5%92%8C-Nginx-%E4%BD%BF%E7%94%A8-HTTPS-%E8%AE%BF%E9%97%AE/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/04/08/Docker-%E4%B8%AD%E4%BD%BF%E7%94%A8-Dockerfile/">Docker 中使用 Dockerfile</a>
+      </h2>
+      <p class="article-date">April 8, 2018</p>
+      
+        
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Docker 中使用 DockerfileDockerfile 是一个文件，其包含了一条条的指令（instruction），每一条指令构建一层，因此每一条指令的内容就是描述该层应当如何构建
+
+构建一个镜像 
+
+12FROM nginxRUN echo &#39;&lt;h1&gt;Hello ...
+        
+      </div>
+      <a class="more" href="/2018/04/08/Docker-%E4%B8%AD%E4%BD%BF%E7%94%A8-Dockerfile/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/04/08/Docker-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">Docker 常用命令</a>
+      </h2>
+      <p class="article-date">April 8, 2018</p>
+      
+        
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          #Docker 常用命令 
+
+run新建并启动容器
+
+1234567891011&#x2F;&#x2F; 启动并输出 Hello Worlddocker run ubuntu:14.04 &#x2F;bin&#x2F;echo &#39;Hello World&#39;&#x2F;&#x2F ...
+        
+      </div>
+      <a class="more" href="/2018/04/08/Docker-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">Read more</a>
+    </article>
+  
+
+  
+    <div class="guide-pager">
+  
+    <a href="/page/6/"><span class="page-arrow">← </span>Prev</a>
+  
+  
+    <a href="/page/8/">Next<span class="page-arrow"> →</span></a>
+  
+</div>
+  
+</main>
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

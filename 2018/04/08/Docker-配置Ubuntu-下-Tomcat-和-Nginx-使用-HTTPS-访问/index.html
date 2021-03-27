@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Docker 配置Ubuntu 下 Tomcat 和 Nginx 使用 HTTPS 访问 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Docker 配置Ubuntu 下 Tomcat 和 Nginx 使用 HTTPS 访问</h2>
+  <p class="post-date">2018-04-08</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Ubuntu-Docker-配置-Tomcat-和-Nginx-使用-HTTPS-访问"><a href="#Ubuntu-Docker-配置-Tomcat-和-Nginx-使用-HTTPS-访问" class="headerlink" title="Ubuntu Docker 配置 Tomcat 和 Nginx 使用 HTTPS 访问"></a>Ubuntu Docker 配置 Tomcat 和 Nginx 使用 HTTPS 访问</h1><h2 id="安装-Docker"><a href="#安装-Docker" class="headerlink" title="安装 Docker"></a>安装 Docker</h2><h3 id="使用脚本自动安装"><a href="#使用脚本自动安装" class="headerlink" title="使用脚本自动安装"></a>使用脚本自动安装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -fsSL get.docker.com -o get-docker.sh</span><br><span class="line">sudo sh get-docker.sh --mirror Aliyun</span><br></pre></td></tr></table></figure>
+
+<h3 id="更改镜像地址"><a href="#更改镜像地址" class="headerlink" title="更改镜像地址"></a>更改镜像地址</h3><ul>
+<li>修改或新建 <code>/etc/docker/daemon.json</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;registry-mirrors&quot;: [</span><br><span class="line">    &quot;https:&#x2F;&#x2F;registry.docker-cn.com&quot;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动-Docker"><a href="#启动-Docker" class="headerlink" title="启动 Docker"></a>启动 Docker</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl enable docker</span><br><span class="line">sudo systemctl start docker</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置-Tomcat"><a href="#配置-Tomcat" class="headerlink" title="配置 Tomcat"></a>配置 Tomcat</h2><h3 id="启动-Tomcat-容器"><a href="#启动-Tomcat-容器" class="headerlink" title="启动 Tomcat 容器"></a>启动 Tomcat 容器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker pull tomcat</span><br><span class="line">docker run --name tomcat -d -p 8080:8080 tomcat</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改-Tomcat-Manager-应用"><a href="#修改-Tomcat-Manager-应用" class="headerlink" title="修改 Tomcat Manager 应用"></a>修改 Tomcat Manager 应用</h3><ul>
+<li>修改 <code>webapps/manager/META-INF/content.xml</code>，允许需要的IP访问，这里运行所有的IP访问</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;Context antiResourceLocking&#x3D;&quot;false&quot; privileged&#x3D;&quot;true&quot; &gt;</span><br><span class="line">  &lt;Valve className&#x3D;&quot;org.apache.catalina.valves.RemoteAddrValve&quot;</span><br><span class="line">         allow&#x3D;&quot;^.*$&quot; &#x2F;&gt;</span><br><span class="line">  &lt;Manager sessionAttributeValueClassNameFilter&#x3D;&quot;java\.lang\.(?:Boolean|Integer|Long|Number|String)|org\.apache\.catalina\.filters\.CsrfPreventionFilter\$LruCache(?:\$1)?|java\.util\.(?:Linked)?HashMap&quot;&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;Context&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置-Tomcat-用户"><a href="#配置-Tomcat-用户" class="headerlink" title="配置 Tomcat 用户"></a>配置 Tomcat 用户</h3><ul>
+<li>修改 <code>conf/tomcat-user.xml</code>，添加用户</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;role rolename&#x3D;&quot;admin-gui&quot;&#x2F;&gt;</span><br><span class="line">&lt;role rolename&#x3D;&quot;manager-gui&quot;&#x2F;&gt;</span><br><span class="line">&lt;user username&#x3D;&quot;tomcat&quot; password&#x3D;&quot;tomcat&quot; roles&#x3D;&quot;manager-gui,admin-gui&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="配置-Nginx"><a href="#配置-Nginx" class="headerlink" title="配置 Nginx"></a>配置 Nginx</h2><h3 id="配置目录"><a href="#配置目录" class="headerlink" title="配置目录"></a>配置目录</h3><ul>
+<li>新建目录 <code>/home/ubuntu/hellowood/dev/nginx/conf</code>, <code>/home/ubuntu/hellowood/dev/nginx/log</code>, <code>/home/ubuntu/hellowood/dev/nginx/certs</code></li>
+<li>下载并解压相应的Nginx证书文件到 <code>/home/ubuntu/hellowood/dev/nginx/conf</code></li>
+</ul>
+<h3 id="添加-Nginx-配置"><a href="#添加-Nginx-配置" class="headerlink" title="添加 Nginx 配置"></a>添加 Nginx 配置</h3><ul>
+<li>nginx.conf</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">      listen 80;</span><br><span class="line">      listen 443 ssl;</span><br><span class="line">      server_name hellowood.com.cn;</span><br><span class="line">      ssl_certificate &#x2F;etc&#x2F;nginx&#x2F;certs&#x2F;hellowood.com.cn_bundle.crt;</span><br><span class="line">      ssl_certificate_key &#x2F;etc&#x2F;nginx&#x2F;certs&#x2F;hellowood.com.cn.key;</span><br><span class="line">      location &#x2F; &#123;</span><br><span class="line">        proxy_pass http:&#x2F;&#x2F;tomcat:8080;</span><br><span class="line">      &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>http://tomcat:8080</code>: 将所有请求都转发到 <code>tomcat</code> 容器的 <code>8080</code>端口(不是映射端口)</p>
+<h3 id="启动-Nginx-容器"><a href="#启动-Nginx-容器" class="headerlink" title="启动 Nginx 容器"></a>启动 Nginx 容器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker pull nginx </span><br><span class="line">docker run --name nginx -d -p 80:80 -p 443:443 \</span><br><span class="line">  --link tomcat:tomcat \</span><br><span class="line">  -v &#x2F;home&#x2F;ubuntu&#x2F;hellowood&#x2F;dev&#x2F;nginx&#x2F;conf:&#x2F;etc&#x2F;nginx&#x2F;conf.d \ </span><br><span class="line">  -v &#x2F;home&#x2F;ubuntu&#x2F;hellowood&#x2F;dev&#x2F;nginx&#x2F;log:&#x2F;var&#x2F;log&#x2F;nginx \ </span><br><span class="line">  -v &#x2F;home&#x2F;ubuntu&#x2F;hellowood&#x2F;dev&#x2F;nginx&#x2F;certs:&#x2F;etc&#x2F;nginx&#x2F;certs nginx</span><br></pre></td></tr></table></figure>
+
+<p>此时，访问相应的域名：<code>http://hellowood.com.cn</code>和<code>https://hellowood.com.cn</code>会显示<code>Tomcat</code> 的首页，配置完成</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+  <a href="/tags#Ubuntu" >
+    <span class="tag-code">Ubuntu</span>
+  </a>
+
+  <a href="/tags#Tomcat" >
+    <span class="tag-code">Tomcat</span>
+  </a>
+
+  <a href="/tags#Nginx" >
+    <span class="tag-code">Nginx</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/04/08/Docker-%E4%B8%AD%E4%BD%BF%E7%94%A8-Dockerfile/">
+        <span class="nav-arrow">← </span>
+        
+          Docker 中使用 Dockerfile
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/04/08/Docker-%E6%9E%84%E5%BB%BA-SpringBoot-%E5%BA%94%E7%94%A8/">
+        
+          Docker 构建 SpringBoot 应用
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Ubuntu-Docker-%E9%85%8D%E7%BD%AE-Tomcat-%E5%92%8C-Nginx-%E4%BD%BF%E7%94%A8-HTTPS-%E8%AE%BF%E9%97%AE"><span class="toc-nav-text">Ubuntu Docker 配置 Tomcat 和 Nginx 使用 HTTPS 访问</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85-Docker"><span class="toc-nav-text">安装 Docker</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8%E8%84%9A%E6%9C%AC%E8%87%AA%E5%8A%A8%E5%AE%89%E8%A3%85"><span class="toc-nav-text">使用脚本自动安装</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%9B%B4%E6%94%B9%E9%95%9C%E5%83%8F%E5%9C%B0%E5%9D%80"><span class="toc-nav-text">更改镜像地址</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Docker"><span class="toc-nav-text">启动 Docker</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-Tomcat"><span class="toc-nav-text">配置 Tomcat</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Tomcat-%E5%AE%B9%E5%99%A8"><span class="toc-nav-text">启动 Tomcat 容器</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%BF%AE%E6%94%B9-Tomcat-Manager-%E5%BA%94%E7%94%A8"><span class="toc-nav-text">修改 Tomcat Manager 应用</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-Tomcat-%E7%94%A8%E6%88%B7"><span class="toc-nav-text">配置 Tomcat 用户</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-Nginx"><span class="toc-nav-text">配置 Nginx</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E7%9B%AE%E5%BD%95"><span class="toc-nav-text">配置目录</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0-Nginx-%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">添加 Nginx 配置</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Nginx-%E5%AE%B9%E5%99%A8"><span class="toc-nav-text">启动 Nginx 容器</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/04/08/Docker-配置Ubuntu-下-Tomcat-和-Nginx-使用-HTTPS-访问/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Docker 配置Ubuntu 下 Tomcat 和 Nginx 使用 HTTPS 访问",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

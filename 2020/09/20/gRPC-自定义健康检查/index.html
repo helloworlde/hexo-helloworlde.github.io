@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC  自定义健康检查 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC  自定义健康检查</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-自定义健康检查"><a href="#gRPC-自定义健康检查" class="headerlink" title="gRPC  自定义健康检查"></a>gRPC  自定义健康检查</h1><p>在 gRPC 中自定义健康检查逻辑，用于检查特定的组件(如检查 Redis、MQ 等)，或者结合其他的服务组件一起使用(如使用 Spring Boot 的健康检查)</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>gRPC 的健康检查服务是通过 <code>health.proto</code>定义的</p>
+<ul>
+<li>health.proto</li>
+</ul>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> grpc.health.v1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">option</span> csharp_namespace = <span class="string">&quot;Grpc.Health.V1&quot;</span>;</span><br><span class="line"><span class="keyword">option</span> go_package = <span class="string">&quot;google.golang.org/grpc/health/grpc_health_v1&quot;</span>;</span><br><span class="line"><span class="keyword">option</span> java_multiple_files = <span class="literal">true</span>;</span><br><span class="line"><span class="keyword">option</span> java_outer_classname = <span class="string">&quot;HealthProto&quot;</span>;</span><br><span class="line"><span class="keyword">option</span> java_package = <span class="string">&quot;io.grpc.health.v1&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">HealthCheckRequest</span> </span>&#123;</span><br><span class="line">  <span class="built_in">string</span> <span class="class"><span class="keyword">service</span> = 1;</span></span><br><span class="line"><span class="class">&#125;</span></span><br><span class="line"><span class="class"><span class="title">message</span> HealthCheckResponse </span>&#123;</span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">ServingStatus</span> </span>&#123;</span><br><span class="line">    UNKNOWN = <span class="number">0</span>;</span><br><span class="line">    SERVING = <span class="number">1</span>;</span><br><span class="line">    NOT_SERVING = <span class="number">2</span>;</span><br><span class="line">    SERVICE_UNKNOWN = <span class="number">3</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  ServingStatus status = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">Health</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 单次健康检查</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> Check(HealthCheckRequest) <span class="keyword">returns</span> (HealthCheckResponse)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 流式健康检查</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> Watch(HealthCheckRequest) <span class="keyword">returns</span> (stream HealthCheckResponse)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>里面定义了两个方法，一个是用于单次检查的 <code>Check</code>方法，一个是用于流式请求的 <code>Watch</code>方法</p>
+<h3 id="自定义检查组件"><a href="#自定义检查组件" class="headerlink" title="自定义检查组件"></a>自定义检查组件</h3><ul>
+<li>CustomHealthCheckImpl.java</li>
+</ul>
+<p>自定义健康检查逻辑，通过不同的组件名称返回相应的状态信息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomHealthCheckImpl</span> <span class="keyword">extends</span> <span class="title">HealthGrpc</span>.<span class="title">HealthImplBase</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">check</span><span class="params">(HealthCheckRequest request, StreamObserver&lt;HealthCheckResponse&gt; responseObserver)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;健康检查:&quot;</span> + request.getService());</span><br><span class="line"></span><br><span class="line">        HealthCheckResponse.ServingStatus servingStatus = getServingStatus(request);</span><br><span class="line"></span><br><span class="line">        HealthCheckResponse response = HealthCheckResponse.newBuilder()</span><br><span class="line">                                                          .setStatus(servingStatus)</span><br><span class="line">                                                          .build();</span><br><span class="line"></span><br><span class="line">        responseObserver.onNext(response);</span><br><span class="line">        responseObserver.onCompleted();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">watch</span><span class="params">(HealthCheckRequest request, StreamObserver&lt;HealthCheckResponse&gt; responseObserver)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;健康检查 Stream:&quot;</span> + request.getService());</span><br><span class="line"></span><br><span class="line">        HealthCheckResponse.ServingStatus servingStatus = getServingStatus(request);</span><br><span class="line"></span><br><span class="line">        HealthCheckResponse response = HealthCheckResponse.newBuilder()</span><br><span class="line">                                                          .setStatus(servingStatus)</span><br><span class="line">                                                          .build();</span><br><span class="line">        responseObserver.onNext(response);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> HealthCheckResponse.<span class="function">ServingStatus <span class="title">getServingStatus</span><span class="params">(HealthCheckRequest request)</span> </span>&#123;</span><br><span class="line">        HealthCheckResponse.ServingStatus servingStatus;</span><br><span class="line">        String service = request.getService();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">switch</span> (service) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&quot;&quot;</span>:</span><br><span class="line">                servingStatus = HealthCheckResponse.ServingStatus.SERVING;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&quot;mysql&quot;</span>:</span><br><span class="line">                servingStatus = checkMySQL();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&quot;redis&quot;</span>:</span><br><span class="line">                servingStatus = checkRedis();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                servingStatus = HealthCheckResponse.ServingStatus.UNKNOWN;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> servingStatus;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>在 Server 端添加自定义的健康检查服务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Server server = ServerBuilder.forPort(<span class="number">1234</span>)</span><br><span class="line">                             .addService(<span class="keyword">new</span> UserInfoServiceImpl()) </span><br><span class="line">                             .addService(<span class="keyword">new</span> HelloServiceImpl())</span><br><span class="line">                             .addService(<span class="keyword">new</span> CustomHealthCheckImpl())</span><br><span class="line">                             .build();</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">grpc-health-probe -addr localhost:1234 -service mysql</span><br><span class="line">status: SERVING</span><br><span class="line"></span><br><span class="line">grpc-health-probe -addr localhost:1234 -service redis</span><br><span class="line">service unhealthy (responded with <span class="string">&quot;NOT_SERVING&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用-Spring-Boot-健康检查"><a href="#使用-Spring-Boot-健康检查" class="headerlink" title="使用 Spring Boot 健康检查"></a>使用 Spring Boot 健康检查</h3><p>通过 Spring Boot  的 HealthIndicator 作为 gRPC 的健康检查，需要将相应的组件状态转为 gRPC 的健康检查状态</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomHealthCheckImpl</span> <span class="keyword">extends</span> <span class="title">HealthGrpc</span>.<span class="title">HealthImplBase</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ObjectProvider&lt;HealthIndicator&gt; healthIndicatorObjectProvider;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomHealthCheckImpl</span><span class="params">(ObjectProvider&lt;HealthIndicator&gt; healthIndicatorObjectProvider)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.healthIndicatorObjectProvider = healthIndicatorObjectProvider;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">check</span><span class="params">(HealthCheckRequest request, StreamObserver&lt;HealthCheckResponse&gt; responseObserver)</span> </span>&#123;</span><br><span class="line">        HealthCheckResponse.ServingStatus servingStatus = getServingStatus(request);</span><br><span class="line"></span><br><span class="line">        HealthCheckResponse response = HealthCheckResponse.newBuilder()</span><br><span class="line">                                                          .setStatus(servingStatus)</span><br><span class="line">                                                          .build();</span><br><span class="line"></span><br><span class="line">        responseObserver.onNext(response);</span><br><span class="line">        responseObserver.onCompleted();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">watch</span><span class="params">(HealthCheckRequest request, StreamObserver&lt;HealthCheckResponse&gt; responseObserver)</span> </span>&#123;</span><br><span class="line">        HealthCheckResponse.ServingStatus servingStatus = getServingStatus(request);</span><br><span class="line"></span><br><span class="line">        HealthCheckResponse response = HealthCheckResponse.newBuilder()</span><br><span class="line">                                                          .setStatus(servingStatus)</span><br><span class="line">                                                          .build();</span><br><span class="line">        responseObserver.onNext(response);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> HealthCheckResponse.<span class="function">ServingStatus <span class="title">getServingStatus</span><span class="params">(HealthCheckRequest request)</span> </span>&#123;</span><br><span class="line">        HealthCheckResponse.ServingStatus servingStatus;</span><br><span class="line">        String service = request.getService();</span><br><span class="line"></span><br><span class="line">        servingStatus = healthIndicatorObjectProvider.stream()</span><br><span class="line">                                                     .peek(h -&gt; &#123;</span><br><span class="line">                                                         System.out.println(h.getClass().getSimpleName());</span><br><span class="line">                                                     &#125;)</span><br><span class="line">                                                     .filter(h -&gt; h.getClass().getSimpleName().toLowerCase().contains(service.toLowerCase()))</span><br><span class="line">                                                     .map(HealthIndicator::health)</span><br><span class="line">                                                     .map(Health::getStatus)</span><br><span class="line">                                                     .map(<span class="keyword">this</span>::toGrpcHealthStatus)</span><br><span class="line">                                                     .findFirst()</span><br><span class="line">                                                     .orElse(HealthCheckResponse.ServingStatus.UNKNOWN);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> servingStatus;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> HealthCheckResponse.<span class="function">ServingStatus <span class="title">toGrpcHealthStatus</span><span class="params">(Status status)</span> </span>&#123;</span><br><span class="line">        HealthCheckResponse.ServingStatus servingStatus;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (Status.UP.equals(status)) &#123;</span><br><span class="line">            servingStatus = HealthCheckResponse.ServingStatus.SERVING;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (Status.DOWN.equals(status)) &#123;</span><br><span class="line">            servingStatus = HealthCheckResponse.ServingStatus.NOT_SERVING;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (Status.OUT_OF_SERVICE.equals(status)) &#123;</span><br><span class="line">            servingStatus = HealthCheckResponse.ServingStatus.SERVICE_UNKNOWN;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            servingStatus = HealthCheckResponse.ServingStatus.UNKNOWN;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> servingStatus;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>测试</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">grpc-health-probe -addr localhost:9090 -service disk</span><br><span class="line">status: SERVING</span><br><span class="line"></span><br><span class="line">grpc-health-probe -addr localhost:9090 -service redis</span><br><span class="line">service unhealthy (responded with <span class="string">&quot;UNKNOWN&quot;</span>)</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/gRPC-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC  健康检查
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/gRPC-%E5%AF%B9%E5%86%B2%E5%8E%9F%E7%90%86/">
+        
+          gRPC 对冲原理
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5"><span class="toc-nav-text">gRPC  自定义健康检查</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">实现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A3%80%E6%9F%A5%E7%BB%84%E4%BB%B6"><span class="toc-nav-text">自定义检查组件</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">使用</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-Spring-Boot-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5"><span class="toc-nav-text">使用 Spring Boot 健康检查</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/gRPC-自定义健康检查/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC  自定义健康检查",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

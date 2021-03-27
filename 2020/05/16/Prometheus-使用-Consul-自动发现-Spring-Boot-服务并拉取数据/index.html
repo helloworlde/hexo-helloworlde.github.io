@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Prometheus 使用 Consul 自动发现 Spring Boot 服务并拉取数据 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Prometheus 使用 Consul 自动发现 Spring Boot 服务并拉取数据</h2>
+  <p class="post-date">2020-05-16</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Prometheus-使用-Consul-自动发现-Spring-Boot-服务并拉取数据"><a href="#Prometheus-使用-Consul-自动发现-Spring-Boot-服务并拉取数据" class="headerlink" title="Prometheus 使用 Consul 自动发现 Spring Boot 服务并拉取数据"></a>Prometheus 使用 Consul 自动发现 Spring Boot 服务并拉取数据</h1><p>使用 Prometheus监控 SpringBoot 应用，当应用很多，且上下线频繁时，需要不断的更改 Prometheus 的配置文件，不能灵活的使用，可以通过为 Prometheus配置注册中心，从注册中心拉取应用数据获取监控数据</p>
+<h2 id="启动-Prometheus"><a href="#启动-Prometheus" class="headerlink" title="启动 Prometheus"></a>启动 Prometheus</h2><ul>
+<li>添加配置文件 prometheus.yaml</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p ~/docker/prometheus/config</span><br><span class="line">vi ~/docker/prometheus/config/prometheus.yml</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">global:</span></span><br><span class="line">  <span class="attr">scrape_interval:</span> <span class="string">15s</span></span><br><span class="line">  <span class="attr">scrape_timeout:</span> <span class="string">10s</span></span><br><span class="line">  <span class="attr">evaluation_interval:</span> <span class="string">15s</span></span><br><span class="line"><span class="attr">alerting:</span></span><br><span class="line">  <span class="attr">alertmanagers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">static_configs:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">targets:</span> []</span><br><span class="line">    <span class="attr">scheme:</span> <span class="string">http</span></span><br><span class="line">    <span class="attr">timeout:</span> <span class="string">10s</span></span><br><span class="line">    <span class="attr">api_version:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">scrape_configs:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">prometheus</span></span><br><span class="line">  <span class="attr">honor_timestamps:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">scrape_interval:</span> <span class="string">15s</span></span><br><span class="line">  <span class="attr">scrape_timeout:</span> <span class="string">10s</span></span><br><span class="line">  <span class="attr">metrics_path:</span> <span class="string">/metrics</span></span><br><span class="line">  <span class="attr">scheme:</span> <span class="string">http</span></span><br><span class="line">  <span class="attr">static_configs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">targets:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">localhost:9090</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动容器 </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run \</span><br><span class="line">    -d \</span><br><span class="line">    --name prometheus \</span><br><span class="line">    -p 9090:9090 \</span><br><span class="line">    -v ~/docker/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml \</span><br><span class="line">    prom/prometheus    </span><br></pre></td></tr></table></figure>
+
+<h2 id="启动-Consul"><a href="#启动-Consul" class="headerlink" title="启动 Consul"></a>启动 Consul</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run \</span><br><span class="line">       -d \</span><br><span class="line">       --name consul \</span><br><span class="line">       -p 8500:8500 \</span><br><span class="line">       consul</span><br></pre></td></tr></table></figure>
+
+<h2 id="启动-Spring-Boot-应用"><a href="#启动-Spring-Boot-应用" class="headerlink" title="启动 Spring Boot 应用"></a>启动 Spring Boot 应用</h2><h3 id="添加监控"><a href="#添加监控" class="headerlink" title="添加监控"></a>添加监控</h3><ul>
+<li>添加依赖 build.gradle </li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">compile <span class="string">&#x27;org.springframework.cloud:spring-cloud-starter-consul-discovery&#x27;</span></span><br><span class="line">compile <span class="string">&#x27;org.springframework.boot:spring-boot-starter-actuator&#x27;</span></span><br><span class="line">compile <span class="string">&#x27;io.micrometer:micrometer-core:1.5.1&#x27;</span></span><br><span class="line">compile <span class="string">&#x27;io.micrometer:micrometer-registry-prometheus:1.5.1&#x27;</span> </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改应用配置 applicaiton.properties </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">spring.cloud.consul.host&#x3D;localhost</span><br><span class="line">spring.cloud.consul.port&#x3D;8500</span><br><span class="line">spring.cloud.consul.discovery.service-name&#x3D;$&#123;spring.application.name&#125;</span><br><span class="line">spring.cloud.consul.discovery.prefer-ip-address&#x3D;true</span><br><span class="line">spring.cloud.consul.discovery.health-check-url&#x3D;http:&#x2F;&#x2F;host.docker.internal:$&#123;server.port&#125;&#x2F;actuator&#x2F;health</span><br><span class="line">spring.cloud.consul.discovery.tags&#x3D;metrics&#x3D;true</span><br><span class="line"></span><br><span class="line">management.endpoints.web.exposure.include&#x3D;*</span><br><span class="line"># prometheus</span><br><span class="line">management.metrics.tags.application&#x3D;$&#123;spring.application.name&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面配置中指定健康检查是为了 Consul 从容器访问宿主机的应用，指定tag是为了Prometheus 从Consul列表中拉取需要监控的指定应用</p>
+<h2 id="使用-Consul-发现服务"><a href="#使用-Consul-发现服务" class="headerlink" title="使用 Consul 发现服务"></a>使用 Consul 发现服务</h2><h3 id="修改-Prometheus-配置"><a href="#修改-Prometheus-配置" class="headerlink" title="修改 Prometheus 配置"></a>修改 Prometheus 配置</h3><ul>
+<li>prometheus.yaml</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">global:</span></span><br><span class="line">  <span class="attr">scrape_interval:</span> <span class="string">15s</span></span><br><span class="line">  <span class="attr">scrape_timeout:</span> <span class="string">10s</span></span><br><span class="line">  <span class="attr">evaluation_interval:</span> <span class="string">15s</span></span><br><span class="line"><span class="attr">alerting:</span></span><br><span class="line">  <span class="attr">alertmanagers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">static_configs:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">targets:</span> []</span><br><span class="line">      <span class="attr">scheme:</span> <span class="string">http</span></span><br><span class="line">      <span class="attr">timeout:</span> <span class="string">10s</span></span><br><span class="line">      <span class="attr">api_version:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">scrape_configs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&quot;prometheus&quot;</span></span><br><span class="line">    <span class="attr">static_configs:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">targets:</span> [<span class="string">&quot;localhost:9090&quot;</span>]</span><br><span class="line">  <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&quot;consul&quot;</span></span><br><span class="line">    <span class="attr">consul_sd_configs:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">server:</span> <span class="string">&quot;host.docker.internal:8500&quot;</span></span><br><span class="line">    <span class="attr">relabel_configs:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">&quot;__meta_consul_dc&quot;</span>]</span><br><span class="line">        <span class="attr">target_label:</span> <span class="string">&quot;dc&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_consul_service</span>]</span><br><span class="line">        <span class="attr">separator:</span> <span class="string">;</span></span><br><span class="line">        <span class="attr">regex:</span> <span class="string">(.*)</span></span><br><span class="line">        <span class="attr">target_label:</span> <span class="string">application</span></span><br><span class="line">        <span class="attr">replacement:</span> <span class="string">$1</span></span><br><span class="line">        <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__address__</span>]</span><br><span class="line">        <span class="attr">separator:</span> <span class="string">&quot;:&quot;</span></span><br><span class="line">        <span class="attr">regex:</span> <span class="string">(127.0.0.1):(.*)</span></span><br><span class="line">        <span class="attr">target_label:</span> <span class="string">__address__</span></span><br><span class="line">        <span class="attr">replacement:</span> <span class="string">host.docker.internal:$&#123;2&#125;</span></span><br><span class="line">        <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__metrics_path__</span>]</span><br><span class="line">        <span class="attr">separator:</span> <span class="string">;</span></span><br><span class="line">        <span class="attr">regex:</span> <span class="string">/metrics</span></span><br><span class="line">        <span class="attr">target_label:</span> <span class="string">__metrics_path__</span></span><br><span class="line">        <span class="attr">replacement:</span> <span class="string">/actuator/prometheus</span></span><br><span class="line">        <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">&#x27;__meta_consul_tags&#x27;</span>]</span><br><span class="line">        <span class="attr">regex:</span> <span class="string">&#x27;^.*,metrics=true,.*$&#x27;</span></span><br><span class="line">        <span class="attr">action:</span> <span class="string">keep</span></span><br></pre></td></tr></table></figure>
+
+<p>其中 :</p>
+<ul>
+<li><p><code>consul_sd_configs</code>指定 Consul 的地址</p>
+</li>
+<li><p><code>relabel_configs</code> 指定配置标签覆盖规则</p>
+</li>
+<li><p><code>__meta_consul_service</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_consul_service</span>]</span><br><span class="line">  <span class="attr">separator:</span> <span class="string">;</span></span><br><span class="line">  <span class="attr">regex:</span> <span class="string">(.*)</span></span><br><span class="line">  <span class="attr">target_label:</span> <span class="string">application</span></span><br><span class="line">  <span class="attr">replacement:</span> <span class="string">$1</span></span><br><span class="line">  <span class="attr">action:</span> <span class="string">replace</span></span><br></pre></td></tr></table></figure>
+<p>这个配置是将 <code>__meta_consul_service</code> 重新映射为 <code>application</code>字段，方便 Prometheus 查询</p>
+</li>
+<li><p><code>__address__</code></p>
+</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__address__</span>]</span><br><span class="line">  <span class="attr">separator:</span> <span class="string">&quot;:&quot;</span></span><br><span class="line">  <span class="attr">regex:</span> <span class="string">(127.0.0.1):(.*)</span></span><br><span class="line">  <span class="attr">target_label:</span> <span class="string">__address__</span></span><br><span class="line">  <span class="attr">replacement:</span> <span class="string">host.docker.internal:$&#123;2&#125;</span></span><br><span class="line">  <span class="attr">action:</span> <span class="string">replace</span></span><br></pre></td></tr></table></figure>
+<p>这个配置是为了将 <code>127.0.0.1</code>的地址改为<code>host.docker.internal</code>，方便 Prometheus 从容器中访问宿主机的应用</p>
+<ul>
+<li><code>__metrics_path__</code></li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__metrics_path__</span>]</span><br><span class="line">  <span class="attr">separator:</span> <span class="string">;</span></span><br><span class="line">  <span class="attr">regex:</span> <span class="string">/metrics</span></span><br><span class="line">  <span class="attr">target_label:</span> <span class="string">__metrics_path__</span></span><br><span class="line">  <span class="attr">replacement:</span> <span class="string">/actuator/prometheus</span></span><br><span class="line">  <span class="attr">action:</span> <span class="string">replace</span></span><br></pre></td></tr></table></figure>
+
+<p>这个配置是为了将 Prometheus 默认的拉取数据 <code>/metrics</code>改成 <code>/actuator/prometheus</code>，方便从 Spring拉取，如果有多种不同的应用，数据路径不一样，建议设置多个job，以使用不同的规则</p>
+<ul>
+<li><code>__meta_consul_tags</code></li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">&#x27;__meta_consul_tags&#x27;</span>]</span><br><span class="line">  <span class="attr">regex:</span> <span class="string">&#x27;^.*,metrics=true,.*$&#x27;</span></span><br><span class="line">  <span class="attr">action:</span> <span class="string">keep</span></span><br></pre></td></tr></table></figure>
+<p>这个配置是为了筛选指定tag的应用，只有有这个tag的应用才会拉取监控数据，这里是 <code>metrics=true</code>，是在 Spring Boot的配置文件中配置的，这样就可以避免拉取不相关的数据的应用(如 Consul自己的数据，替换路径为<code>/actuator/prometheus</code>后无法获取到监控数据)</p>
+<p>配置完成后重启 Prometheus</p>
+<h3 id="获取应用"><a href="#获取应用" class="headerlink" title="获取应用"></a>获取应用</h3><ul>
+<li>Consul 中注册的应用 </li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/prometheus-consul-consul-service-list.png" alt="prometheus-consul-consul-service-list.png"></p>
+<ul>
+<li>Prometheus 的 Service Discovery</li>
+</ul>
+<p>可以看到，consul这个服务下发现了三个服务，但是只有一个在拉取数据，另外两个被丢弃了，这是因为限制了只拉取 tag 为 <code>metrics=true</code></p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/prometheus-consul-prometheus-discovery-list.png" alt="prometheus-consul-prometheus-discovery-list.png"></p>
+<ul>
+<li>Prometheus 的 Target</li>
+</ul>
+<p>可以看到 Target 也只拉取了这一个应用</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/prometheus-consul-prometheus-target-list.png" alt="prometheus-consul-prometheus-target-list.png"></p>
+<ul>
+<li>查询监控数据</li>
+</ul>
+<p>在 Prometheus 的 Graph中查询应用信息，也只能看到一个</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">process_uptime_seconds</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/prometheus-consul-prometheus-query-result1.png" alt="prometheus-consul-prometheus-query-result1.png"></p>
+<ul>
+<li>修改另一个 Spring Boot 应用，添加监控tag</li>
+</ul>
+<p>再次查询 Prometheus 数据，可以看到另一个应用也开始拉取数据</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/prometheus-consul-prometheus-query-result2.png" alt="prometheus-consul-prometheus-query-result2.png"></p>
+<hr>
+<ul>
+<li>相关项目可以参考 <a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBootCollection/tree/master/grpc">grpc</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Prometheus" >
+    <span class="tag-code">Prometheus</span>
+  </a>
+
+  <a href="/tags#Grafana" >
+    <span class="tag-code">Grafana</span>
+  </a>
+
+  <a href="/tags#Consul" >
+    <span class="tag-code">Consul</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/05/16/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89-Grafana-%E9%9D%A2%E6%9D%BF%E7%9B%91%E6%8E%A7-Consul/">
+        <span class="nav-arrow">← </span>
+        
+          使用自定义 Grafana 面板监控 Consul
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/Spring-Cloud-Gateway-%E4%BD%BF%E7%94%A8-Kubernetes-%E5%AE%9E%E7%8E%B0%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">
+        
+          Spring Cloud Gateway 使用 Kubernetes 实现负载均衡
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Prometheus-%E4%BD%BF%E7%94%A8-Consul-%E8%87%AA%E5%8A%A8%E5%8F%91%E7%8E%B0-Spring-Boot-%E6%9C%8D%E5%8A%A1%E5%B9%B6%E6%8B%89%E5%8F%96%E6%95%B0%E6%8D%AE"><span class="toc-nav-text">Prometheus 使用 Consul 自动发现 Spring Boot 服务并拉取数据</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Prometheus"><span class="toc-nav-text">启动 Prometheus</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Consul"><span class="toc-nav-text">启动 Consul</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Spring-Boot-%E5%BA%94%E7%94%A8"><span class="toc-nav-text">启动 Spring Boot 应用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%9B%91%E6%8E%A7"><span class="toc-nav-text">添加监控</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-Consul-%E5%8F%91%E7%8E%B0%E6%9C%8D%E5%8A%A1"><span class="toc-nav-text">使用 Consul 发现服务</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%BF%AE%E6%94%B9-Prometheus-%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">修改 Prometheus 配置</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%8E%B7%E5%8F%96%E5%BA%94%E7%94%A8"><span class="toc-nav-text">获取应用</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/05/16/Prometheus-使用-Consul-自动发现-Spring-Boot-服务并拉取数据/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Prometheus 使用 Consul 自动发现 Spring Boot 服务并拉取数据",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

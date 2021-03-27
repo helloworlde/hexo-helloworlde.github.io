@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      SpringMVC 生成验证码 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>SpringMVC 生成验证码</h2>
+  <p class="post-date">2018-01-01</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><blockquote>
+<p>使用 Google kaptcha 为 SpringMVC Maven 项目生成验证码</p>
+</blockquote>
+<p>##1 添加依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.github.penggle&lt;&#x2F;groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;kaptcha&lt;&#x2F;artifactId&gt;</span><br><span class="line">    &lt;version&gt;2.3.2&lt;&#x2F;version&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-配置文件中添加验证码生成器Bean"><a href="#2-配置文件中添加验证码生成器Bean" class="headerlink" title="2 配置文件中添加验证码生成器Bean"></a>2 配置文件中添加验证码生成器Bean</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--图片验证码--&gt;</span><br><span class="line">&lt;bean id&#x3D;&quot;captchaProducer&quot; class&#x3D;&quot;com.google.code.kaptcha.impl.DefaultKaptcha&quot;&gt;</span><br><span class="line">    &lt;property name&#x3D;&quot;config&quot;&gt;</span><br><span class="line">        &lt;bean class&#x3D;&quot;com.google.code.kaptcha.util.Config&quot;&gt;</span><br><span class="line">            &lt;constructor-arg&gt;</span><br><span class="line">                &lt;props&gt;</span><br><span class="line">                    &lt;prop key&#x3D;&quot;kaptcha.border&quot;&gt;no&lt;&#x2F;prop&gt;</span><br><span class="line">                    &lt;prop key&#x3D;&quot;kaptcha.image.width&quot;&gt;120&lt;&#x2F;prop&gt;</span><br><span class="line">                    &lt;prop key&#x3D;&quot;kaptcha.session.key&quot;&gt;code&lt;&#x2F;prop&gt;</span><br><span class="line">                    &lt;prop key&#x3D;&quot;kaptcha.textproducer.font.color&quot;&gt;blue&lt;&#x2F;prop&gt;</span><br><span class="line">                    &lt;prop key&#x3D;&quot;kaptcha.textproducer.font.size&quot;&gt;40&lt;&#x2F;prop&gt;</span><br><span class="line">                    &lt;prop key&#x3D;&quot;kaptcha.textproducer.char.length&quot;&gt;4&lt;&#x2F;prop&gt;</span><br><span class="line">                &lt;&#x2F;props&gt;</span><br><span class="line">            &lt;&#x2F;constructor-arg&gt;</span><br><span class="line">        &lt;&#x2F;bean&gt;</span><br><span class="line">    &lt;&#x2F;property&gt;</span><br><span class="line">&lt;&#x2F;bean&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>配置项</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>作用</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>kaptcha.border</td>
+<td>是否有边框</td>
+<td>默认为true  我们可以自己设置yes，no</td>
+</tr>
+<tr>
+<td>kaptcha.border.color</td>
+<td>边框颜色</td>
+<td>默认为Color.BLACK</td>
+</tr>
+<tr>
+<td>kaptcha.border.thickness</td>
+<td>边框粗细度</td>
+<td>默认为1</td>
+</tr>
+<tr>
+<td>kaptcha.producer.impl</td>
+<td>验证码生成器</td>
+<td>默认为DefaultKaptcha</td>
+</tr>
+<tr>
+<td>kaptcha.textproducer.impl</td>
+<td>验证码文本生成器</td>
+<td>默认为DefaultTextCreator</td>
+</tr>
+<tr>
+<td>kaptcha.textproducer.char.string</td>
+<td>验证码文本字符内容范围</td>
+<td>默认为abcde2345678gfynmnpwx</td>
+</tr>
+<tr>
+<td>kaptcha.textproducer.char.length</td>
+<td>验证码文本字符长度</td>
+<td>默认为5</td>
+</tr>
+<tr>
+<td>kaptcha.textproducer.font.names</td>
+<td>验证码文本字体样式</td>
+<td>默认为new Font(“Arial”, 1, fontSize), new Font(“Courier”, 1, fontSize)</td>
+</tr>
+<tr>
+<td>kaptcha.textproducer.font.size</td>
+<td>验证码文本字符大小</td>
+<td>默认为40</td>
+</tr>
+<tr>
+<td>kaptcha.textproducer.font.color</td>
+<td>验证码文本字符颜色</td>
+<td>默认为Color.BLACK</td>
+</tr>
+<tr>
+<td>kaptcha.textproducer.char.space</td>
+<td>验证码文本字符间距</td>
+<td>默认为2</td>
+</tr>
+<tr>
+<td>kaptcha.noise.impl</td>
+<td>验证码噪点生成对象</td>
+<td>默认为DefaultNoise</td>
+</tr>
+<tr>
+<td>kaptcha.noise.color</td>
+<td>验证码噪点颜色</td>
+<td>默认为Color.BLACK</td>
+</tr>
+<tr>
+<td>kaptcha.obscurificator.impl</td>
+<td>验证码样式引擎</td>
+<td>默认为WaterRipple</td>
+</tr>
+<tr>
+<td>kaptcha.word.impl</td>
+<td>验证码文本字符渲染</td>
+<td>默认为DefaultWordRenderer</td>
+</tr>
+<tr>
+<td>kaptcha.background.impl</td>
+<td>验证码背景生成器</td>
+<td>默认为DefaultBackground</td>
+</tr>
+<tr>
+<td>kaptcha.background.clear.from</td>
+<td>验证码背景颜色渐进</td>
+<td>默认为Color.LIGHT_GRAY</td>
+</tr>
+<tr>
+<td>kaptcha.background.clear.to</td>
+<td>验证码背景颜色渐进</td>
+<td>默认为Color.WHITE</td>
+</tr>
+<tr>
+<td>kaptcha.image.width</td>
+<td>验证码图片宽度</td>
+<td>默认为200</td>
+</tr>
+<tr>
+<td>kaptcha.image.height</td>
+<td>验证码图片高度</td>
+<td>默认为50</td>
+</tr>
+</tbody></table>
+<h2 id="3-页面添加验证码图片和输入框"><a href="#3-页面添加验证码图片和输入框" class="headerlink" title="3 页面添加验证码图片和输入框"></a>3 页面添加验证码图片和输入框</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;div class&#x3D;&quot;col-md-12&quot;&gt;</span><br><span class="line">    &lt;div class&#x3D;&quot;col-md-7 form-control&quot;  style&#x3D;&quot;float:left; width: 60%;&quot;&gt;</span><br><span class="line">        &lt;input type&#x3D;&quot;text&quot; id&#x3D;&quot;validateCode&quot; name&#x3D;&quot;validateCode&quot; placeholder&#x3D;&quot;验证码&quot; &gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;div class&#x3D;&quot;col-md-3&quot; style&#x3D;&quot;float: right;overflow: visible !important;&quot;&gt;</span><br><span class="line">        &lt;img src&#x3D;&quot;.&#x2F;loadValidateCode&quot; id&#x3D;&quot;validateCodeImage&quot; name&#x3D;&quot;validateCodeImage&quot;</span><br><span class="line">             style&#x3D;&quot;width: 100px;height: 35px;&quot;  onclick&#x3D;&quot;loadValidateCode()&quot; &gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="4-页面添加刷新验证码"><a href="#4-页面添加刷新验证码" class="headerlink" title="4 页面添加刷新验证码"></a>4 页面添加刷新验证码</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 加载验证码</span><br><span class="line">function loadValidateCode() &#123;</span><br><span class="line">    var time &#x3D; new Date().getTime();</span><br><span class="line">    $(&quot;#validateCodeImage&quot;).attr(&#39;src&#39;, &#39;.&#x2F;loadValidateCode&#39;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-后台添加生成验证码"><a href="#5-后台添加生成验证码" class="headerlink" title="5 后台添加生成验证码"></a>5 后台添加生成验证码</h2><ul>
+<li><p> 导入包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import com.google.code.kaptcha.Producer;</span><br></pre></td></tr></table></figure></li>
+<li><p>生成方法</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> Producer captchaProducer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String VALIDATE_CODE = <span class="string">&quot;VALIDATE_CODE&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String EXPIRE_TIME = <span class="string">&quot;EXPIRE_TIME&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RequestMapping(value = &quot;/loadValidateCode&quot;, method = RequestMethod.GET)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadValidateCode</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        HttpSession session = request.getSession();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置清除浏览器缓存</span></span><br><span class="line">        response.setDateHeader(<span class="string">&quot;Expires&quot;</span>, <span class="number">0</span>);</span><br><span class="line">        response.setHeader(<span class="string">&quot;Cache-Control&quot;</span>, <span class="string">&quot;no-store, no-cache, must-revalidate&quot;</span>);</span><br><span class="line">        response.addHeader(<span class="string">&quot;Cache-Control&quot;</span>, <span class="string">&quot;post-check=0, pre-check=0&quot;</span>);</span><br><span class="line">        response.setHeader(<span class="string">&quot;Pragma&quot;</span>, <span class="string">&quot;no-cache&quot;</span>);</span><br><span class="line">        response.setContentType(<span class="string">&quot;image/png&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 验证码一分钟内有效</span></span><br><span class="line">        <span class="keyword">long</span> expireTime = System.currentTimeMillis() + <span class="number">60000</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 将验证码放到session中</span></span><br><span class="line">        String validateCode = captchaProducer.createText();</span><br><span class="line">        session.setAttribute(VALIDATE_CODE, Utils.encodeBase64(validateCode));<span class="comment">//将加密后的验证码放到session中，确保安全</span></span><br><span class="line">        session.setAttribute(EXPIRE_TIME, expireTime);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 输出验证码图片</span></span><br><span class="line">        BufferedImage bufferedImage = captchaProducer.createImage(validateCode);</span><br><span class="line">        ServletOutputStream out = response.getOutputStream();</span><br><span class="line">        ImageIO.write(bufferedImage, <span class="string">&quot;png&quot;</span>, out);</span><br><span class="line">        out.flush();</span><br><span class="line">        out.close();</span><br><span class="line"></span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="6-登录时校验验证码"><a href="#6-登录时校验验证码" class="headerlink" title="6 登录时校验验证码"></a>6 登录时校验验证码</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">   @RequestMapping(value &#x3D; &quot;&#x2F;login&quot;, method &#x3D; RequestMethod.POST)</span><br><span class="line">   public @ResponseBody String login(String username, String password, String validateCode) &#123;</span><br><span class="line">       </span><br><span class="line">       &#x2F;&#x2F; 校验验证码是否有效</span><br><span class="line">       String currentValidateCode &#x3D; String.valueOf(request.getSession().getAttribute(VALIDATE_CODE));</span><br><span class="line">       if (System.currentTimeMillis() &gt; Long.parseLong(String.valueOf(request.getSession().getAttribute(EXPIRE_TIME)))) &#123;</span><br><span class="line">           return JSON.toJSONString(&quot;验证码已过期，请重试&quot;);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       &#x2F;&#x2F; 校验验证码</span><br><span class="line">       String currentValidateCode &#x3D; String.valueOf(request.getSession().getAttribute(VALIDATE_CODE));</span><br><span class="line">       if (StringUtils.isEmpty(validateCode) || validateCode.length() !&#x3D; 4 ||</span><br><span class="line">               !Utils.encodeBase64(validateCode).equals(currentValidateCode)) &#123;</span><br><span class="line">           return JSON.toJSONString(&quot;验证码错误&quot;);</span><br><span class="line">       &#125;</span><br><span class="line">&#125;       </span><br></pre></td></tr></table></figure>
+
+<h2 id="7-Base64加密"><a href="#7-Base64加密" class="headerlink" title="7 Base64加密"></a>7 Base64加密</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public static String encodeBase64(String str) &#123;</span><br><span class="line">    sun.misc.BASE64Encoder base64Encode &#x3D; new BASE64Encoder();</span><br><span class="line">    return base64Encode.encode(str.getBytes());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SrpingMVC" >
+    <span class="tag-code">SrpingMVC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/01/IDEA%E5%90%AF%E5%8A%A8Spring-Boot%E9%A1%B9%E7%9B%AE%E6%8F%90%E7%A4%BAUnable-to-start-EmbeddedWebApplicationContext-due-to-missing-EmbeddedServlet/">
+        <span class="nav-arrow">← </span>
+        
+          IDEA启动Spring Boot项目提示Unable to start EmbeddedWebApplicationContext due to missing EmbeddedServlet...
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/01/Tomcat%E5%90%AF%E5%8A%A8%E6%97%B6%E4%B8%80%E7%9B%B4%E5%81%9C%E7%95%99%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8%E7%9A%84%E5%8F%91%E5%B8%83%E7%9A%84%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">
+        
+          Tomcat启动时一直停留在一个应用的发布的解决办法
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E6%B7%BB%E5%8A%A0%E9%AA%8C%E8%AF%81%E7%A0%81%E7%94%9F%E6%88%90%E5%99%A8Bean"><span class="toc-nav-text">2 配置文件中添加验证码生成器Bean</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-%E9%A1%B5%E9%9D%A2%E6%B7%BB%E5%8A%A0%E9%AA%8C%E8%AF%81%E7%A0%81%E5%9B%BE%E7%89%87%E5%92%8C%E8%BE%93%E5%85%A5%E6%A1%86"><span class="toc-nav-text">3 页面添加验证码图片和输入框</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#4-%E9%A1%B5%E9%9D%A2%E6%B7%BB%E5%8A%A0%E5%88%B7%E6%96%B0%E9%AA%8C%E8%AF%81%E7%A0%81"><span class="toc-nav-text">4 页面添加刷新验证码</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#5-%E5%90%8E%E5%8F%B0%E6%B7%BB%E5%8A%A0%E7%94%9F%E6%88%90%E9%AA%8C%E8%AF%81%E7%A0%81"><span class="toc-nav-text">5 后台添加生成验证码</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#6-%E7%99%BB%E5%BD%95%E6%97%B6%E6%A0%A1%E9%AA%8C%E9%AA%8C%E8%AF%81%E7%A0%81"><span class="toc-nav-text">6 登录时校验验证码</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#7-Base64%E5%8A%A0%E5%AF%86"><span class="toc-nav-text">7 Base64加密</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/01/SpringMVC-生成验证码/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "SpringMVC 生成验证码",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

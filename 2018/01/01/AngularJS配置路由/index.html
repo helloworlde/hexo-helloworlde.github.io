@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      AngularJS 配置路由 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>AngularJS 配置路由</h2>
+  <p class="post-date">2018-01-01</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><blockquote>
+<p>在使用AngularJS的时候需要用到路由来控制页面的跳转，从而达到使用一个面板进行控制的目的，面板页面如图所示</p>
+</blockquote>
+<p><img src="http://img.blog.csdn.net/20170523210031963?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMzM2MDg1MA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="控制面板"></p>
+<blockquote>
+<p>该面板分为菜单栏和控制页面两部分，左侧和上方为不变的部分，中间区域随菜单选择变动</p>
+</blockquote>
+<hr>
+<p>##<a target="_blank" rel="noopener" href="http://download.csdn.net/detail/u013360850/9850266">项目下载</a> | <a target="_blank" rel="noopener" href="https://github.com/helloworlde/AngularRouter">GitHub下载</a> | <a target="_blank" rel="noopener" href="http://119.29.99.89/AngularRouter/pages/admin/index.html">演示地址</a> | <a target="_blank" rel="noopener" href="https://helloworlde.github.io/AngularRouter">GitHub演示地址</a> </p>
+<hr>
+<h2 id="1-引入所需的CSS和JS文件"><a href="#1-引入所需的CSS和JS文件" class="headerlink" title="1.引入所需的CSS和JS文件"></a>1.引入所需的CSS和JS文件</h2><ul>
+<li>将所需要的CSS文件和JS文件引入到项目中index.html</li>
+<li> angular.min.js</li>
+<li>ocLazyLoad.js</li>
+<li>angular-ui-router.js</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang&#x3D;&quot;en&quot; class&#x3D;&quot;body&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset&#x3D;&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;meta name&#x3D;&quot;viewport&quot; content&#x3D;&quot;width&#x3D;device-width, height&#x3D;device-height, initial-scale&#x3D;1, maximum-scale&#x3D;1&quot;&#x2F;&gt;</span><br><span class="line">    &lt;link href&#x3D;&quot;..&#x2F;..&#x2F;plugin&#x2F;bootstrap-3.3.7&#x2F;css&#x2F;bootstrap.min.css&quot; rel&#x3D;&quot;stylesheet&quot;&gt;</span><br><span class="line">    &lt;link href&#x3D;&quot;dashboard&#x2F;dashboard.css&quot; rel&#x3D;&quot;stylesheet&quot;&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;body &gt;</span><br><span class="line">&lt;div data-ui-view&#x3D;&quot;&quot; style&#x3D;&quot;height: 100%;overflow: hidden;&quot;&gt;&lt;&#x2F;div&gt;</span><br><span class="line">&lt;script src&#x3D;&quot;..&#x2F;..&#x2F;plugin&#x2F;angular-1.5.8&#x2F;angular.min.js&quot;&gt;&lt;&#x2F;script&gt;</span><br><span class="line">&lt;script src&#x3D;&quot;..&#x2F;..&#x2F;plugin&#x2F;angular-1.5.8&#x2F;angular-ui-router.js&quot;&gt;&lt;&#x2F;script&gt;</span><br><span class="line">&lt;script src&#x3D;&quot;..&#x2F;..&#x2F;plugin&#x2F;oclazyload&#x2F;ocLazyLoad.js&quot;&gt;&lt;&#x2F;script&gt;</span><br><span class="line">&lt;script src&#x3D;&quot;app.route.js&quot;&gt;&lt;&#x2F;script&gt;</span><br><span class="line">&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-配置dashboard页面"><a href="#2-配置dashboard页面" class="headerlink" title="2. 配置dashboard页面"></a>2. 配置dashboard页面</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">&lt;div class&#x3D;&quot;app app-header-fixed&quot; id&#x3D;&quot;app&quot;&gt;</span><br><span class="line">    &lt;!-- navbar --&gt;</span><br><span class="line">    &lt;div class&#x3D;&quot;app-header navbar&quot;&gt;</span><br><span class="line">        &lt;div class&#x3D;&quot;collapse pos-rlt navbar-collapse box-shadow bg-white-only&quot;&gt;</span><br><span class="line">            &lt;ul class&#x3D;&quot;nav navbar-nav navbar-right&quot;&gt;</span><br><span class="line">                &lt;li class&#x3D;&quot;dropdown&quot;&gt;</span><br><span class="line">                    &lt;a href&#x3D;&quot;#&quot; data-toggle&#x3D;&quot;dropdown&quot; class&#x3D;&quot;dropdown-toggle clear&quot;&gt;</span><br><span class="line">                      &lt;span class&#x3D;&quot;thumb-sm avatar pull-right m-t-n-sm m-b-n-sm m-l-sm&quot;&gt;</span><br><span class="line">                        &lt;img src&#x3D;&quot;&#x2F;static&#x2F;images&#x2F;head.jpg&quot;&gt;</span><br><span class="line">                        &lt;i class&#x3D;&quot;on md b-white bottom&quot;&gt;&lt;&#x2F;i&gt;</span><br><span class="line">                      &lt;&#x2F;span&gt;</span><br><span class="line">                        &lt;span class&#x3D;&quot;hidden-sm hidden-md&quot;&gt;Administrator&lt;&#x2F;span&gt; &lt;b class&#x3D;&quot;caret&quot;&gt;&lt;&#x2F;b&gt;</span><br><span class="line">                    &lt;&#x2F;a&gt;</span><br><span class="line">                    &lt;!-- dropdown --&gt;</span><br><span class="line">                    &lt;ul class&#x3D;&quot;dropdown-menu animated fadeInRight w hidden-folded&quot; role&#x3D;&quot;menu&quot;&gt;</span><br><span class="line">                        &lt;li&gt;</span><br><span class="line">                            &lt;a href&#x3D;&quot;#&quot; role&#x3D;&quot;menuitem&quot;&gt;退出&lt;&#x2F;a&gt;</span><br><span class="line">                        &lt;&#x2F;li&gt;</span><br><span class="line">                    &lt;&#x2F;ul&gt;</span><br><span class="line">                &lt;&#x2F;li&gt;</span><br><span class="line">            &lt;&#x2F;ul&gt;</span><br><span class="line">        &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- menu --&gt;</span><br><span class="line">    &lt;div class&#x3D;&quot;app-aside hidden-xs bg-dark&quot;&gt;</span><br><span class="line">        &lt;div class&#x3D;&quot;aside-wrap&quot;&gt;</span><br><span class="line">            &lt;div class&#x3D;&quot;navi-wrap&quot;&gt;</span><br><span class="line">                &lt;!-- nav --&gt;</span><br><span class="line">                &lt;nav ui-nav class&#x3D;&quot;navi&quot;&gt;</span><br><span class="line">                    &lt;ul class&#x3D;&quot;nav&quot;&gt;</span><br><span class="line">                        &lt;li&gt;</span><br><span class="line">                            &lt;a ui-sref&#x3D;&quot;.accountManagement&quot; class&#x3D;&quot;auto&quot;&gt;</span><br><span class="line">                                &lt;i class&#x3D;&quot;glyphicon glyphicon-user&quot;&gt;&lt;&#x2F;i&gt;</span><br><span class="line">                                &lt;span class&#x3D;&quot;font-bold&quot;&gt;账户管理&lt;&#x2F;span&gt;</span><br><span class="line">                            &lt;&#x2F;a&gt;</span><br><span class="line">                        &lt;&#x2F;li&gt;</span><br><span class="line">                        &lt;li&gt;</span><br><span class="line">                            &lt;a ui-sref&#x3D;&quot;.academicYear&quot;&gt;</span><br><span class="line">                                &lt;i class&#x3D;&quot;glyphicon glyphicon-calendar&quot;&gt;&lt;&#x2F;i&gt;</span><br><span class="line">                                &lt;span class&#x3D;&quot;font-bold&quot;&gt;学年学期管理&lt;&#x2F;span&gt;</span><br><span class="line">                            &lt;&#x2F;a&gt;</span><br><span class="line">                        &lt;&#x2F;li&gt;</span><br><span class="line">                        &lt;li&gt;</span><br><span class="line">                            &lt;a ui-sref&#x3D;&quot;.feedbackManagement&quot;&gt;</span><br><span class="line">                                &lt;i class&#x3D;&quot;glyphicon glyphicon-send&quot;&gt;&lt;&#x2F;i&gt;</span><br><span class="line">                                &lt;span class&#x3D;&quot;font-bold&quot;&gt;用户反馈管理&lt;&#x2F;span&gt;</span><br><span class="line">                            &lt;&#x2F;a&gt;</span><br><span class="line">                        &lt;&#x2F;li&gt;</span><br><span class="line">                    &lt;&#x2F;ul&gt;</span><br><span class="line">                &lt;&#x2F;nav&gt;</span><br><span class="line">                &lt;!-- nav --&gt;</span><br><span class="line">            &lt;&#x2F;div&gt;</span><br><span class="line">        &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;!-- &#x2F; menu --&gt;</span><br><span class="line">    &lt;!-- content 中间可替换的部分--&gt;</span><br><span class="line">    &lt;div class&#x3D;&quot;app-content&quot;&gt;</span><br><span class="line">        &lt;div data-ui-view&#x3D;&quot;&quot;&gt;</span><br><span class="line">        &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;!-- &#x2F;content --&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br></pre></td></tr></table></figure>
+
+<p>##3. 配置路由</p>
+<ul>
+<li>配置各个页面的路由，通过懒加载加载所需要的文件<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">var adminApp &#x3D; angular.module(&#39;adminApp&#39;, [&#39;oc.lazyLoad&#39;, &#39;ui.router&#39;]);</span><br><span class="line">angular.element(document).ready(function () &#123;</span><br><span class="line">    angular.bootstrap(document, [&#39;adminApp&#39;]);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">adminApp.run(function ($rootScope, $state, $stateParams) &#123;</span><br><span class="line">    $rootScope.$state &#x3D; $state;</span><br><span class="line">    $rootScope.$stateParams &#x3D; $stateParams;</span><br><span class="line">&#125;);</span><br><span class="line">adminApp.config(function ($stateProvider, $urlRouterProvider, $controllerProvider) &#123;</span><br><span class="line">    adminApp.controllerProvider &#x3D; $controllerProvider;</span><br><span class="line">    $urlRouterProvider.when(&quot;&quot;, &quot;dashboard&#x2F;accountManagement&quot;);</span><br><span class="line">    $urlRouterProvider.otherwise(&quot;dashboard&#x2F;accountManagement&quot;);</span><br><span class="line">    $stateProvider</span><br><span class="line">        .state(&#39;dashboard&#39;, &#123;</span><br><span class="line">            url: &#39;&#x2F;dashboard&#39;,</span><br><span class="line">            templateUrl: &#39;dashboard&#x2F;dashboard.html&#39;,</span><br><span class="line">            controller: &#39;dashboardController&#39;,</span><br><span class="line">            resolve: &#123;</span><br><span class="line">                deps: [&#39;$ocLazyLoad&#39;, function ($ocLazyLoad) &#123;</span><br><span class="line">                    return $ocLazyLoad.load([&#39;dashboard&#x2F;dashboard.js&#39;]);</span><br><span class="line">                &#125;]</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        .state(&#39;dashboard.accountManagement&#39;, &#123;</span><br><span class="line">            url: &#39;&#x2F;accountManagement&#39;,</span><br><span class="line">            templateUrl: &#39;accountManagement&#x2F;accountManagement.html&#39;,</span><br><span class="line">            controller: &#39;accountManagementController&#39;,</span><br><span class="line">            resolve: &#123;</span><br><span class="line">                deps: [&#39;$ocLazyLoad&#39;,</span><br><span class="line">                    function ($ocLazyLoad) &#123;</span><br><span class="line">                        return $ocLazyLoad.load([&#39;accountManagement&#x2F;accountManagement.js&#39;, &#39;accountManagement&#x2F;accountManagement.css&#39;]);</span><br><span class="line">                    &#125;]</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        .state(&#39;dashboard.academicYear&#39;, &#123;</span><br><span class="line">            url: &#39;&#x2F;academicYear&#39;,</span><br><span class="line">            templateUrl: &#39;academicYear&#x2F;academicYear.html&#39;,</span><br><span class="line">            controller: &#39;academicYearController&#39;,</span><br><span class="line">            resolve: &#123;</span><br><span class="line">                deps: [&#39;$ocLazyLoad&#39;,</span><br><span class="line">                    function ($ocLazyLoad) &#123;</span><br><span class="line">                        return $ocLazyLoad.load([&#39;academicYear&#x2F;academicYear.js&#39;, &#39;academicYear&#x2F;academicYear.css&#39;]);</span><br><span class="line">                    &#125;]</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        .state(&#39;dashboard.feedbackManagement&#39;, &#123;</span><br><span class="line">            url: &#39;&#x2F;feedbackManagement&#39;,</span><br><span class="line">            templateUrl: &#39;feedbackManagement&#x2F;feedbackManagement.html&#39;,</span><br><span class="line">            controller: &#39;feedbackManagementController&#39;,</span><br><span class="line">            resolve: &#123;</span><br><span class="line">                deps: [&#39;$ocLazyLoad&#39;,</span><br><span class="line">                    function ($ocLazyLoad) &#123;</span><br><span class="line">                        return $ocLazyLoad.load([&#39;feedbackManagement&#x2F;feedbackManagement.js&#39;, &#39;feedbackManagement&#x2F;feedbackManagement.css&#39;]);</span><br><span class="line">                    &#125;]</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>##4. 配置相应的页面controller</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">angular.module(&quot;adminApp&quot;).controllerProvider.register(&#39;dashboardController&#39;, function ($scope) &#123;</span><br><span class="line">    console.log(&quot;dashboardController&quot;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#AngularJs" >
+    <span class="tag-code">AngularJs</span>
+  </a>
+
+  <a href="/tags#Router" >
+    <span class="tag-code">Router</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/01/Nginx-%E9%85%8D%E7%BD%AE/">
+        <span class="nav-arrow">← </span>
+        
+          Nginx 配置
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/01/AngularJS%E9%85%8D%E7%BD%AERouter-%E8%B7%AF%E7%94%B1-%E6%8F%90%E7%A4%BAController-NaNunction-undefined%E9%94%99%E8%AF%AF/">
+        
+          AngularJS配置Router(路由)提示Controller NaNunction/undefined错误
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-%E5%BC%95%E5%85%A5%E6%89%80%E9%9C%80%E7%9A%84CSS%E5%92%8CJS%E6%96%87%E4%BB%B6"><span class="toc-nav-text">1.引入所需的CSS和JS文件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-%E9%85%8D%E7%BD%AEdashboard%E9%A1%B5%E9%9D%A2"><span class="toc-nav-text">2. 配置dashboard页面</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/01/AngularJS配置路由/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "AngularJS 配置路由",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

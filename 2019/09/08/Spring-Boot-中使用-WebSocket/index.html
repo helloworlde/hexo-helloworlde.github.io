@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Boot 中使用 WebSocket | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Boot 中使用 WebSocket</h2>
+  <p class="post-date">2019-09-08</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Spring-Boot-中使用-WebSocket"><a href="#Spring-Boot-中使用-WebSocket" class="headerlink" title="Spring Boot  中使用 WebSocket"></a>Spring Boot  中使用 WebSocket</h1><blockquote>
+<p>WebSocket 是一种长连接技术，可以实现服务端和客户端的双向通信，服务端可以主动推送信息给客户端</p>
+</blockquote>
+<h2 id="构建应用"><a href="#构建应用" class="headerlink" title="构建应用"></a>构建应用</h2><h3 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h3><ul>
+<li>build.gradle</li>
+</ul>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">dependencies</span> &#123;</span><br><span class="line">    <span class="keyword">compile</span>(<span class="string">&quot;org.springframework.boot:spring-boot-starter-websocket&quot;</span>)</span><br><span class="line">    <span class="keyword">compile</span>(<span class="string">&quot;org.webjars:webjars-locator-core&quot;</span>)</span><br><span class="line">    <span class="keyword">compile</span>(<span class="string">&quot;org.webjars:sockjs-client:1.0.2&quot;</span>)</span><br><span class="line">    <span class="keyword">compile</span>(<span class="string">&quot;org.webjars:stomp-websocket:2.3.3&quot;</span>)</span><br><span class="line">    <span class="keyword">compile</span>(<span class="string">&quot;org.webjars:bootstrap:3.3.7&quot;</span>)</span><br><span class="line">    <span class="keyword">compile</span>(<span class="string">&quot;org.webjars:jquery:3.1.0&quot;</span>)</span><br><span class="line"></span><br><span class="line">    testCompile(<span class="string">&quot;org.springframework.boot:spring-boot-starter-test&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><ul>
+<li>WebSocketConfig.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSocketMessageBroker</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfig</span> <span class="keyword">implements</span> <span class="title">WebSocketMessageBrokerConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configureMessageBroker</span><span class="params">(MessageBrokerRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.enableSimpleBroker(<span class="string">&quot;/topic&quot;</span>);</span><br><span class="line">        registry.setApplicationDestinationPrefixes(<span class="string">&quot;/app&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerStompEndpoints</span><span class="params">(StompEndpointRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addEndpoint(<span class="string">&quot;/socket&quot;</span>).withSockJS();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>/topic</code> 是用于推送给客户端的消息路径前缀；<code>/app</code>是用于请求服务端的消息路径前缀， <code>/socket</code>用于客户端建立连接</p>
+<p>SockJS用于提供浏览器兼容性，当浏览器不支持 WebSocket 时，就会尝试降级为HTTP流或者长轮询的方式以实现和 WebSocket 相同的效果，参考 <a target="_blank" rel="noopener" href="https://docs.spring.io/spring/docs/5.1.8.RELEASE/spring-framework-reference/web.html#websocket-fallback">4.3. SockJS Fallback</a></p>
+<h3 id="群发消息"><a href="#群发消息" class="headerlink" title="群发消息"></a>群发消息</h3><p>群发消息可以将消息发送给所有订阅了该消息的客户端，可以通过 <code>@SendTo</code>或<code>org.springframework.messaging.simp.SimpMessagingTemplate#convertAndSend</code>发送</p>
+<h4 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h4><ul>
+<li>通过注解实现</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@MessageMapping(&quot;/message/broadcast&quot;)</span></span><br><span class="line"><span class="meta">@SendTo(&quot;/response/message&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Message <span class="title">broadcastMessage</span><span class="params">(String title)</span> </span>&#123;</span><br><span class="line">    log.info(<span class="string">&quot;Receive new broadcast message from socket, title is :&quot;</span> + title);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> Message.builder()</span><br><span class="line">                  .title(title)</span><br><span class="line">                  .content(<span class="string">&quot;Socket Broadcast:&quot;</span> + title + <span class="string">&quot; content!&quot;</span>)</span><br><span class="line">                  .createTime(LocalDateTime.now())</span><br><span class="line">                  .build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 REST接口调用方法实现</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> SimpMessagingTemplate simpMessagingTemplate;</span><br><span class="line"></span><br><span class="line"><span class="meta">@GetMapping(&quot;/message/broadcast&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendBroadcastMessage</span><span class="params">(String title)</span> </span>&#123;</span><br><span class="line">    log.info(<span class="string">&quot;Receive new broadcast message from REST interface, title is :&quot;</span> + title);</span><br><span class="line"></span><br><span class="line">    Message message = Message.builder()</span><br><span class="line">                             .title(title)</span><br><span class="line">                             .content(<span class="string">&quot;REST Broadcast:&quot;</span> + title + <span class="string">&quot; content!&quot;</span>)</span><br><span class="line">                             .createTime(LocalDateTime.now())</span><br><span class="line">                             .build();</span><br><span class="line"></span><br><span class="line">    simpMessagingTemplate.convertAndSend(<span class="string">&quot;/response/message&quot;</span>, message);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">connect</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> socket = <span class="keyword">new</span> SockJS(<span class="string">&#x27;/socket&#x27;</span>);</span><br><span class="line">    stompClient = Stomp.over(socket);</span><br><span class="line">    stompClient.connect(&#123;&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">frame</span>) </span>&#123;</span><br><span class="line">        stompClient.subscribe(<span class="string">&#x27;/response/message&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params">message</span>) </span>&#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">&quot;Receive message from server:&quot;</span> + message);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sendMessage</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    stompClient.send(<span class="string">&#x27;/request/message/broadcast&#x27;</span>, &#123;&#125;, <span class="string">&quot;Message&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h4><ul>
+<li>启动应用，用两个不同的浏览器访问 <a href="localhost:8080">localhost:8080</a></li>
+<li>广播消息建立连接，并发送消息，此时可以看到两个浏览器都收到了刚才发送的消息</li>
+<li>通过 REST 接口：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;localhost:8080/message/broadcast?title=hello&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="发送给指定客户端"><a href="#发送给指定客户端" class="headerlink" title="发送给指定客户端"></a>发送给指定客户端</h3><p>群发消息可以将消息发送给所有订阅了该消息的客户端，可以通过 <code>@SendToUser</code>或<code>org.springframework.messaging.simp.SimpMessagingTemplate#convertAndSendToUser</code>发送</p>
+<h4 id="服务端-1"><a href="#服务端-1" class="headerlink" title="服务端"></a>服务端</h4><p>发送给指定客户端，要求客户端有指定的用户名，通过继承<code>org.springframework.web.socket.server.support.DefaultHandshakeHandler</code>实现</p>
+<ul>
+<li>CustomPrinciple.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomPrinciple</span> <span class="keyword">implements</span> <span class="title">Principal</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>CustomHandshakeHandler.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomHandshakeHandler</span> <span class="keyword">extends</span> <span class="title">DefaultHandshakeHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> Principal <span class="title">determineUser</span><span class="params">(ServerHttpRequest request, WebSocketHandler wsHandler, Map&lt;String, Object&gt; attributes)</span> </span>&#123;</span><br><span class="line">        String userId = UUID.randomUUID().toString();</span><br><span class="line">        log.info(<span class="string">&quot;Current username is: &#123;&#125;&quot;</span>, userId);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CustomPrinciple(userId);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>WebSocketConfig.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerStompEndpoints</span><span class="params">(StompEndpointRegistry registry)</span> </span>&#123;</span><br><span class="line">    registry.addEndpoint(<span class="string">&quot;/socket&quot;</span>)</span><br><span class="line">            .setHandshakeHandler(<span class="keyword">new</span> CustomHandshakeHandler())</span><br><span class="line">            .withSockJS();</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过注解实现</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@MessageMapping(&quot;/message/specify&quot;)</span></span><br><span class="line"><span class="meta">@SendToUser(&quot;/response/message&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Message <span class="title">speicifyMessage</span><span class="params">(String title)</span> </span>&#123;</span><br><span class="line">    log.info(<span class="string">&quot;Receive new specify message from socket, title is :&quot;</span> + title);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> Message.builder()</span><br><span class="line">                  .title(title)</span><br><span class="line">                  .content(<span class="string">&quot;Socket Specify:&quot;</span> + title + <span class="string">&quot; content!&quot;</span>)</span><br><span class="line">                  .createTime(LocalDateTime.now())</span><br><span class="line">                  .build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过调用方法实现</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/message/specify&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendSpecifyUserMessage</span><span class="params">(String title, String username)</span> </span>&#123;</span><br><span class="line">    log.info(<span class="string">&quot;Receive new specify message from REST interface, title is :&quot;</span> + title);</span><br><span class="line"></span><br><span class="line">    Message message = Message.builder()</span><br><span class="line">                             .title(title)</span><br><span class="line">                             .content(<span class="string">&quot;REST Specify:&quot;</span> + title + <span class="string">&quot; content!&quot;</span>)</span><br><span class="line">                             .createTime(LocalDateTime.now())</span><br><span class="line">                             .build();</span><br><span class="line"></span><br><span class="line">    simpMessagingTemplate.convertAndSendToUser(username, <span class="string">&quot;/response/message&quot;</span>, message);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="客户端-1"><a href="#客户端-1" class="headerlink" title="客户端"></a>客户端</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">connect</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> socket = <span class="keyword">new</span> SockJS(<span class="string">&#x27;/socket&#x27;</span>);</span><br><span class="line">    stompClient = Stomp.over(socket);</span><br><span class="line">    stompClient.connect(&#123;&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">frame</span>) </span>&#123;</span><br><span class="line">        stompClient.subscribe(<span class="string">&#x27;/user/response/message&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params">message</span>) </span>&#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">&quot;Receive message from server:&quot;</span> + message);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sendMessage</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    stompClient.send(<span class="string">&#x27;/request/message/specify&#x27;</span>, &#123;&#125;, <span class="string">&quot;Message&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，发送给指定用户的消息订阅时需要添加额外的 <code>/user</code>前缀</p>
+<h4 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h4><ul>
+<li>启动应用，用两个不同的浏览器访问 <a href="localhost:8080">localhost:8080</a></li>
+<li>指定消息建立连接，并发送消息，此时只有发送消息的那个浏览器才能收到消息，另一个没有收到</li>
+<li>通过 REST 接口：<br>建立连接后可以在控制台看到相应的 username </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;localhost:8080/message/specify?title=hello&amp;username=ff3cb2ca-9579-46fb-973b-b1bd6420f610&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>此时相应的客户端会收到发送的消息，而另一个没有</p>
+<hr>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://spring.io/guides/gs/messaging-stomp-websocket/">Using WebSocket to build an interactive web application</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/oril/spring-boot-websockets-angular-5-f2f4b1c14cee">Spring Boot + WebSockets + Angular 5</a></li>
+<li><a target="_blank" rel="noopener" href="https://spring.io/blog/2012/05/08/spring-mvc-3-2-preview-techniques-for-real-time-updates/">Spring MVC 3.2 Preview: Techniques for Real-time Updates</a></li>
+</ul>
+<h3 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBootCollection/tree/master/SpringBoot-WebSocket">https://github.com/helloworlde/SpringBootCollection/tree/master/SpringBoot-WebSocket</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#WebSocket" >
+    <span class="tag-code">WebSocket</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/09/08/Spring-Boot-%E4%B8%AD%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Boot 中自定义异常处理
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8Spring-Cloud-Stream/">
+        
+          Spring Boot 中使用Spring Cloud Stream
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8-WebSocket"><span class="toc-nav-text">Spring Boot  中使用 WebSocket</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%9E%84%E5%BB%BA%E5%BA%94%E7%94%A8"><span class="toc-nav-text">构建应用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">配置</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E7%BE%A4%E5%8F%91%E6%B6%88%E6%81%AF"><span class="toc-nav-text">群发消息</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-nav-text">服务端</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-nav-text">客户端</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%8F%91%E9%80%81%E7%BB%99%E6%8C%87%E5%AE%9A%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-nav-text">发送给指定客户端</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF-1"><span class="toc-nav-text">服务端</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF-1"><span class="toc-nav-text">客户端</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95-1"><span class="toc-nav-text">测试</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-nav-text">参考文档</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%A1%B9%E7%9B%AE%E5%9C%B0%E5%9D%80"><span class="toc-nav-text">项目地址</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2019/09/08/Spring-Boot-中使用-WebSocket/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Boot 中使用 WebSocket",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

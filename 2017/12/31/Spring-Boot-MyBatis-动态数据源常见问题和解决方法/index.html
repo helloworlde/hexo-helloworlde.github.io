@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Boot MyBatis 动态数据源常见问题和解决方法 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Boot MyBatis 动态数据源常见问题和解决方法</h2>
+  <p class="post-date">2017-12-31</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="在使用-Spring-Boot-和-MyBatis-动态切换数据源时遇到的问题以及解决方法"><a href="#在使用-Spring-Boot-和-MyBatis-动态切换数据源时遇到的问题以及解决方法" class="headerlink" title="在使用 Spring Boot 和 MyBatis 动态切换数据源时遇到的问题以及解决方法"></a>在使用 Spring Boot 和 MyBatis 动态切换数据源时遇到的问题以及解决方法</h1><blockquote>
+<p>相关项目地址:<a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBoot-DynamicDataSource">https://github.com/helloworlde/SpringBoot-DynamicDataSource</a></p>
+</blockquote>
+<h2 id="1-org-apache-ibatis-binding-BindingException-Invalid-bound-statement-not-found"><a href="#1-org-apache-ibatis-binding-BindingException-Invalid-bound-statement-not-found" class="headerlink" title="1. org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)"></a>1. org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)</h2><blockquote>
+<p>在使用了动态数据源后遇到了该问题，从错误信息来看是因为没有找到 <code>*.xml</code> 文件而导致的，但是在配置文件中<br>确实添加了相关的配置，这种错误的原因是因为设置数据源后没有设置<code>SqlSessionFactoryBean</code>的 <code>typeAliasesPackage</code><br>和<code>mapperLocations</code>属性或属性无效导致的；</p>
+</blockquote>
+<ul>
+<li>解决方法：</li>
+</ul>
+<blockquote>
+<p>如果在应用的入口类中添加了 <code>@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)</code>,<br>在<code>DataSourceConfigure</code>类的中设置相关属性：</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;mybatis&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SqlSessionFactoryBean <span class="title">sqlSessionFactoryBean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    SqlSessionFactoryBean sqlSessionFactoryBean = <span class="keyword">new</span> SqlSessionFactoryBean();</span><br><span class="line">    sqlSessionFactoryBean.setDataSource(dynamicDataSource());</span><br><span class="line">    <span class="keyword">return</span> sqlSessionFactoryBean;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>或者直接配置(不推荐该方式)：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SqlSessionFactoryBean <span class="title">sqlSessionFactoryBean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    SqlSessionFactoryBean sqlSessionFactoryBean = <span class="keyword">new</span> SqlSessionFactoryBean();</span><br><span class="line">    sqlSessionFactoryBean.setTypeAliasesPackage(<span class="string">&quot;typeAliasesPackage&quot;</span>);</span><br><span class="line">    sqlSessionFactoryBean.setMapperLocations(<span class="keyword">new</span> PathMatchingResourcePatternResolver().getResources(<span class="string">&quot;mapperLocations&quot;</span>));</span><br><span class="line">    sqlSessionFactoryBean.setDataSource(dynamicDataSource());</span><br><span class="line">    <span class="keyword">return</span> sqlSessionFactoryBean;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="2-Consider-marking-one-of-the-beans-as-Primary-updating-the-consumer-to-accept-multiple-beans-or-using-Qualifier-to-identify-the-bean-that-should-be-consumed"><a href="#2-Consider-marking-one-of-the-beans-as-Primary-updating-the-consumer-to-accept-multiple-beans-or-using-Qualifier-to-identify-the-bean-that-should-be-consumed" class="headerlink" title="2. Consider marking one of the beans as @Primary, updating the consumer to accept multiple beans, or using @Qualifier to identify the bean that should be consumed"></a>2. Consider marking one of the beans as @Primary, updating the consumer to accept multiple beans, or using @Qualifier to identify the bean that should be consumed</h2><blockquote>
+<p>该异常在错误信息中已经说的很清楚了，是因为有多个 <code>DataSource</code> 的实例，所以无法确定该引用那个实例</p>
+</blockquote>
+<ul>
+<li>解决方法：</li>
+</ul>
+<blockquote>
+<p>为数据源的某个 <code>Bean</code> 添加 <code>@Primary</code> 注解，该 <code>Bean</code> 应当是通过 <code>DataSourceBuilder.create().build()</code><br>得到的 <code>Bean</code>，而不是通过 <code>new AbstractRoutingDataSource</code> 的子类实现的 <code>Bean</code>，在本项目中可以是 <code>master()</code><br>或 <code>slave()</code> 得到的 <code>DataSource</code>，不能是 <code>dynamicDataSource()</code> 得到的 <code>DataSource</code></p>
+</blockquote>
+<h2 id="3-通过注解方式动态切换数据源无效"><a href="#3-通过注解方式动态切换数据源无效" class="headerlink" title="3. 通过注解方式动态切换数据源无效"></a>3. 通过注解方式动态切换数据源无效</h2><ul>
+<li>请确认注解没有放到 DAO 层方法上, 因为会在 Service 层开启事务，所以当注解在 DAO 层时不会生效</li>
+<li>请确认以下 <code>Bean</code> 正确配置：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean(&quot;dynamicDataSource&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> DataSource <span class="title">dynamicDataSource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    DynamicRoutingDataSource dynamicRoutingDataSource = <span class="keyword">new</span> DynamicRoutingDataSource();</span><br><span class="line">    Map&lt;Object, Object&gt; dataSourceMap = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">    dataSourceMap.put(<span class="string">&quot;master&quot;</span>, master());</span><br><span class="line">    dataSourceMap.put(<span class="string">&quot;slave&quot;</span>, slave());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Set master datasource as default</span></span><br><span class="line">    dynamicRoutingDataSource.setDefaultTargetDataSource(master());</span><br><span class="line">    <span class="comment">// Set master and slave datasource as target datasource</span></span><br><span class="line">    dynamicRoutingDataSource.setTargetDataSources(dataSourceMap);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// To put datasource keys into DataSourceContextHolder to judge if the datasource is exist</span></span><br><span class="line">    DynamicDataSourceContextHolder.dataSourceKeys.addAll(dataSourceMap.keySet());</span><br><span class="line">    <span class="keyword">return</span> dynamicRoutingDataSource;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;mybatis&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SqlSessionFactoryBean <span class="title">sqlSessionFactoryBean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    SqlSessionFactoryBean sqlSessionFactoryBean = <span class="keyword">new</span> SqlSessionFactoryBean();</span><br><span class="line">    <span class="comment">// Here is very important, if don&#x27;t config this, will can&#x27;t switch datasource</span></span><br><span class="line">    <span class="comment">// put all datasource into SqlSessionFactoryBean, then will autoconfig SqlSessionFactory</span></span><br><span class="line">    sqlSessionFactoryBean.setDataSource(dynamicDataSource());</span><br><span class="line">    <span class="keyword">return</span> sqlSessionFactoryBean;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-Transactional-注解无效，发生异常不回滚"><a href="#4-Transactional-注解无效，发生异常不回滚" class="headerlink" title="4. @Transactional 注解无效，发生异常不回滚"></a>4. <code>@Transactional</code> 注解无效，发生异常不回滚</h2><ul>
+<li>请确认该 <code>Bean</code> 得到正确配置，并且<code>@Transactional</code> 的 <code>rollbackFor</code> 配置正确</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> PlatformTransactionManager <span class="title">transactionManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DataSourceTransactionManager(dynamicDataSource());</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="5-通过-AOP-判断-DAO-层方法名时切换数据源无效"><a href="#5-通过-AOP-判断-DAO-层方法名时切换数据源无效" class="headerlink" title="5. 通过 AOP 判断 DAO 层方法名时切换数据源无效"></a>5. 通过 AOP 判断 DAO 层方法名时切换数据源无效</h2><blockquote>
+<p>当切面指向了 DAO 层后无论如何设置切面的顺序，都无法在执行查询之前切换数据源，但是切面改为 Service 层后可以正常工作</p>
+</blockquote>
+<ul>
+<li><p>解决方法: 请确认 <code>@Transactional</code> 注解是加在方法上而不是 Service 类上，添加了 <code>@Transactional</code> 的方法因为在 Service 层开启了事务，<br>会在事务结束之后才会切换数据源</p>
+</li>
+<li><p>检出 <code>DataSourceTransactionManager</code> Bean 注入正确</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span> </span><br><span class="line"><span class="function"><span class="keyword">public</span> PlatformTransactionManager <span class="title">transactionManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DataSourceTransactionManager(dynamicDataSource());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-The-dependencies-of-some-of-the-beans-in-the-application-context-form-a-cycle"><a href="#6-The-dependencies-of-some-of-the-beans-in-the-application-context-form-a-cycle" class="headerlink" title="6. The dependencies of some of the beans in the application context form a cycle"></a>6. The dependencies of some of the beans in the application context form a cycle</h2><ul>
+<li>错误信息：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">The dependencies of some of the beans in the application context form a cycle:</span><br><span class="line"></span><br><span class="line">   produceController (field private cn.com.hellowood.dynamicdatasource.service.ProductService cn.com.hellowood.dynamicdatasource.controller.ProduceController.productService)</span><br><span class="line">      ↓</span><br><span class="line">   productService (field private cn.com.hellowood.dynamicdatasource.mapper.ProductDao cn.com.hellowood.dynamicdatasource.service.ProductService.productDao)</span><br><span class="line">      ↓</span><br><span class="line">   productDao defined in file [&#x2F;Users&#x2F;hehuimin&#x2F;Downloads&#x2F;Dev&#x2F;SpringBoot&#x2F;DynamicDataSource&#x2F;out&#x2F;production&#x2F;classes&#x2F;cn&#x2F;com&#x2F;hellowood&#x2F;dynamicdatasource&#x2F;mapper&#x2F;ProductDao.class]</span><br><span class="line">      ↓</span><br><span class="line">   sqlSessionFactoryBean defined in class path resource [cn&#x2F;com&#x2F;hellowood&#x2F;dynamicdatasource&#x2F;configuration&#x2F;DataSourceConfigurer.class]</span><br><span class="line">┌─────┐</span><br><span class="line">|  dynamicDataSource defined in class path resource [cn&#x2F;com&#x2F;hellowood&#x2F;dynamicdatasource&#x2F;configuration&#x2F;DataSourceConfigurer.class]</span><br><span class="line">↑     ↓</span><br><span class="line">|  master defined in class path resource [cn&#x2F;com&#x2F;hellowood&#x2F;dynamicdatasource&#x2F;configuration&#x2F;DataSourceConfigurer.class]</span><br><span class="line">↑     ↓</span><br><span class="line">|  dataSourceInitializer</span><br><span class="line">└─────┘</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这是因为在注入 <code>DataSource</code> 的实例的时候产生了循环调用，第一个注入的 Bean 依赖于其他的 Bean， 而被依赖的 Bean 产生依赖传递，依赖第一个<br>注入的 Bean, 陷入了循环，无法启动项目</p>
+</blockquote>
+<ul>
+<li>解决方法：将 <code>@Primary</code> 注解指向没有依赖的 Bean，如：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * master DataSource</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Primary</span> 注解用于标识默认使用的 DataSource Bean，因为有三个 DataSource Bean，该注解可用于 master</span></span><br><span class="line"><span class="comment"> * 或 slave DataSource Bean, 但不能用于 dynamicDataSource Bean, 否则会产生循环调用 </span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@ConfigurationProperties</span> 注解用于从 application.properties 文件中读取配置，为 Bean 设置属性 </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> data source</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Bean(&quot;master&quot;)</span></span><br><span class="line"><span class="meta">@Primary</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;application.server.db.master&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> DataSource <span class="title">master</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> DataSourceBuilder.create().build();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean(&quot;slave&quot;)</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;application.server.db.slave&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> DataSource <span class="title">slave</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> DataSourceBuilder.create().build();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean(&quot;dynamicDataSource&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> DataSource <span class="title">dynamicDataSource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    DynamicRoutingDataSource dynamicRoutingDataSource = <span class="keyword">new</span> DynamicRoutingDataSource();</span><br><span class="line">    Map&lt;Object, Object&gt; dataSourceMap = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">    dataSourceMap.put(<span class="string">&quot;master&quot;</span>, master());</span><br><span class="line">    dataSourceMap.put(<span class="string">&quot;slave&quot;</span>, slave());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Set master datasource as default</span></span><br><span class="line">    dynamicRoutingDataSource.setDefaultTargetDataSource(master());</span><br><span class="line">    <span class="comment">// Set master and slave datasource as target datasource</span></span><br><span class="line">    dynamicRoutingDataSource.setTargetDataSources(dataSourceMap);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// To put datasource keys into DataSourceContextHolder to judge if the datasource is exist</span></span><br><span class="line">    DynamicDataSourceContextHolder.dataSourceKeys.addAll(dataSourceMap.keySet());</span><br><span class="line">    <span class="keyword">return</span> dynamicRoutingDataSource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#MyBatis" >
+    <span class="tag-code">MyBatis</span>
+  </a>
+
+  <a href="/tags#DynamicDataSource" >
+    <span class="tag-code">DynamicDataSource</span>
+  </a>
+
+  <a href="/tags#MultipleDataSource" >
+    <span class="tag-code">MultipleDataSource</span>
+  </a>
+
+  <a href="/tags#Druid" >
+    <span class="tag-code">Druid</span>
+  </a>
+
+  <a href="/tags#Issue" >
+    <span class="tag-code">Issue</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2017/12/31/Spring-Boot-MyBatis%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90%E3%80%81%E5%8A%A8%E6%80%81%E6%95%B0%E6%8D%AE%E6%BA%90%E5%88%87%E6%8D%A2/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Boot MyBatis Druid 多数据源、动态数据源切换
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2017/12/31/Spring-Boot-%E5%8F%91%E9%80%81%E9%82%AE%E4%BB%B6/">
+        
+          Spring Boot 发送邮件
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E5%9C%A8%E4%BD%BF%E7%94%A8-Spring-Boot-%E5%92%8C-MyBatis-%E5%8A%A8%E6%80%81%E5%88%87%E6%8D%A2%E6%95%B0%E6%8D%AE%E6%BA%90%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E4%BB%A5%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="toc-nav-text">在使用 Spring Boot 和 MyBatis 动态切换数据源时遇到的问题以及解决方法</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-org-apache-ibatis-binding-BindingException-Invalid-bound-statement-not-found"><span class="toc-nav-text">1. org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-Consider-marking-one-of-the-beans-as-Primary-updating-the-consumer-to-accept-multiple-beans-or-using-Qualifier-to-identify-the-bean-that-should-be-consumed"><span class="toc-nav-text">2. Consider marking one of the beans as @Primary, updating the consumer to accept multiple beans, or using @Qualifier to identify the bean that should be consumed</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-%E9%80%9A%E8%BF%87%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%E5%8A%A8%E6%80%81%E5%88%87%E6%8D%A2%E6%95%B0%E6%8D%AE%E6%BA%90%E6%97%A0%E6%95%88"><span class="toc-nav-text">3. 通过注解方式动态切换数据源无效</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#4-Transactional-%E6%B3%A8%E8%A7%A3%E6%97%A0%E6%95%88%EF%BC%8C%E5%8F%91%E7%94%9F%E5%BC%82%E5%B8%B8%E4%B8%8D%E5%9B%9E%E6%BB%9A"><span class="toc-nav-text">4. @Transactional 注解无效，发生异常不回滚</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#5-%E9%80%9A%E8%BF%87-AOP-%E5%88%A4%E6%96%AD-DAO-%E5%B1%82%E6%96%B9%E6%B3%95%E5%90%8D%E6%97%B6%E5%88%87%E6%8D%A2%E6%95%B0%E6%8D%AE%E6%BA%90%E6%97%A0%E6%95%88"><span class="toc-nav-text">5. 通过 AOP 判断 DAO 层方法名时切换数据源无效</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#6-The-dependencies-of-some-of-the-beans-in-the-application-context-form-a-cycle"><span class="toc-nav-text">6. The dependencies of some of the beans in the application context form a cycle</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2017/12/31/Spring-Boot-MyBatis-动态数据源常见问题和解决方法/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Boot MyBatis 动态数据源常见问题和解决方法",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

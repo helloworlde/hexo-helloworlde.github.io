@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Boot MyBatis Druid 多数据源、动态数据源切换 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Boot MyBatis Druid 多数据源、动态数据源切换</h2>
+  <p class="post-date">2017-12-31</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Spring-Boot-和-MyBatis-实现多数据源、动态数据源切换"><a href="#Spring-Boot-和-MyBatis-实现多数据源、动态数据源切换" class="headerlink" title="Spring Boot 和 MyBatis 实现多数据源、动态数据源切换"></a>Spring Boot 和 MyBatis 实现多数据源、动态数据源切换</h1><ul>
+<li>项目地址：<a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBoot-DynamicDataSource">https://github.com/helloworlde/SpringBoot-DynamicDataSource</a></li>
+</ul>
+<blockquote>
+<p>本项目使用 Spring Boot 和 MyBatis 实现多数据源，动态数据源的切换；有多种不同的实现方式，在学习的过程中发现没有文章将这些方式和常见的问题集中处理，所以将常用的方式和常见的问题都写在了在本项目的不同分支上：</p>
+</blockquote>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBoot-DynamicDataSource">master</a>: 使用了多数据源的 RESTful API 接口，使用 Druid 实现了 DAO 层数据源动态切换和只读数据源负载均衡</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBoot-DynamicDataSource/tree/dev">dev</a>: 最简单的切面和注解方式实现的动态数据源切换</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBoot-DynamicDataSource/tree/druid">druid</a>: 通过切面和注解方式实现的使用 Druid 连接池的动态数据源切换</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBoot-DynamicDataSource/tree/aspect_dao">aspect_dao</a>: 通过切面实现的 DAO 层的动态数据源切换</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBoot-DynamicDataSource/tree/roundrobin">roundrobin</a>: 通过切面使用轮询方式实现的只读数据源负载均衡</li>
+</ul>
+<blockquote>
+<p>以上分支都是基于 dev 分支修改或扩充而来，基本涵盖了常用的多数据源动态切换的方式，基本的原理都一样，都是通过切面根据不同的条件在执行数据库操作前切换数据源</p>
+</blockquote>
+<h3 id="在使用的过程中基本踩遍了所有动态数据源切换的坑，将常见的一些坑和解决方法写在了-Issues-里面"><a href="#在使用的过程中基本踩遍了所有动态数据源切换的坑，将常见的一些坑和解决方法写在了-Issues-里面" class="headerlink" title="在使用的过程中基本踩遍了所有动态数据源切换的坑，将常见的一些坑和解决方法写在了 Issues 里面"></a>在使用的过程中基本踩遍了所有动态数据源切换的坑，将常见的一些坑和解决方法写在了 <a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBoot-DynamicDataSource/blob/master/Issues.md">Issues</a> 里面</h3><blockquote>
+<p>该项目使用了一个可写数据源和多个只读数据源，为了减少数据库压力，使用轮循的方式选择只读数据源；考虑到在一个 Service 中同时会有读和写的操作，所以本应用使用 AOP 切面通过 DAO 层的方法名切换只读数据源；但这种方式要求数据源主从一致，并且应当避免在同一个 Service 方法中写入后立即查询，如果必须在执行写入操作后立即读取，应当在 Service 方法上添加 <code>@Transactional</code> 注解以保证使用主数据源 </p>
+</blockquote>
+<blockquote>
+<p>需要注意的是，使用 DAO 层切面后不应该在 Service 类层面上加 <code>@Transactional</code> 注解，而应该添加在方法上，这也是 Spring 推荐的做法</p>
+</blockquote>
+<blockquote>
+<p>动态切换数据源依赖 <code>configuration</code> 包下的4个类来实现，分别是：</p>
+<ul>
+<li>DataSourceRoutingDataSource.java</li>
+<li>DataSourceConfigurer.java</li>
+<li>DynamicDataSourceContextHolder.java</li>
+<li>DynamicDataSourceAspect.java</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    compile(<span class="string">&#x27;org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.1&#x27;</span>)</span><br><span class="line">    compile(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-web&#x27;</span>)</span><br><span class="line">    compile(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-aop&#x27;</span>)</span><br><span class="line">    compile(<span class="string">&#x27;com.alibaba:druid-spring-boot-starter:1.1.6&#x27;</span>)</span><br><span class="line">    runtime(<span class="string">&#x27;mysql:mysql-connector-java&#x27;</span>)</span><br><span class="line">    testCompile(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-test&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建数据库及表"><a href="#创建数据库及表" class="headerlink" title="创建数据库及表"></a>创建数据库及表</h2><ul>
+<li>分别创建数据库<code>product_master</code>, <code>product_slave_alpha</code>, <code>product_slave_beta</code>, <code>product_slave_gamma</code></li>
+<li>在以上数据库中分别创建表 <code>product</code>，并插入不同数据</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> DATABASE IF <span class="keyword">EXISTS</span> product_master;</span><br><span class="line"><span class="keyword">CREATE</span> DATABASE product_master;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> product_master.product(</span><br><span class="line">  id <span class="type">INT</span> <span class="keyword">PRIMARY</span> KEY AUTO_INCREMENT,</span><br><span class="line">  name <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  price <span class="keyword">DOUBLE</span>(<span class="number">10</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> product_master.product (name, price) <span class="keyword">VALUES</span>(<span class="string">&#x27;master&#x27;</span>, <span class="string">&#x27;1&#x27;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">DROP</span> DATABASE IF <span class="keyword">EXISTS</span> product_slave_alpha;</span><br><span class="line"><span class="keyword">CREATE</span> DATABASE product_slave_alpha;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> product_slave_alpha.product(</span><br><span class="line">  id <span class="type">INT</span> <span class="keyword">PRIMARY</span> KEY AUTO_INCREMENT,</span><br><span class="line">  name <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  price <span class="keyword">DOUBLE</span>(<span class="number">10</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> product_slave_alpha.product (name, price) <span class="keyword">VALUES</span>(<span class="string">&#x27;slaveAlpha&#x27;</span>, <span class="string">&#x27;1&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">DROP</span> DATABASE IF <span class="keyword">EXISTS</span> product_slave_beta;</span><br><span class="line"><span class="keyword">CREATE</span> DATABASE product_slave_beta;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> product_slave_beta.product(</span><br><span class="line">  id <span class="type">INT</span> <span class="keyword">PRIMARY</span> KEY AUTO_INCREMENT,</span><br><span class="line">  name <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  price <span class="keyword">DOUBLE</span>(<span class="number">10</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> product_slave_beta.product (name, price) <span class="keyword">VALUES</span>(<span class="string">&#x27;slaveBeta&#x27;</span>, <span class="string">&#x27;1&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">DROP</span> DATABASE IF <span class="keyword">EXISTS</span> product_slave_gamma;</span><br><span class="line"><span class="keyword">CREATE</span> DATABASE product_slave_gamma;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> product_slave_gamma.product(</span><br><span class="line">  id <span class="type">INT</span> <span class="keyword">PRIMARY</span> KEY AUTO_INCREMENT,</span><br><span class="line">  name <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  price <span class="keyword">DOUBLE</span>(<span class="number">10</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> product_slave_gamma.product (name, price) <span class="keyword">VALUES</span>(<span class="string">&#x27;slaveGamma&#x27;</span>, <span class="string">&#x27;1&#x27;</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="配置数据源"><a href="#配置数据源" class="headerlink" title="配置数据源"></a>配置数据源</h2><ul>
+<li>application.properties</li>
+</ul>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Master datasource config</span></span><br><span class="line"><span class="meta">spring.datasource.druid.master.name</span>=<span class="string">master</span></span><br><span class="line"><span class="meta">spring.datasource.druid.master.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.datasource.druid.master.url</span>=<span class="string">jdbc:mysql://localhost/product_master?useSSL=false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.master.port</span>=<span class="string">3306</span></span><br><span class="line"><span class="meta">spring.datasource.druid.master.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.datasource.druid.master.password</span>=<span class="string">123456</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># SlaveAlpha datasource config</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-alpha.name</span>=<span class="string">SlaveAlpha</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-alpha.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-alpha.url</span>=<span class="string">jdbc:mysql://localhost/product_slave_alpha?useSSL=false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-alpha.port</span>=<span class="string">3306</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-alpha.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-alpha.password</span>=<span class="string">123456</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># SlaveBeta datasource config</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-beta.name</span>=<span class="string">SlaveBeta</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-beta.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-beta.url</span>=<span class="string">jdbc:mysql://localhost/product_slave_beta?useSSL=false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-beta.port</span>=<span class="string">3306</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-beta.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-beta.password</span>=<span class="string">123456</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># SlaveGamma datasource config</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-gamma.name</span>=<span class="string">SlaveGamma</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-gamma.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-gamma.url</span>=<span class="string">jdbc:mysql://localhost/product_slave_gamma?useSSL=false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-gamma.port</span>=<span class="string">3306</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-gamma.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.datasource.druid.slave-gamma.password</span>=<span class="string">123456</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Druid dataSource config</span></span><br><span class="line"><span class="meta">spring.datasource.type</span>=<span class="string">com.alibaba.druid.pool.DruidDataSource</span></span><br><span class="line"><span class="meta">spring.datasource.druid.initial-size</span>=<span class="string">5</span></span><br><span class="line"><span class="meta">spring.datasource.druid.max-active</span>=<span class="string">20</span></span><br><span class="line"><span class="meta">spring.datasource.druid.min-idle</span>=<span class="string">5</span></span><br><span class="line"><span class="meta">spring.datasource.druid.max-wait</span>=<span class="string">60000</span></span><br><span class="line"><span class="meta">spring.datasource.druid.pool-prepared-statements</span>=<span class="string">false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.validation-query</span>=<span class="string">SELECT 1</span></span><br><span class="line"><span class="meta">spring.datasource.druid.validation-query-timeout</span>=<span class="string">30000</span></span><br><span class="line"><span class="meta">spring.datasource.druid.test-on-borrow</span>=<span class="string">false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.test-on-return</span>=<span class="string">false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.test-while-idle</span>=<span class="string">true</span></span><br><span class="line"><span class="comment">#spring.datasource.druid.time-between-eviction-runs-millis=</span></span><br><span class="line"><span class="comment">#spring.datasource.druid.min-evictable-idle-time-millis=</span></span><br><span class="line"><span class="comment">#spring.datasource.druid.max-evictable-idle-time-millis=10000</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Druid stat filter config</span></span><br><span class="line"><span class="meta">spring.datasource.druid.filters</span>=<span class="string">stat,wall,log4j</span></span><br><span class="line"><span class="meta">spring.datasource.druid.web-stat-filter.enabled</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.datasource.druid.web-stat-filter.url-pattern</span>=<span class="string">/*</span></span><br><span class="line"><span class="meta">spring.datasource.druid.web-stat-filter.exclusions</span>=<span class="string">*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*</span></span><br><span class="line"><span class="meta">spring.datasource.druid.web-stat-filter.session-stat-enable</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.datasource.druid.web-stat-filter.session-stat-max-count</span>=<span class="string">10</span></span><br><span class="line"><span class="meta">spring.datasource.druid.web-stat-filter.principal-session-name</span>=<span class="string">user</span></span><br><span class="line"><span class="comment">#spring.datasource.druid.web-stat-filter.principal-cookie-name=</span></span><br><span class="line"><span class="meta">spring.datasource.druid.web-stat-filter.profile-enable</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.datasource.druid.filter.stat.db-type</span>=<span class="string">mysql</span></span><br><span class="line"><span class="meta">spring.datasource.druid.filter.stat.log-slow-sql</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.datasource.druid.filter.stat.slow-sql-millis</span>=<span class="string">1000</span></span><br><span class="line"><span class="meta">spring.datasource.druid.filter.stat.merge-sql</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.datasource.druid.filter.wall.enabled</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.datasource.druid.filter.wall.config.delete-allow</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.datasource.druid.filter.wall.config.drop-table-allow</span>=<span class="string">false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.filter.slf4j.enabled</span>=<span class="string">true</span></span><br><span class="line"><span class="comment"># Druid manage page config</span></span><br><span class="line"><span class="meta">spring.datasource.druid.stat-view-servlet.enabled</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.datasource.druid.stat-view-servlet.url-pattern</span>=<span class="string">/druid/*</span></span><br><span class="line"><span class="meta">spring.datasource.druid.stat-view-servlet.reset-enable</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.datasource.druid.stat-view-servlet.login-username</span>=<span class="string">admin</span></span><br><span class="line"><span class="meta">spring.datasource.druid.stat-view-servlet.login-password</span>=<span class="string">admin</span></span><br><span class="line"><span class="comment">#spring.datasource.druid.stat-view-servlet.allow=</span></span><br><span class="line"><span class="comment">#spring.datasource.druid.stat-view-servlet.deny=</span></span><br><span class="line"><span class="meta">spring.datasource.druid.use-global-data-source-stat</span>=<span class="string">true</span></span><br><span class="line"><span class="comment"># Druid AOP config</span></span><br><span class="line"><span class="meta">spring.datasource.druid.aop-patterns</span>=<span class="string">cn.com.hellowood.dynamicdatasource.service.*</span></span><br><span class="line"><span class="meta">spring.aop.proxy-target-class</span>=<span class="string">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># MyBatis config</span></span><br><span class="line"><span class="meta">mybatis.type-aliases-package</span>=<span class="string">cn.com.hellowood.dynamicdatasource.mapper</span></span><br><span class="line"><span class="meta">mybatis.mapper-locations</span>=<span class="string">mappers/**Mapper.xml</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">9999</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="配置数据源-1"><a href="#配置数据源-1" class="headerlink" title="配置数据源"></a>配置数据源</h2><ul>
+<li><p>DataSourceKey.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.dynamicdatasource.common;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">DataSourceKey</span> </span>&#123;</span><br><span class="line">    master,</span><br><span class="line">    slaveAlpha,</span><br><span class="line">    slaveBeta,</span><br><span class="line">    slaveGamma</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><p>DataSourceRoutingDataSource.java</p>
+</li>
+</ul>
+<blockquote>
+<p>该类继承自 <code>AbstractRoutingDataSource</code> 类，在访问数据库时会调用该类的 <code>determineCurrentLookupKey()</code> 方法获取数据库实例的 key</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.dynamicdatasource.configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"><span class="keyword">import</span> org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DynamicRoutingDataSource</span> <span class="keyword">extends</span> <span class="title">AbstractRoutingDataSource</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(getClass());</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> Object <span class="title">determineCurrentLookupKey</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        logger.info(<span class="string">&quot;Current DataSource is [&#123;&#125;]&quot;</span>, DynamicDataSourceContextHolder.getDataSourceKey());</span><br><span class="line">        <span class="keyword">return</span> DynamicDataSourceContextHolder.getDataSourceKey();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>DataSourceConfigurer.java</li>
+</ul>
+<blockquote>
+<p>数据源配置类，在该类中生成多个数据源实例并将其注入到 <code>ApplicationContext</code> 中</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.dynamicdatasource.configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.mybatis.spring.SqlSessionFactoryBean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.context.properties.ConfigurationProperties;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Primary;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.sql.DataSource;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DataSourceConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * master DataSource</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@Primary</span> 注解用于标识默认使用的 DataSource Bean，因为有5个 DataSource Bean，该注解可用于 master</span></span><br><span class="line"><span class="comment">     * 或 slave DataSource Bean, 但不能用于 dynamicDataSource Bean, 否则会产生循环调用 </span></span><br><span class="line"><span class="comment">     * </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@ConfigurationProperties</span> 注解用于从 application.properties 文件中读取配置，为 Bean 设置属性 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> data source</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean(&quot;master&quot;)</span></span><br><span class="line">    <span class="meta">@Primary</span></span><br><span class="line">    <span class="meta">@ConfigurationProperties(prefix = &quot;spring.datasource.druid.master&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> DataSource <span class="title">master</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> DruidDataSourceBuilder.create().build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Slave alpha data source.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the data source</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean(&quot;slaveAlpha&quot;)</span></span><br><span class="line">    <span class="meta">@ConfigurationProperties(prefix = &quot;spring.datasource.druid.slave-alpha&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> DataSource <span class="title">slaveAlpha</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> DruidDataSourceBuilder.create().build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Slave beta data source.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the data source</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean(&quot;slaveBeta&quot;)</span></span><br><span class="line">    <span class="meta">@ConfigurationProperties(prefix = &quot;spring.datasource.druid.slave-beta&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> DataSource <span class="title">slaveBeta</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> DruidDataSourceBuilder.create().build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Slave gamma data source.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the data source</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean(&quot;slaveGamma&quot;)</span></span><br><span class="line">    <span class="meta">@ConfigurationProperties(prefix = &quot;spring.datasource.druid.slave-gamma&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> DataSource <span class="title">slaveGamma</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> DruidDataSourceBuilder.create().build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Dynamic data source.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the data source</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean(&quot;dynamicDataSource&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> DataSource <span class="title">dynamicDataSource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        DynamicRoutingDataSource dynamicRoutingDataSource = <span class="keyword">new</span> DynamicRoutingDataSource();</span><br><span class="line">        Map&lt;Object, Object&gt; dataSourceMap = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">4</span>);</span><br><span class="line">        dataSourceMap.put(DataSourceKey.master.name(), master());</span><br><span class="line">        dataSourceMap.put(DataSourceKey.slaveAlpha.name(), slaveAlpha());</span><br><span class="line">        dataSourceMap.put(DataSourceKey.slaveBeta.name(), slaveBeta());</span><br><span class="line">        dataSourceMap.put(DataSourceKey.slaveGamma.name(), slaveGamma());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将 master 数据源作为默认指定的数据源</span></span><br><span class="line">        dynamicRoutingDataSource.setDefaultTargetDataSource(master());</span><br><span class="line">        <span class="comment">// 将 master 和 slave 数据源作为指定的数据源</span></span><br><span class="line">        dynamicRoutingDataSource.setTargetDataSources(dataSourceMap);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将数据源的 key 放到数据源上下文的 key 集合中，用于切换时判断数据源是否有效</span></span><br><span class="line">        DynamicDataSourceContextHolder.dataSourceKeys.addAll(dataSourceMap.keySet());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将 Slave 数据源的 key 放在集合中，用于轮循</span></span><br><span class="line">        DynamicDataSourceContextHolder.slaveDataSourceKeys.addAll(dataSourceMap.keySet());</span><br><span class="line">        DynamicDataSourceContextHolder.slaveDataSourceKeys.remove(DataSourceKey.master.name());</span><br><span class="line">        <span class="keyword">return</span> dynamicRoutingDataSource;</span><br><span class="line">    &#125;   </span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 配置 SqlSessionFactoryBean</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@ConfigurationProperties</span> 在这里是为了将 MyBatis 的 mapper 位置和持久层接口的别名设置到 </span></span><br><span class="line"><span class="comment">     * Bean 的属性中，如果没有使用 *.xml 则可以不用该配置，否则将会产生 invalid bond statement 异常</span></span><br><span class="line"><span class="comment">     * </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the sql session factory bean</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConfigurationProperties(prefix = &quot;mybatis&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> SqlSessionFactoryBean <span class="title">sqlSessionFactoryBean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        SqlSessionFactoryBean sqlSessionFactoryBean = <span class="keyword">new</span> SqlSessionFactoryBean();</span><br><span class="line">        <span class="comment">// 配置数据源，此处配置为关键配置，如果没有将 dynamicDataSource 作为数据源则不能实现切换</span></span><br><span class="line">        sqlSessionFactoryBean.setDataSource(dynamicDataSource());</span><br><span class="line">        <span class="keyword">return</span> sqlSessionFactoryBean;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 注入 DataSourceTransactionManager 用于事务管理</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PlatformTransactionManager <span class="title">transactionManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> DataSourceTransactionManager(dynamicDataSource());</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>DynamicDataSourceContextHolder.java</li>
+</ul>
+<blockquote>
+<p>该类为数据源上下文配置，用于切换数据源</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.dynamicdatasource.configuration;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.dynamicdatasource.common.DataSourceKey;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Lock;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DynamicDataSourceContextHolder</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(DynamicDataSourceContextHolder.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 用于在切换数据源时保证不会被其他线程修改</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 用于轮循的计数器</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Maintain variable for every thread, to avoid effect other thread</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;Object&gt; CONTEXT_HOLDER = ThreadLocal.withInitial(DataSourceKey.master);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * All DataSource List</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> List&lt;Object&gt; dataSourceKeys = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * The constant slaveDataSourceKeys.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> List&lt;Object&gt; slaveDataSourceKeys = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * To switch DataSource</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key the key</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setDataSourceKey</span><span class="params">(String key)</span> </span>&#123;</span><br><span class="line">        CONTEXT_HOLDER.set(key);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Use master data source.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">useMasterDataSource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        CONTEXT_HOLDER.set(DataSourceKey.master);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 当使用只读数据源时通过轮循方式选择要使用的数据源</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">useSlaveDataSource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        lock.lock();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">int</span> datasourceKeyIndex = counter % slaveDataSourceKeys.size();</span><br><span class="line">            CONTEXT_HOLDER.set(String.valueOf(slaveDataSourceKeys.get(datasourceKeyIndex)));</span><br><span class="line">            counter++;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            logger.error(<span class="string">&quot;Switch slave datasource failed, error message is &#123;&#125;&quot;</span>, e.getMessage());</span><br><span class="line">            useMasterDataSource();</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Get current DataSource</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> data source key</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getDataSourceKey</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> CONTEXT_HOLDER.get();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * To set DataSource as default</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">clearDataSourceKey</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        CONTEXT_HOLDER.remove();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Check if give DataSource is in current DataSource list</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key the key</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> boolean boolean</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">containDataSourceKey</span><span class="params">(String key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> dataSourceKeys.contains(key);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>DynamicDataSourceAspect.java</li>
+</ul>
+<blockquote>
+<p>动态数据源切换的切面，切 DAO 层，通过 DAO 层方法名判断使用哪个数据源，实现数据源切换<br>关于切面的 Order 可以可以不设，因为 <code>@Transactional</code> 是最低的，取决于其他切面的设置，并且在 <code>org.springframework.core.annotation.AnnotationAwareOrderComparator</code> 会重新排序</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.dynamicdatasource.configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.aspectj.lang.JoinPoint;</span><br><span class="line"><span class="keyword">import</span> org.aspectj.lang.annotation.After;</span><br><span class="line"><span class="keyword">import</span> org.aspectj.lang.annotation.Aspect;</span><br><span class="line"><span class="keyword">import</span> org.aspectj.lang.annotation.Before;</span><br><span class="line"><span class="keyword">import</span> org.aspectj.lang.annotation.Pointcut;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DynamicDataSourceAspect</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(DynamicDataSourceAspect.class);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String[] QUERY_PREFIX = &#123;<span class="string">&quot;select&quot;</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Pointcut(&quot;execution( * cn.com.hellowood.dynamicdatasource.mapper.*.*(..))&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">daoAspect</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Before(&quot;daoAspect()&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">switchDataSource</span><span class="params">(JoinPoint point)</span> </span>&#123;</span><br><span class="line">        Boolean isQueryMethod = isQueryMethod(point.getSignature().getName());</span><br><span class="line">        <span class="keyword">if</span> (isQueryMethod) &#123;</span><br><span class="line">            DynamicDataSourceContextHolder.useSlaveDataSource();</span><br><span class="line">            logger.info(<span class="string">&quot;Switch DataSource to [&#123;&#125;] in Method [&#123;&#125;]&quot;</span>,</span><br><span class="line">                    DynamicDataSourceContextHolder.getDataSourceKey(), point.getSignature());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@After(&quot;daoAspect())</span><span class="string">&quot;)</span></span><br><span class="line"><span class="string">    public void restoreDataSource(JoinPoint point) &#123;</span></span><br><span class="line"><span class="string">        DynamicDataSourceContextHolder.clearDataSourceKey();</span></span><br><span class="line"><span class="string">        logger.info(&quot;</span>Restore DataSource to [&#123;&#125;] in Method [&#123;&#125;]<span class="string">&quot;,</span></span><br><span class="line"><span class="string">                DynamicDataSourceContextHolder.getDataSourceKey(), point.getSignature());</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    private Boolean isQueryMethod(String methodName) &#123;</span></span><br><span class="line"><span class="string">        for (String prefix : QUERY_PREFIX) &#123;</span></span><br><span class="line"><span class="string">            if (methodName.startsWith(prefix)) &#123;</span></span><br><span class="line"><span class="string">                return true;</span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">        return false;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="配置-Product-REST-API-接口"><a href="#配置-Product-REST-API-接口" class="headerlink" title="配置 Product REST API 接口"></a>配置 Product REST API 接口</h2><ul>
+<li>ProductController.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.dynamicdatasource.controller;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.dynamicdatasource.common.CommonResponse;</span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.dynamicdatasource.common.ResponseUtil;</span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.dynamicdatasource.modal.Product;</span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.dynamicdatasource.service.ProductService;</span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.dynamicdatasource.utils.ServiceException;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.*;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/product&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProductController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ProductService productService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommonResponse <span class="title">getProduct</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Long productId)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseUtil.generateResponse(productService.select(productId));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommonResponse <span class="title">getAllProduct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseUtil.generateResponse(productService.getAllProduct());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PutMapping(&quot;/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommonResponse <span class="title">updateProduct</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Long productId, <span class="meta">@RequestBody</span> Product newProduct)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseUtil.generateResponse(productService.update(productId, newProduct));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@DeleteMapping(&quot;/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommonResponse <span class="title">deleteProduct</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> <span class="keyword">long</span> productId)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseUtil.generateResponse(productService.delete(productId));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommonResponse <span class="title">addProduct</span><span class="params">(<span class="meta">@RequestBody</span> Product newProduct)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseUtil.generateResponse(productService.add(newProduct));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>ProductService.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.dynamicdatasource.service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.dynamicdatasource.mapper.ProductDao;</span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.dynamicdatasource.modal.Product;</span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.dynamicdatasource.utils.ServiceException;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.dao.DataAccessException;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"><span class="keyword">import</span> org.springframework.transaction.annotation.Transactional;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProductService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ProductDao productDao;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Product <span class="title">select</span><span class="params">(<span class="keyword">long</span> productId)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        Product product = productDao.select(productId);</span><br><span class="line">        <span class="keyword">if</span> (product == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ServiceException(<span class="string">&quot;Product:&quot;</span> + productId + <span class="string">&quot; not found&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> product;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Transactional(rollbackFor = DataAccessException.class)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Product <span class="title">update</span><span class="params">(<span class="keyword">long</span> productId, Product newProduct)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (productDao.update(newProduct) &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ServiceException(<span class="string">&quot;Update product:&quot;</span> + productId + <span class="string">&quot;failed&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> newProduct;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Transactional(rollbackFor = DataAccessException.class)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(Product newProduct)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        Integer num = productDao.insert(newProduct);</span><br><span class="line">        <span class="keyword">if</span> (num &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ServiceException(<span class="string">&quot;Add product failed&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Transactional(rollbackFor = DataAccessException.class)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">delete</span><span class="params">(<span class="keyword">long</span> productId)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        Integer num = productDao.delete(productId);</span><br><span class="line">        <span class="keyword">if</span> (num &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ServiceException(<span class="string">&quot;Delete product:&quot;</span> + productId + <span class="string">&quot;failed&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Product&gt; <span class="title">getAllProduct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> productDao.getAllProduct();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><p>ProductDao.java</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.dynamicdatasource.mapper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.dynamicdatasource.modal.Product;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Mapper;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Param;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ProductDao</span> </span>&#123;</span><br><span class="line">    <span class="function">Product <span class="title">select</span><span class="params">(<span class="meta">@Param(&quot;id&quot;)</span> <span class="keyword">long</span> id)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">Integer <span class="title">update</span><span class="params">(Product product)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">Integer <span class="title">insert</span><span class="params">(Product product)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">Integer <span class="title">delete</span><span class="params">(<span class="keyword">long</span> productId)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">List&lt;Product&gt; <span class="title">getAllProduct</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ProductMapper.xml</li>
+</ul>
+<blockquote>
+<p>启动项目，此时访问 <code>/product/1</code> 会返回 <code>product_master</code> 数据库中 <code>product</code> 表中的所有数据，多次访问 <code>/product</code> 会分别返回 <code>product_slave_alpha</code>、<code>product_slave_beta</code>、<code>product_slave_gamma</code> 数据库中 <code>product</code> 表中的数据，同时也可以在看到切换数据源的 log，说明动态切换数据源是有效的</p>
+</blockquote>
+<hr>
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h2><blockquote>
+<p>在该应用中因为使用了 DAO 层的切面切换数据源，所以 <code>@Transactional</code> 注解不能加在类上，只能用于方法；有 <code>@Trasactional</code>注解的方法无法切换数据源</p>
+</blockquote>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#MyBatis" >
+    <span class="tag-code">MyBatis</span>
+  </a>
+
+  <a href="/tags#DynamicDataSource" >
+    <span class="tag-code">DynamicDataSource</span>
+  </a>
+
+  <a href="/tags#MultipleDataSource" >
+    <span class="tag-code">MultipleDataSource</span>
+  </a>
+
+  <a href="/tags#Druid" >
+    <span class="tag-code">Druid</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2017/12/24/helloworld/">
+        <span class="nav-arrow">← </span>
+        
+          helloworld
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2017/12/31/Spring-Boot-MyBatis-%E5%8A%A8%E6%80%81%E6%95%B0%E6%8D%AE%E6%BA%90%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">
+        
+          Spring Boot MyBatis 动态数据源常见问题和解决方法
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Spring-Boot-%E5%92%8C-MyBatis-%E5%AE%9E%E7%8E%B0%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90%E3%80%81%E5%8A%A8%E6%80%81%E6%95%B0%E6%8D%AE%E6%BA%90%E5%88%87%E6%8D%A2"><span class="toc-nav-text">Spring Boot 和 MyBatis 实现多数据源、动态数据源切换</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%9C%A8%E4%BD%BF%E7%94%A8%E7%9A%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E5%9F%BA%E6%9C%AC%E8%B8%A9%E9%81%8D%E4%BA%86%E6%89%80%E6%9C%89%E5%8A%A8%E6%80%81%E6%95%B0%E6%8D%AE%E6%BA%90%E5%88%87%E6%8D%A2%E7%9A%84%E5%9D%91%EF%BC%8C%E5%B0%86%E5%B8%B8%E8%A7%81%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9D%91%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95%E5%86%99%E5%9C%A8%E4%BA%86-Issues-%E9%87%8C%E9%9D%A2"><span class="toc-nav-text">在使用的过程中基本踩遍了所有动态数据源切换的坑，将常见的一些坑和解决方法写在了 Issues 里面</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%8A%E8%A1%A8"><span class="toc-nav-text">创建数据库及表</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E6%BA%90"><span class="toc-nav-text">配置数据源</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E6%BA%90-1"><span class="toc-nav-text">配置数据源</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-Product-REST-API-%E6%8E%A5%E5%8F%A3"><span class="toc-nav-text">配置 Product REST API 接口</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B3%A8%E6%84%8F"><span class="toc-nav-text">注意</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2017/12/31/Spring-Boot-MyBatis多数据源、动态数据源切换/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Boot MyBatis Druid 多数据源、动态数据源切换",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

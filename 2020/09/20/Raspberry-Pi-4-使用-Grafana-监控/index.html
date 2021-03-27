@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Raspberry Pi 4 使用 Grafana 监控 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Raspberry Pi 4 使用 Grafana 监控</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Raspberry-Pi-4-使用-Grafana-监控"><a href="#Raspberry-Pi-4-使用-Grafana-监控" class="headerlink" title="Raspberry Pi 4 使用 Grafana 监控"></a>Raspberry Pi 4 使用 Grafana 监控</h1><h2 id="运行-Influxdb"><a href="#运行-Influxdb" class="headerlink" title="运行 Influxdb"></a>运行 Influxdb</h2><p>Influxdb 和 Prometheus 一样都是时序数据库，不同的是它能够作为一个转发代理接受来自不同程序的消息，这里使用 Telegraf 采集数据，存放到 Influxdb 中</p>
+<ul>
+<li>启动</li>
+</ul>
+<p>挂载的目的是为了将数据保存在宿主机上，方便查询历史数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run --name influxdb -d \</span><br><span class="line">	-p 8086:8086 \</span><br><span class="line">	-v /root/workspace/docker/influxdb:/var/lib/influxdb \</span><br><span class="line">	influxdb</span><br></pre></td></tr></table></figure>
+
+<h2 id="运行-Telegraf"><a href="#运行-Telegraf" class="headerlink" title="运行 Telegraf"></a>运行 Telegraf</h2><p>Telegraf 是一个用 Golang 写的基于插件驱动的数据收集Agent，可以用来收集机器的数据</p>
+<ul>
+<li>telegraf.conf</li>
+</ul>
+<p>在 telegraf 的配置文件末尾追加以下内容<br>telegraf 的配置可以先通过<code>docker run telegraf</code>直接启动一个，然后进入容器，从 <code>/etc/telegraf/</code>下修改</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[[inputs.net]]</span><br><span class="line"></span><br><span class="line">[[inputs.netstat]]</span><br><span class="line"></span><br><span class="line">[[inputs.file]]</span><br><span class="line">  files &#x3D; [&quot;&#x2F;sys&#x2F;class&#x2F;thermal&#x2F;thermal_zone0&#x2F;temp&quot;]</span><br><span class="line">  name_override &#x3D; &quot;cpu_temperature&quot;</span><br><span class="line">  data_format &#x3D; &quot;value&quot;</span><br><span class="line">  data_type &#x3D; &quot;integer&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动</li>
+</ul>
+<p>Telegraf 依赖于 Influxdb，所以使用同一个网络</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">docker run --name telegraf -d  \</span><br><span class="line">	--net=container:influxdb \</span><br><span class="line">	-v /var/run/docker.sock:/var/run/docker.sock \</span><br><span class="line">	-v /proc:/host/proc:ro \</span><br><span class="line">	-v /opt/:/opt/ \</span><br><span class="line">	-v /usr/lib/:/usr/lib/ \</span><br><span class="line">	-v /root/workspace/docker/telegraf/config/telegraf.conf:/etc/telegraf/telegraf.conf \</span><br><span class="line">	-e HOST_PROC=/host/proc \</span><br><span class="line">	telegraf</span><br></pre></td></tr></table></figure>
+
+<h2 id="运行-Grafana"><a href="#运行-Grafana" class="headerlink" title="运行 Grafana"></a>运行 Grafana</h2><ul>
+<li>运行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run \</span><br><span class="line">     -d \</span><br><span class="line">     --name=grafana \</span><br><span class="line">     -p 3000:3000 \</span><br><span class="line">     grafana/grafana</span><br></pre></td></tr></table></figure>
+
+<h2 id="修改-Influxdb-配置"><a href="#修改-Influxdb-配置" class="headerlink" title="修改 Influxdb 配置"></a>修改 Influxdb 配置</h2><p>在 Influxdb 中添加一个新的用户，并授予访问 telegraf 数据库的权限，用于 Grafana 拉取数据</p>
+<ul>
+<li>进入容器</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it influxdb bash </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动 influxdb 客户端 </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">influx</span><br><span class="line"></span><br><span class="line">Connected to http://localhost:8086 version 1.8.0</span><br><span class="line">InfluxDB shell version: 1.8.0</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加用户并授予权限</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create user admin with password <span class="string">&#x27;123456&#x27;</span> with all privileges</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加监控面板"><a href="#添加监控面板" class="headerlink" title="添加监控面板"></a>添加监控面板</h2><ul>
+<li>访问面板</li>
+</ul>
+<p>访问树莓派的地址和相应的端口 <a href="http://192.168.31.5:3000，输入用户名">http://192.168.31.5:3000，输入用户名</a> <code>admin</code> 和密码 <code>admin</code>，输入新的密码后进入面板主页</p>
+<ul>
+<li>添加数据源 </li>
+</ul>
+<p>访问设置 -&gt; DataSources -&gt; Add Data Source，输入相应的信息</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/raspberrypi-metrics-grafana-datasource.png" alt="raspberrypi-metrics-grafana-datasource.png"></p>
+<ul>
+<li>导入监控看板 </li>
+</ul>
+<p>点击侧边栏加号，import，然后输入面板的 id <a target="_blank" rel="noopener" href="https://grafana.com/grafana/dashboards/10578">10587</a>，然后 load</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/raspberrypi-metrics-grafana-dashboard.png" alt="raspberrypi-metrics-grafana-dashboard.png"></p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Grafana" >
+    <span class="tag-code">Grafana</span>
+  </a>
+
+  <a href="/tags#RaspberryPi" >
+    <span class="tag-code">RaspberryPi</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-USB-%E4%BB%8E-SSD-%E5%90%AF%E5%8A%A8/">
+        <span class="nav-arrow">← </span>
+        
+          Raspberry Pi 4 使用 USB 从 SSD 启动
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/SpringBoot-%E6%A1%86%E6%9E%B6%E8%87%AA%E5%B8%A6%E6%8F%92%E4%BB%B6%E6%9E%84%E5%BB%BA-Docker-%E9%95%9C%E5%83%8F/">
+        
+          SpringBoot 框架自带插件构建 Docker 镜像
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-Grafana-%E7%9B%91%E6%8E%A7"><span class="toc-nav-text">Raspberry Pi 4 使用 Grafana 监控</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%BF%90%E8%A1%8C-Influxdb"><span class="toc-nav-text">运行 Influxdb</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%BF%90%E8%A1%8C-Telegraf"><span class="toc-nav-text">运行 Telegraf</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%BF%90%E8%A1%8C-Grafana"><span class="toc-nav-text">运行 Grafana</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BF%AE%E6%94%B9-Influxdb-%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">修改 Influxdb 配置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%9B%91%E6%8E%A7%E9%9D%A2%E6%9D%BF"><span class="toc-nav-text">添加监控面板</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/Raspberry-Pi-4-使用-Grafana-监控/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Raspberry Pi 4 使用 Grafana 监控",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Google Cloud Run 部署 Knative Serverless 应用  | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Google Cloud Run 部署 Knative Serverless 应用 </h2>
+  <p class="post-date">2019-05-15</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Google-Cloud-Run-部署Knative-Serverless-应用"><a href="#Google-Cloud-Run-部署Knative-Serverless-应用" class="headerlink" title="Google Cloud Run 部署Knative Serverless 应用"></a>Google Cloud Run 部署Knative Serverless 应用</h1><blockquote>
+<p>Google Cloud Run 是 Google 最近推出的基于容器运行的支持 Serverless 应用的服务，是 Knative 的Google Cloud 托管版本；和其他的 Serverless 如Google Cloud Functions, AWS Lambda 等相比，优点在于完全的基于容器，且不限语言</p>
+</blockquote>
+<h2 id="安装-Cloud-SDK"><a href="#安装-Cloud-SDK" class="headerlink" title="安装 Cloud SDK"></a>安装 <a target="_blank" rel="noopener" href="https://cloud.google.com/sdk/">Cloud SDK</a></h2><p>Cloud SDK 是 Google Cloud 的命令行工具，用于访问Google Cloud相关资源</p>
+<p>具体平台的安装方式可以参考 <a target="_blank" rel="noopener" href="https://cloud.google.com/sdk/docs/quickstarts">https://cloud.google.com/sdk/docs/quickstarts</a></p>
+<h2 id="创建应用，上传镜像"><a href="#创建应用，上传镜像" class="headerlink" title="创建应用，上传镜像"></a>创建应用，上传镜像</h2><p>以 Go 语言为例，创建一个应用，根据不同的请求返回不同的内容</p>
+<ul>
+<li>main.go </li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;encoding/json&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;net/url&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> CustomResponse <span class="keyword">struct</span> &#123;</span><br><span class="line">	Code    <span class="keyword">int</span>    <span class="string">`json:&quot;code&quot;`</span></span><br><span class="line">	Message <span class="keyword">string</span> <span class="string">`json:&quot;message&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;Server started&quot;</span>)</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/&quot;</span>, rootHandler)</span><br><span class="line">	_ = http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">rootHandler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;Start handler request&quot;</span>)</span><br><span class="line"></span><br><span class="line">	queryForm, err := url.ParseQuery(r.URL.RawQuery)</span><br><span class="line"></span><br><span class="line">	w.Header().Set(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json&quot;</span>)</span><br><span class="line">	message := <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err == <span class="literal">nil</span> &amp;&amp; <span class="built_in">len</span>(queryForm[<span class="string">&quot;message&quot;</span>]) &gt; <span class="number">0</span> &#123;</span><br><span class="line">		message = queryForm[<span class="string">&quot;message&quot;</span>][<span class="number">0</span>]</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		message = <span class="string">&quot;Hello Go Server&quot;</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	_ = json.NewEncoder(w).Encode(CustomResponse&#123;<span class="number">200</span>, message&#125;)</span><br><span class="line">	fmt.Println(<span class="string">&quot;Handler request completed&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Dockerfile</li>
+</ul>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> golang:<span class="number">1.12</span>.<span class="number">3</span>-alpine3.<span class="number">9</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> mkdir /app</span></span><br><span class="line"><span class="keyword">ADD</span><span class="bash"> . /app/</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /app</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> CGO_ENABLED=0 GOOS=linux go build -o main main.go</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> [<span class="string">&quot;/app/main&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>配置 <a target="_blank" rel="noopener" href="https://console.cloud.google.com/gcr">Google Container Registry</a></li>
+</ul>
+<p>相关配置可以参考 <a target="_blank" rel="noopener" href="https://cloud.google.com/container-registry/docs/pushing-and-pulling">推送和拉取映像</a>，需要注意的是需要一个项目 ID，这个 ID 可以在 <a target="_blank" rel="noopener" href="https://console.cloud.google.com/home/dashboard">home/dashboard</a> 下找到</p>
+<p><img src="http://hellowoodes.oss-cn-beijing.aliyuncs.com/blog/GoogleCloudRun1.png" alt="Google Porject"></p>
+<ul>
+<li>配置本地 Docker</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcloud auth configure-docker</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>构建镜像 </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t gcr.io/genial-post-128203/serverless .</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>推送镜像 </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push gcr.io/genial-post-128203/serverless</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建-Serverless-应用"><a href="#创建-Serverless-应用" class="headerlink" title="创建 Serverless 应用"></a>创建 Serverless 应用</h2><p>在<a target="_blank" rel="noopener" href="https://console.cloud.google.com/run">Cloud Run</a> 页面选择创建服务</p>
+<p><img src="http://hellowoodes.oss-cn-beijing.aliyuncs.com/blog/GoogleCloudRun2.png" alt="创建服务"></p>
+<p><img src="http://hellowoodes.oss-cn-beijing.aliyuncs.com/blog/GoogleCloudRun3.png" alt="服务详情"></p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>请求 URL <a target="_blank" rel="noopener" href="https://cloudserverless-pae2opltia-uc.a.run.app/">https://cloudserverless-pae2opltia-uc.a.run.app</a></p>
+<ul>
+<li>不带参数</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://cloudserverless-pae2opltia-uc.a.run.app</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">&quot;code&quot;</span>:<span class="number">200</span>,<span class="attr">&quot;message&quot;</span>:<span class="string">&quot;Hello Go Server&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>指定参数</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://cloudserverless-pae2opltia-uc.a.run.app?message=HelloWood</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">&quot;code&quot;</span>:<span class="number">200</span>,<span class="attr">&quot;message&quot;</span>:<span class="string">&quot;HelloWood&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/helloworlde/google-cloud-run-go">https://github.com/helloworlde/google-cloud-run-go</a></li>
+</ul>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://skyao.io/post/201905-google-cloud-run-detail/">Google Cloud Run详细介绍</a></li>
+<li><a target="_blank" rel="noopener" href="https://cloud.google.com/container-registry/docs/pushing-and-pulling?hl=zh-cn">推送和拉取映像</a></li>
+<li><a target="_blank" rel="noopener" href="https://cloud.google.com/run/docs/tutorials/system-packages">Using System Packages Tutorial</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Serverless" >
+    <span class="tag-code">Serverless</span>
+  </a>
+
+  <a href="/tags#Go" >
+    <span class="tag-code">Go</span>
+  </a>
+
+  <a href="/tags#Google" >
+    <span class="tag-code">Google</span>
+  </a>
+
+  <a href="/tags#Cloud Run" >
+    <span class="tag-code">Cloud Run</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/05/06/AWS-Lambda-%E9%83%A8%E7%BD%B2-SpringBoot-%E5%BA%94%E7%94%A8/">
+        <span class="nav-arrow">← </span>
+        
+          AWS Lambda 部署 SpringBoot 应用
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/05/27/Ubuntu-Docker-%E6%9B%BF%E6%8D%A2%E8%BD%AF%E4%BB%B6%E6%BA%90/">
+        
+          Ubuntu/Docker 替换软件源
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Google-Cloud-Run-%E9%83%A8%E7%BD%B2Knative-Serverless-%E5%BA%94%E7%94%A8"><span class="toc-nav-text">Google Cloud Run 部署Knative Serverless 应用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85-Cloud-SDK"><span class="toc-nav-text">安装 Cloud SDK</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BA%94%E7%94%A8%EF%BC%8C%E4%B8%8A%E4%BC%A0%E9%95%9C%E5%83%8F"><span class="toc-nav-text">创建应用，上传镜像</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA-Serverless-%E5%BA%94%E7%94%A8"><span class="toc-nav-text">创建 Serverless 应用</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="toc-nav-text">代码</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-nav-text">参考资料</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2019/05/15/Google-Cloud-Run-部署-Knative-Serverless-应用/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Google Cloud Run 部署 Knative Serverless 应用 ",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

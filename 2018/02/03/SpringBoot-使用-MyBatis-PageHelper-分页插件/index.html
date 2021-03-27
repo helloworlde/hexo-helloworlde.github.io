@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      SpringBoot 使用 MyBatis PageHelper 分页插件 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>SpringBoot 使用 MyBatis PageHelper 分页插件</h2>
+  <p class="post-date">2018-02-03</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="SpringBoot-使用-MyBatis-分页插件"><a href="#SpringBoot-使用-MyBatis-分页插件" class="headerlink" title="SpringBoot 使用 MyBatis 分页插件"></a>SpringBoot 使用 MyBatis 分页插件</h1><blockquote>
+<p> <a target="_blank" rel="noopener" href="https://github.com/pagehelper/Mybatis-PageHelper">MyBatis PageHelper</a> 是一个 MyBatis 分页插件，能够比较方便的实现 MyBatis 的分页</p>
+</blockquote>
+<h2 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h2><ul>
+<li>build.gradle </li>
+</ul>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">compile</span>(<span class="string">&#x27;com.github.pagehelper:pagehelper-spring-boot-starter:1.2.3&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加配置"><a href="#添加配置" class="headerlink" title="添加配置"></a>添加配置</h2><ul>
+<li>application.properties</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">pagehelper.helper-dialect&#x3D;mysql</span><br><span class="line">pagehelper.reasonable&#x3D;true</span><br><span class="line">pagehelper.support-methods-arguments&#x3D;true</span><br><span class="line">pagehelper.params&#x3D;count&#x3D;countSql</span><br><span class="line">pagehelper.row-bounds-with-count&#x3D;true</span><br><span class="line">pagehelper.offset-as-page-num&#x3D;true</span><br><span class="line">pagehelper.page-size-zero&#x3D;true</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>pagehelper.helper-dialect</code> : 指定分页插件使用哪种语言</li>
+<li><code>pagehelper.offset-as-page-num</code> : 默认为 <code>false</code>, 该参数对使用<code>RowBounds</code>作为分页参数时有效，当为<code>true</code>时，会将<code>RowBounds</code>的<code>offset</code>参数当成<code>pageNum</code>使用</li>
+<li><code>pagehelper.row-bounds-with-count</code> : 默认为<code>false</code>，该参数对使用<code>RowBounds</code>作为分页参数时有效，当该参数值为<code>true</code>时，使用<code>RowBounds</code>分页会进行<code>count</code>查询</li>
+<li><code>pagehelper.page-size-zero</code> : 默认为<code>false</code>,当该参数为<code>true</code>时，如果<code>pageSize=0</code>或者<code>RowBounds.limit=0</code>就会查询所有结果</li>
+<li><code>pagehelper.reasonable</code> : 分页合理化参数，默认为<code>false</code>，当该值为<code>true</code>，<code>pageNum&lt;=0</code>默认查询第一页，<code>pageNum&gt;pages</code>时会查询最后一页，<code>false</code>时直接根据参数进行查询</li>
+<li><code>pagehelper.params</code> : 为了支持<code>startPage(Object params)</code>方法，增加该参数来配置参数映射，用于从对象中根据属性名取值，可以配置<code>pageNum,pageSize,pageSizeZero, reasonable</code>, 不配置映射是使用默认值， 默认值为<code>pageNum=pageNum;pageSize=pageSize;count=countSql;reasonable=reasonable;pageSizeZero=pageSizeZero</code></li>
+<li><code>pagehelper.support-methods-arguments</code> : 支持通过 <code>Mapper</code>接口参数来传递分页参数，默认为<code>false</code>, 分页插件会从查询方法的参数中根据<code>params</code>配置的字段中取值，查找到合适的就进行分页</li>
+<li><code>pagehelper.auto-runtime-dialect</code> : 默认为<code>false</code>, 为<code>true</code>时允许在运行时根据多数据源自动识别对应的方言进行分页</li>
+<li><code>pagehelper.close-conn</code> : 默认为<code>true</code>, 当使用运行是动态数据源或者没有设置<code>helperDialect</code>属性自动获取数据库类型时，会自动获取一个数据库连接，通过该属性来设置是否关闭获取的这个连接，默认为<code>true</code>关闭，<code>false</code>不会自动关闭</li>
+</ul>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><ul>
+<li>Product.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Product</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> id;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> price;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer pageNum;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer pageSize;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ProductMapper.xml</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">resultMap</span> <span class="attr">id</span>=<span class="string">&quot;baseResultMap&quot;</span> <span class="attr">type</span>=<span class="string">&quot;cn.com.hellowood.mybatis.modal.Product&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span> <span class="attr">column</span>=<span class="string">&quot;id&quot;</span> <span class="attr">property</span>=<span class="string">&quot;id&quot;</span> <span class="attr">javaType</span>=<span class="string">&quot;java.lang.Long&quot;</span> <span class="attr">jdbcType</span>=<span class="string">&quot;INTEGER&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">&quot;name&quot;</span> <span class="attr">property</span>=<span class="string">&quot;name&quot;</span> <span class="attr">javaType</span>=<span class="string">&quot;java.lang.String&quot;</span> <span class="attr">jdbcType</span>=<span class="string">&quot;VARCHAR&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">&quot;price&quot;</span> <span class="attr">property</span>=<span class="string">&quot;price&quot;</span> <span class="attr">javaType</span>=<span class="string">&quot;java.lang.Long&quot;</span> <span class="attr">jdbcType</span>=<span class="string">&quot;BIGINT&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="使用PageHelper-startPage-或-PageHelper-offsetPage"><a href="#使用PageHelper-startPage-或-PageHelper-offsetPage" class="headerlink" title="使用PageHelper.startPage()或 PageHelper.offsetPage()"></a>使用<code>PageHelper.startPage()</code>或 <code>PageHelper.offsetPage()</code></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> PageInfo&lt;Product&gt; <span class="title">getByPageHelper</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    PageHelper.startPage(request);</span><br><span class="line">    <span class="comment">// 或</span></span><br><span class="line">    <span class="comment">// PageHelper.startPage(0,10);</span></span><br><span class="line">    <span class="comment">// PageHelper.offsetPage(0,10);</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> PageInfo&lt;&gt;(productDao.getByPageHelper());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getByPageHelper&quot;</span> <span class="attr">resultMap</span>=<span class="string">&quot;baseResultMap&quot;</span>&gt;</span></span><br><span class="line">    SELECT *</span><br><span class="line">    FROM product</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="使用RowBounds传递分页参数"><a href="#使用RowBounds传递分页参数" class="headerlink" title="使用RowBounds传递分页参数"></a>使用<code>RowBounds</code>传递分页参数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> PageInfo&lt;Product&gt; <span class="title">getByRowBounds</span><span class="params">(Integer pageNum, Integer pageSize)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> PageInfo&lt;&gt;(productDao.getByRowBounds(<span class="keyword">new</span> RowBounds(pageNum, pageSize)));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getByRowBounds&quot;</span> <span class="attr">resultMap</span>=<span class="string">&quot;baseResultMap&quot;</span>&gt;</span></span><br><span class="line">    SELECT *</span><br><span class="line">    FROM product</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Dao-接口直接传递分页参数"><a href="#Dao-接口直接传递分页参数" class="headerlink" title="Dao 接口直接传递分页参数"></a>Dao 接口直接传递分页参数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> PageInfo&lt;Product&gt; <span class="title">getByInterfaceArgs</span><span class="params">(Integer pageNum, Integer pageSize)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> PageInfo&lt;&gt;(productDao.getByInterfaceArgs(pageNum, pageSize));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getByInterfaceArgs&quot;</span> <span class="attr">resultMap</span>=<span class="string">&quot;baseResultMap&quot;</span>&gt;</span></span><br><span class="line">    SELECT *</span><br><span class="line">    FROM product</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="通过Modal传递分页参数"><a href="#通过Modal传递分页参数" class="headerlink" title="通过Modal传递分页参数"></a>通过<code>Modal</code>传递分页参数</h3><ul>
+<li>需要 <code>Product</code>中的<code>pageSize</code>和<code>pageNum</code>都有效</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> PageInfo&lt;Product&gt; <span class="title">getByModalArgs</span><span class="params">(Product product)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> PageInfo&lt;&gt;(productDao.getByModalArgs(product));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getByModalArgs&quot;</span> <span class="attr">resultMap</span>=<span class="string">&quot;baseResultMap&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;cn.com.hellowood.mybatis.modal.Product&quot;</span>&gt;</span></span><br><span class="line">    SELECT *</span><br><span class="line">    FROM product</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#MyBatis" >
+    <span class="tag-code">MyBatis</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/21/SpringBoot-%E4%BD%BF%E7%94%A8-ELK-%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/">
+        <span class="nav-arrow">← </span>
+        
+          SpringBoot 使用 ELK 日志收集系统安装配置
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/02/12/SpringBoot-%E4%BD%BF%E7%94%A8QuartzJob%E5%AE%9E%E7%8E%B0%E4%BB%BB%E5%8A%A1%E6%8E%A7%E5%88%B6/">
+        
+          SpringBoot 使用QuartzJob实现任务控制
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#SpringBoot-%E4%BD%BF%E7%94%A8-MyBatis-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6"><span class="toc-nav-text">SpringBoot 使用 MyBatis 分页插件</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">添加配置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8PageHelper-startPage-%E6%88%96-PageHelper-offsetPage"><span class="toc-nav-text">使用PageHelper.startPage()或 PageHelper.offsetPage()</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8RowBounds%E4%BC%A0%E9%80%92%E5%88%86%E9%A1%B5%E5%8F%82%E6%95%B0"><span class="toc-nav-text">使用RowBounds传递分页参数</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Dao-%E6%8E%A5%E5%8F%A3%E7%9B%B4%E6%8E%A5%E4%BC%A0%E9%80%92%E5%88%86%E9%A1%B5%E5%8F%82%E6%95%B0"><span class="toc-nav-text">Dao 接口直接传递分页参数</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%80%9A%E8%BF%87Modal%E4%BC%A0%E9%80%92%E5%88%86%E9%A1%B5%E5%8F%82%E6%95%B0"><span class="toc-nav-text">通过Modal传递分页参数</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/02/03/SpringBoot-使用-MyBatis-PageHelper-分页插件/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "SpringBoot 使用 MyBatis PageHelper 分页插件",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

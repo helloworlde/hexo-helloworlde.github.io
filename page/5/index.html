@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link active">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link mobile-active">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <main class="app-body">
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8-WebSocket/">Spring Boot 中使用 WebSocket</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#WebSocket" >
+    <span class="tag-code">WebSocket</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Boot  中使用 WebSocket
+WebSocket 是一种长连接技术，可以实现服务端和客户端的双向通信，服务端可以主动推送信息给客户端
+
+构建应用添加依赖
+build.gradle
+
+12345678910dependencies &#123;    compile(& ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8-WebSocket/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Spring-Boot-%E4%B8%AD%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/">Spring Boot 中自定义异常处理</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Exception" >
+    <span class="tag-code">Exception</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Boot 中自定义异常处理
+项目地址https://github.com/helloworlde/SpringBootCollection/tree/master/SpringBoot-Exception
+
+
+Spring Boot 中提供了默认的异常处理，但是对于应用来说，这 ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Spring-Boot-%E4%B8%AD%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Spring-Boot-%E4%B8%AD%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E6%A0%BC%E5%BC%8F/">Spring Boot 中自定义接口返回格式</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Boot 中自定义接口返回格式
+Spring Boot 项目中提供的 REST 接口往往需要封装状态或者其他附加的内容返回给客户端，如果每个接口都用一些工具类来处理很繁琐，会增加很多重复代码，还有可能漏掉导致客户端无法解析；用切面也可以实现，但是 SpringBoot 提供了处 ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Spring-Boot-%E4%B8%AD%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E6%A0%BC%E5%BC%8F/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/05/27/Ubuntu-Docker-%E6%9B%BF%E6%8D%A2%E8%BD%AF%E4%BB%B6%E6%BA%90/">Ubuntu/Docker 替换软件源</a>
+      </h2>
+      <p class="article-date">May 27, 2019</p>
+      
+        
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+  <a href="/tags#Ubuntu" >
+    <span class="tag-code">Ubuntu</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Ubuntu/Docker 替换软件源Ubuntu使用 sed 命令1sudo sed -i &#x27;s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g&#x27; /etc/apt/sources.list/
+
+手动修改12345cd /etc/ ...
+        
+      </div>
+      <a class="more" href="/2019/05/27/Ubuntu-Docker-%E6%9B%BF%E6%8D%A2%E8%BD%AF%E4%BB%B6%E6%BA%90/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/05/15/Google-Cloud-Run-%E9%83%A8%E7%BD%B2-Knative-Serverless-%E5%BA%94%E7%94%A8/">Google Cloud Run 部署 Knative Serverless 应用 </a>
+      </h2>
+      <p class="article-date">May 15, 2019</p>
+      
+        
+  <a href="/tags#Serverless" >
+    <span class="tag-code">Serverless</span>
+  </a>
+
+  <a href="/tags#Go" >
+    <span class="tag-code">Go</span>
+  </a>
+
+  <a href="/tags#Google" >
+    <span class="tag-code">Google</span>
+  </a>
+
+  <a href="/tags#Cloud Run" >
+    <span class="tag-code">Cloud Run</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Google Cloud Run 部署Knative Serverless 应用
+Google Cloud Run 是 Google 最近推出的基于容器运行的支持 Serverless 应用的服务，是 Knative 的Google Cloud 托管版本；和其他的 Serverless 如G ...
+        
+      </div>
+      <a class="more" href="/2019/05/15/Google-Cloud-Run-%E9%83%A8%E7%BD%B2-Knative-Serverless-%E5%BA%94%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/05/06/AWS-Lambda-%E9%83%A8%E7%BD%B2-SpringBoot-%E5%BA%94%E7%94%A8/">AWS Lambda 部署 SpringBoot 应用</a>
+      </h2>
+      <p class="article-date">May 6, 2019</p>
+      
+        
+  <a href="/tags#Serverless" >
+    <span class="tag-code">Serverless</span>
+  </a>
+
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Lambda" >
+    <span class="tag-code">Lambda</span>
+  </a>
+
+  <a href="/tags#AWS" >
+    <span class="tag-code">AWS</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          AWS Lambda 部署 SpringBoot 应用配置 AWS CLI 和  SeverlessAWS CLI 和 Serverless 都可以用于部署 Serverless 应用
+获取密钥
+登录 AWS， 在服务中搜索并选择 IAM，之后选择用户，添加用户
+
+
+
+输入用户名，选择编程访 ...
+        
+      </div>
+      <a class="more" href="/2019/05/06/AWS-Lambda-%E9%83%A8%E7%BD%B2-SpringBoot-%E5%BA%94%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/03/29/MyBatis-%E6%9F%A5%E8%AF%A2%E9%94%99%E8%AF%AF%EF%BC%9Ajava-lang-IllegalArgumentException-invalid-comparison-java-util-Date-and-java-lang-String/">MyBatis 查询错误：java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</a>
+      </h2>
+      <p class="article-date">March 29, 2019</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#MyBatis" >
+    <span class="tag-code">MyBatis</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          MyBatis 查询错误：java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String项目中用 MyBatis Plus 替换了 MyBatis，原来的 MyBatis版 ...
+        
+      </div>
+      <a class="more" href="/2019/03/29/MyBatis-%E6%9F%A5%E8%AF%A2%E9%94%99%E8%AF%AF%EF%BC%9Ajava-lang-IllegalArgumentException-invalid-comparison-java-util-Date-and-java-lang-String/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/03/24/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3-Traefik-Docker-Swarm-%E4%BD%BF%E7%94%A8/">微服务网关 Traefik - Docker Swarm 使用</a>
+      </h2>
+      <p class="article-date">March 24, 2019</p>
+      
+        
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+  <a href="/tags#Traefix" >
+    <span class="tag-code">Traefix</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          微服务网关 Traefik - Docker Swarm 使用traefik 是一个用 Go 开发的适用于微服务的反向代理和负载均衡的网关；可以自动发现并代理服务，可以用 Kubernetes 或 Docker Swarm 等方式，支持使用 Eureka，Consul，Etcd，ZooKee ...
+        
+      </div>
+      <a class="more" href="/2019/03/24/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3-Traefik-Docker-Swarm-%E4%BD%BF%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/01/29/GraphQL-Spring-Boot-%E4%BD%BF%E7%94%A8/">GraphQL Spring Boot 使用</a>
+      </h2>
+      <p class="article-date">January 29, 2019</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#GraphQL" >
+    <span class="tag-code">GraphQL</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          GraphQL Spring Boot 使用项目地址 https://github.com/helloworlde/spring-boot-graphql-demo
+
+使用 SpringBoot 和 GraphQL 创建一个最简单的增删改查接口应用，使用 MongoDB 存储数据
+
+创建应用 ...
+        
+      </div>
+      <a class="more" href="/2019/01/29/GraphQL-Spring-Boot-%E4%BD%BF%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/01/07/MySQL-%E4%B8%AD%E5%85%B3%E4%BA%8Egap-lock-next-key-lock-%E7%9A%84%E4%B8%80%E4%B8%AA%E9%97%AE%E9%A2%98/">MySQL 中关于gap lock / next-key lock 的一个问题</a>
+      </h2>
+      <p class="article-date">January 7, 2019</p>
+      
+        
+  <a href="/tags#MySQL" >
+    <span class="tag-code">MySQL</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          MySQL 中关于gap lock / next-key lock 的一个问题
+在学习 MySQL 的过程中遇到的一个关于锁的问题，包含多个 MySQL 相关的知识；相关资料在文章末尾
+
+问题描述
+表初始化
+
+1234567891011121314CREATE TABLE z (  id I ...
+        
+      </div>
+      <a class="more" href="/2019/01/07/MySQL-%E4%B8%AD%E5%85%B3%E4%BA%8Egap-lock-next-key-lock-%E7%9A%84%E4%B8%80%E4%B8%AA%E9%97%AE%E9%A2%98/">Read more</a>
+    </article>
+  
+
+  
+    <div class="guide-pager">
+  
+    <a href="/page/4/"><span class="page-arrow">← </span>Prev</a>
+  
+  
+    <a href="/page/6/">Next<span class="page-arrow"> →</span></a>
+  
+</div>
+  
+</main>
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

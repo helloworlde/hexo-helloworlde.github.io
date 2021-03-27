@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Boot 使用 Flyway | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Boot 使用 Flyway</h2>
+  <p class="post-date">2018-01-07</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Spring-Boot-使用-Flyway"><a href="#Spring-Boot-使用-Flyway" class="headerlink" title="Spring Boot 使用 Flyway"></a>Spring Boot 使用 Flyway</h1><ul>
+<li>项目地址：<a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBootCollection/tree/master/SpringBoot-Flyway">https://github.com/helloworlde/SpringBootCollection/tree/master/SpringBoot-Flyway</a></li>
+</ul>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://flywaydb.org/">Flyway</a> 是一个数据库版本管理工具，用于管理数据库操作脚本</p>
+</blockquote>
+<h2 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">compile(<span class="string">&#x27;org.flywaydb:flyway-core&#x27;</span>)</span><br><span class="line">compile(<span class="string">&#x27;org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.1&#x27;</span>)</span><br><span class="line">runtime(<span class="string">&#x27;mysql:mysql-connector-java&#x27;</span>)</span><br><span class="line"><span class="comment">//runtime(&#x27;com.h2database:h2&#x27;)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ul>
+<li>配置数据库</li>
+</ul>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># H2 数据库</span></span><br><span class="line"><span class="comment">#spring.datasource.url=jdbc:h2:mem:test</span></span><br><span class="line"><span class="comment">#spring.datasource.username=root</span></span><br><span class="line"><span class="comment">#spring.datasource.password=123456</span></span><br><span class="line"><span class="comment">#spring.datasource.driver-class-name=org.h2.Driver</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># MySQL 数据库</span></span><br><span class="line"><span class="meta">spring.datasource.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.datasource.url</span>=<span class="string">jdbc:mysql://localhost:3306/product?useSSL=false</span></span><br><span class="line"><span class="meta">spring.datasource.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.datasource.password</span>=<span class="string">123456</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用 <code>V_VARSION__DESCRIPTION.sql</code> 方式命名脚本</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> product(</span><br><span class="line">  id <span class="type">INT</span> <span class="keyword">PRIMARY</span> KEY AUTO_INCREMENT,</span><br><span class="line">  name <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  price <span class="keyword">DOUBLE</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将 SQL 脚本放在 <code>resources/db/migration</code> 目录下</li>
+</ul>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>此时启动应用，Flyway 将会自动执行脚本进行数据库操作</p>
+<ul>
+<li>第一次启动时将会看到如下日志</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">2018-01-07 21:00:14.932  INFO 5041 --- [           main] o.f.core.internal.util.VersionPrinter    : Flyway 3.2.1 by Boxfuse</span><br><span class="line">2018-01-07 21:00:17.015  INFO 5041 --- [           main] o.f.c.i.dbsupport.DbSupportFactory       : Database: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;product?useSSL&#x3D;false (MySQL 5.7)</span><br><span class="line">2018-01-07 21:00:17.253  INFO 5041 --- [           main] o.f.core.internal.command.DbValidate     : Validated 1 migration (execution time 00:00.133s)</span><br><span class="line">2018-01-07 21:00:17.750  INFO 5041 --- [           main] o.f.c.i.metadatatable.MetaDataTableImpl  : Creating Metadata table: &#96;product&#96;.&#96;schema_version&#96;</span><br><span class="line">2018-01-07 21:00:18.437  INFO 5041 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema &#96;product&#96;: &lt;&lt; Empty Schema &gt;&gt;</span><br><span class="line">2018-01-07 21:00:18.437  INFO 5041 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema &#96;product&#96; to version 1.0 - 0001 CREATE PRODUCT</span><br><span class="line">2018-01-07 21:00:19.284  INFO 5041 --- [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 1 migration to schema &#96;product&#96; (execution time 00:01.592s).</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>再次启动将会看到 Flyway 校验版本</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">2018-01-07 21:02:09.195  INFO 5061 --- [           main] o.f.core.internal.util.VersionPrinter    : Flyway 3.2.1 by Boxfuse</span><br><span class="line">2018-01-07 21:02:11.327  INFO 5061 --- [           main] o.f.c.i.dbsupport.DbSupportFactory       : Database: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;product?useSSL&#x3D;false (MySQL 5.7)</span><br><span class="line">2018-01-07 21:02:11.618  INFO 5061 --- [           main] o.f.core.internal.command.DbValidate     : Validated 1 migration (execution time 00:00.202s)</span><br><span class="line">2018-01-07 21:02:12.386  INFO 5061 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema &#96;product&#96;: 1.0</span><br><span class="line">2018-01-07 21:02:12.447  INFO 5061 --- [           main] o.f.core.internal.command.DbMigrate      : Schema &#96;product&#96; is up to date. No migration necessary.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果不想 Flyway 执行，可以配置不启用 Flyway</li>
+</ul>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">flyway.enabled</span>=<span class="string">false</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h2><blockquote>
+<ul>
+<li>如果按照 Flyway <a target="_blank" rel="noopener" href="https://flywaydb.org/documentation/plugins/springboot">官方文档</a> 的指导，仅配置 Flyway，应用启动时并不会执行 Flyway 的任何操作，这是因为 <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/1.4.x/api/org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration.html"><code>FlywayAutoConfiguration</code></a> 类在启动时要求有 DataSource 的实例，如果没有配置，就不会执行 Flyway，所以在依赖里添加了 MyBatis(或 JPA) ，使用 MyBatis(或 JPA) 时会自动注入数据源，因此才会执行 Flyway，具体可以参考<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot/issues/8649">https://github.com/spring-projects/spring-boot/issues/8649</a> 和 <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/43496506/how-to-debug-when-flyway-doesnt-work-on-spring-boot">https://stackoverflow.com/questions/43496506/how-to-debug-when-flyway-doesnt-work-on-spring-boot</a></li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>如果是多个数据源，则需要在 Flyway 进行操作的数据源 Bean 上添加 <code>@FlywayDataSource</code>注解或者在 <code>application.properties</code> 里添加 <code>spring.flyway.[url,user,password]</code>进行配置</li>
+</ul>
+</blockquote>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Flyway" >
+    <span class="tag-code">Flyway</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/01/Rocket-MQ-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/">
+        <span class="nav-arrow">← </span>
+        
+          Rocket MQ 相关知识
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/07/SpringBoot-%E9%9B%86%E6%88%90-Swagger-API-%E6%96%87%E6%A1%A3%E5%B7%A5%E5%85%B7/">
+        
+          SpringBoot 集成 Swagger API 文档工具
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Spring-Boot-%E4%BD%BF%E7%94%A8-Flyway"><span class="toc-nav-text">Spring Boot 使用 Flyway</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">配置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">使用</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B3%A8%E6%84%8F"><span class="toc-nav-text">注意</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/07/SpringBoot-使用-Flyway/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Boot 使用 Flyway",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

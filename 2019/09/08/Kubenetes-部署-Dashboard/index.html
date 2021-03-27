@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Kubenetes 部署 Dashboard | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Kubenetes 部署 Dashboard</h2>
+  <p class="post-date">2019-09-08</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Kubenetes-部署-Dashboard"><a href="#Kubenetes-部署-Dashboard" class="headerlink" title="Kubenetes 部署 Dashboard"></a>Kubenetes 部署 Dashboard</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/kubernetes/dashboard">Kubenestes Dashboard</a> 是提供 Kubernetes信息可视化的 Web 插件</p>
+</blockquote>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta1/aio/deploy/recommended.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><h3 id="修改为通过-NodePort-访问"><a href="#修改为通过-NodePort-访问" class="headerlink" title="修改为通过 NodePort 访问"></a>修改为通过 NodePort 访问</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl -n kubernetes-dashboard edit service kubernetes-dashboard</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>ports</code>下面添加<code>nodePort: 32576</code>，将 <code>clusterIp</code>改为<code>NodePort</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">clusterIP:</span> <span class="number">10.104</span><span class="number">.3</span><span class="number">.252</span></span><br><span class="line">  <span class="attr">externalTrafficPolicy:</span> <span class="string">Cluster</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">nodePort:</span> <span class="number">32576</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">443</span></span><br><span class="line">    <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">8443</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">k8s-app:</span> <span class="string">kubernetes-dashboard</span></span><br><span class="line">  <span class="attr">sessionAffinity:</span> <span class="string">None</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">NodePort</span></span><br></pre></td></tr></table></figure>
+
+<p>此时可以通过节点 IP 和端口<a target="_blank" rel="noopener" href="https://192.168.0.110:32576/">https://192.168.0.110:32576/</a>访问到 Dashboard(Chrome 可能会提示证书错误,无法访问,Fix)</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/blog/KubernetesDashboard-1.png" alt="Dashboard"></p>
+<h3 id="创建-ServiceAccount"><a href="#创建-ServiceAccount" class="headerlink" title="创建 ServiceAccount"></a>创建 ServiceAccount</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi admin-role.yaml</span><br></pre></td></tr></table></figure>
+
+<p>输入以下内容</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">ClusterRoleBinding</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1beta1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">admin</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">rbac.authorization.kubernetes.io/autoupdate:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">cluster-admin</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">admin</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">kubernetes-dashboard</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">admin</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">kubernetes-dashboard</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">kubernetes.io/cluster-service:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line">    <span class="attr">addonmanager.kubernetes.io/mode:</span> <span class="string">Reconcile</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f admin-role.yaml</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取-Token"><a href="#获取-Token" class="headerlink" title="获取 Token"></a>获取 Token</h3><p>执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl -n kubernetes-dashboard  get secret|grep admin-token</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">admin-token-r8b4b                        kubernetes.io/service-account-token   3      48m</span><br><span class="line">kubernetes-dashboard-admin-token-qlnhp   kubernetes.io/service-account-token   3      60m</span><br></pre></td></tr></table></figure>
+
+<p>执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl -n kubernetes-dashboard describe secret admin-token-r8b4b</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Name:         admin-token-r8b4b</span><br><span class="line">Namespace:    kubernetes-dashboard</span><br><span class="line">Labels:       &lt;none&gt;</span><br><span class="line">Annotations:  kubernetes.io/service-account.name: admin</span><br><span class="line">              kubernetes.io/service-account.uid: 03a2bca0-b6c0-4cde-93aa-c4a6cd70dfdb</span><br><span class="line"></span><br><span class="line">Type:  kubernetes.io/service-account-token</span><br><span class="line"></span><br><span class="line">Data</span><br><span class="line">====</span><br><span class="line">ca.crt:     1025 bytes</span><br><span class="line">namespace:  20 bytes</span><br><span class="line">token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi10b2tlbi1yOGI0YiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJhZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjAzYTJiY2EwLWI2YzAtNGNkZS05M2FhLWM0YTZjZDcwZGZkYiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDphZG1pbiJ9.g_dtJjhbLVfJRcdhlyYH-ekn08Dv3_Ok9oMZ7o0jU0Ri90sIhaANaprVlGK7QiKzIkz_BNT1Hw_reAseoOy7smFriKhn4a4wPMO0Ir1aJPavDdoVIEhBDHHzrukXl3mVO92WgkBkAMIo8HoVve-1pj9QVtT7hu_e8GXifyLu1v6s26lMbVouG8cPD4hzM2grRfhCt7qjioP3Gs6khtmHysu_uCBNW63HvuwzMBRS-lSr1ewWld4QnrvgqJ-IfLqAcjHjysNR26Xi9IBAswkq0E-1qSgIyduALITXx9FK9RqNBOTZ33OeDBCE-OYqmlIItDuYl4qRaksV3mccL4RVWA</span><br></pre></td></tr></table></figure>
+
+<p>将获取到的 Token 输入到 Dashboard 的输入框中，登录即可</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/blog/KubernetesDashboard-2.png" alt="DashboardAfterLogin"></p>
+<hr>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><h4 id="1-访问页面提示ServiceUnavailable"><a href="#1-访问页面提示ServiceUnavailable" class="headerlink" title="1. 访问页面提示ServiceUnavailable"></a>1. 访问页面提示ServiceUnavailable</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;kind&quot;</span>: <span class="string">&quot;Status&quot;</span>,</span><br><span class="line">  <span class="string">&quot;apiVersion&quot;</span>: <span class="string">&quot;v1&quot;</span>,</span><br><span class="line">  <span class="string">&quot;metadata&quot;</span>: &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">&quot;status&quot;</span>: <span class="string">&quot;Failure&quot;</span>,</span><br><span class="line">  <span class="string">&quot;message&quot;</span>: <span class="string">&quot;no endpoints available for service \&quot;https:kubernetes-dashboard:\&quot;&quot;</span>,</span><br><span class="line">  <span class="string">&quot;reason&quot;</span>: <span class="string">&quot;ServiceUnavailable&quot;</span>,</span><br><span class="line">  <span class="string">&quot;code&quot;</span>: 503</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>查看 Dashboard Pod 的状态</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods -n kube-system | grep dashboard</span><br><span class="line">kubernetes-dashboard-77fd78f978-zqbs4   0/1     ImagePullBackOff   0          115m</span><br></pre></td></tr></table></figure>
+
+<p>查看 Pod 详细信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">kubectl -n kube-system describe pod kubernetes-dashboard-77fd78f978-zqbs4</span><br><span class="line">Name:               kubernetes-dashboard-77fd78f978-zqbs4</span><br><span class="line">Namespace:          kube-system</span><br><span class="line">Priority:           0</span><br><span class="line">PriorityClassName:  &lt;none&gt;</span><br><span class="line">Node:               ubuntu/192.168.111.129</span><br><span class="line">Start Time:         Tue, 16 Oct 2018 09:50:14 +0000</span><br><span class="line">Labels:             k8s-app=kubernetes-dashboard</span><br><span class="line">                    pod-template-hash=77fd78f978</span><br><span class="line">Annotations:        &lt;none&gt;</span><br><span class="line">Status:             Pending</span><br><span class="line">IP:                 10.32.0.4</span><br><span class="line">Controlled By:      ReplicaSet/kubernetes-dashboard-77fd78f978</span><br><span class="line">Containers:</span><br><span class="line">  kubernetes-dashboard:</span><br><span class="line">    Container ID:</span><br><span class="line">    Image:         k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0</span><br><span class="line">    Image ID:</span><br><span class="line">    Port:          8443/TCP</span><br><span class="line">    Host Port:     0/TCP</span><br><span class="line">    Args:</span><br><span class="line">      --auto-generate-certificates</span><br><span class="line">    State:          Waiting</span><br><span class="line">      Reason:       ImagePullBackOff</span><br><span class="line">    Ready:          False</span><br><span class="line">    Restart Count:  0</span><br><span class="line">    Liveness:       http-get https://:8443/ delay=30s timeout=30s period=10s <span class="comment">#success=1 #failure=3</span></span><br><span class="line">    Environment:    &lt;none&gt;</span><br><span class="line">    Mounts:</span><br><span class="line">      /certs from kubernetes-dashboard-certs (rw)</span><br><span class="line">      /tmp from tmp-volume (rw)</span><br><span class="line">      /var/run/secrets/kubernetes.io/serviceaccount from kubernetes-dashboard-token-7skvp (ro)</span><br><span class="line">Conditions:</span><br><span class="line">  Type              Status</span><br><span class="line">  Initialized       True</span><br><span class="line">  Ready             False</span><br><span class="line">  ContainersReady   False</span><br><span class="line">  PodScheduled      True</span><br><span class="line">Volumes:</span><br><span class="line">  kubernetes-dashboard-certs:</span><br><span class="line">    Type:        Secret (a volume populated by a Secret)</span><br><span class="line">    SecretName:  kubernetes-dashboard-certs</span><br><span class="line">    Optional:    <span class="literal">false</span></span><br><span class="line">  tmp-volume:</span><br><span class="line">    Type:    EmptyDir (a temporary directory that shares a pod<span class="string">&#x27;s lifetime)</span></span><br><span class="line"><span class="string">    Medium:</span></span><br><span class="line"><span class="string">  kubernetes-dashboard-token-7skvp:</span></span><br><span class="line"><span class="string">    Type:        Secret (a volume populated by a Secret)</span></span><br><span class="line"><span class="string">    SecretName:  kubernetes-dashboard-token-7skvp</span></span><br><span class="line"><span class="string">    Optional:    false</span></span><br><span class="line"><span class="string">QoS Class:       BestEffort</span></span><br><span class="line"><span class="string">Node-Selectors:  &lt;none&gt;</span></span><br><span class="line"><span class="string">Tolerations:     node-role.kubernetes.io/master:NoSchedule</span></span><br><span class="line"><span class="string">                 node.kubernetes.io/not-ready:NoExecute for 300s</span></span><br><span class="line"><span class="string">                 node.kubernetes.io/unreachable:NoExecute for 300s</span></span><br><span class="line"><span class="string">Events:</span></span><br><span class="line"><span class="string">  Type     Reason   Age                     From             Message</span></span><br><span class="line"><span class="string">  ----     ------   ----                    ----             -------</span></span><br><span class="line"><span class="string">  Warning  Failed   9m17s (x458 over 119m)  kubelet, ubuntu  Error: ImagePullBackOff</span></span><br><span class="line"><span class="string">  Normal   BackOff  4m14s (x479 over 119m)  kubelet, ubuntu  Back-off pulling image &quot;k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>最后一行可以看到在拉取镜像的时候失败了；可以先拉取镜像再启动，这里有两种解决办法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 如果网络可以拉取到镜像，直接手动拉取即可</span></span><br><span class="line">docker pull k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 如果拉取不到，尝试从其他镜像源拉取重新打标签</span></span><br><span class="line">docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kubernetes-dashboard-amd64:v1.10.0</span><br><span class="line">docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/kubernetes-dashboard-amd64:v1.10.0 k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0</span><br><span class="line">docker rmi registry.cn-hangzhou.aliyuncs.com/google_containers/kubernetes-dashboard-amd64:v1.10.0</span><br></pre></td></tr></table></figure>
+
+<p>拉取到镜像之后等待一会儿，Kubernetes 会自动创建新的 Pod；或者也可以删除 Dashboard 所有资源重新创建：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-重启后使用-kubectl-提示-The-connection-to-the-server-192-168-111-129-6443-was-refused-did-you-specify-the-right-host-or-port"><a href="#2-重启后使用-kubectl-提示-The-connection-to-the-server-192-168-111-129-6443-was-refused-did-you-specify-the-right-host-or-port" class="headerlink" title="2. 重启后使用  kubectl 提示 The connection to the server 192.168.111.129:6443 was refused - did you specify the right host or port?"></a>2. 重启后使用  kubectl 提示 <code>The connection to the server 192.168.111.129:6443 was refused - did you specify the right host or port?</code></h4><p>重启Ubuntu 后，访问Dashboard timeout，通过<code>kubectl get pods -n kube-system</code>查看 Pod 状态，提示</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The connection to the server 192.168.111.129:6443 was refused - did you specify the right host or port?</span><br></pre></td></tr></table></figure>
+
+<p>以为是配置的问题，但是参考 <a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/issues/50295#issuecomment-376603921">https://github.com/kubernetes/kubernetes/issues/50295#issuecomment-376603921</a>，尝试后依然无法解决；最后尝试使用<code>kubeadm init</code>重新创建，提示</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">running with swap on is not supported. Please <span class="built_in">disable</span> swap</span><br></pre></td></tr></table></figure>
+
+<p>因为 Swap 导致Kubenetes 没有成功启动，执行关闭 swap，重新启动后解决问题</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo swapoff -a</span><br><span class="line">sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-%E4%BD%BF%E7%94%A8%E5%8A%A0%E5%AF%86%E9%85%8D%E7%BD%AE/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Cloud 使用 Kubernetes 作为配置中心 - 使用加密配置
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/09/15/Go-%E8%B0%83%E7%94%A8-Windows-%E7%9A%84%E7%B3%BB%E7%BB%9F-API%EF%BC%8C%E6%A3%80%E6%B5%8B%E6%98%AF%E5%90%A6%E9%94%81%E5%B1%8F/">
+        
+          Go 调用 Windows 的系统 API，检测是否锁屏
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Kubenetes-%E9%83%A8%E7%BD%B2-Dashboard"><span class="toc-nav-text">Kubenetes 部署 Dashboard</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="toc-nav-text">部署</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%BF%AE%E6%94%B9%E4%B8%BA%E9%80%9A%E8%BF%87-NodePort-%E8%AE%BF%E9%97%AE"><span class="toc-nav-text">修改为通过 NodePort 访问</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA-ServiceAccount"><span class="toc-nav-text">创建 ServiceAccount</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%8E%B7%E5%8F%96-Token"><span class="toc-nav-text">获取 Token</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-nav-text">遇到的问题</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#1-%E8%AE%BF%E9%97%AE%E9%A1%B5%E9%9D%A2%E6%8F%90%E7%A4%BAServiceUnavailable"><span class="toc-nav-text">1. 访问页面提示ServiceUnavailable</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-%E9%87%8D%E5%90%AF%E5%90%8E%E4%BD%BF%E7%94%A8-kubectl-%E6%8F%90%E7%A4%BA-The-connection-to-the-server-192-168-111-129-6443-was-refused-did-you-specify-the-right-host-or-port"><span class="toc-nav-text">2. 重启后使用  kubectl 提示 The connection to the server 192.168.111.129:6443 was refused - did you specify the right host or port?</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2019/09/08/Kubenetes-部署-Dashboard/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Kubenetes 部署 Dashboard",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

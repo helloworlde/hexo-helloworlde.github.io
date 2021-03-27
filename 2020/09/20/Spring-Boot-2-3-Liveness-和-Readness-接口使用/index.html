@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Boot 2.3+ Liveness 和 Readness 接口使用 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Boot 2.3+ Liveness 和 Readness 接口使用</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Spring-Boot-2-3-Liveness-和-Readness-接口使用"><a href="#Spring-Boot-2-3-Liveness-和-Readness-接口使用" class="headerlink" title="Spring Boot 2.3+ Liveness 和 Readness 接口使用"></a>Spring Boot 2.3+ Liveness 和 Readness 接口使用</h1><p>在 Spring Boot  2.3+ 中，提供了单独的 liveness 和 readness，用于为 Kubernetes 提供相应检查接口</p>
+<ul>
+<li>liveness<br>用于检查应用是否存活，当应用组件因故障不健康时，可以通过这个接口的结果，配置相应策略，重启应用或重新调度 Pod</li>
+<li>readness<br>用于检查应用是否就绪，是否可以提供服务，如当流量太大超过应用的承载范围时，可以将这个接口的状态改为不健康，这样可以停止接收流量，当处理完后再次检查时变为健康，继续处理请求</li>
+</ul>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ul>
+<li>build.gradle 添加依赖</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">plugins &#123;</span><br><span class="line">    id <span class="string">&#x27;org.springframework.boot&#x27;</span> version <span class="string">&#x27;2.3.2.RELEASE&#x27;</span></span><br><span class="line">    id <span class="string">&#x27;io.spring.dependency-management&#x27;</span> version <span class="string">&#x27;1.0.9.RELEASE&#x27;</span></span><br><span class="line">    id <span class="string">&#x27;java&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">dependencies &#123;</span><br><span class="line">    implementation <span class="string">&#x27;org.springframework.boot:spring-boot-starter-actuator&#x27;</span></span><br><span class="line">    implementation <span class="string">&#x27;org.springframework.boot:spring-boot-starter-web&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>application.properties 添加配置</li>
+</ul>
+<p>从 2.3.2 开始，<code>/actuator/health</code> 接口添加了分组的概念，默认分为 liveness 和 readness 两个组，需要显式指定后才可以使用，否则会返回 404；<code>/actuator/health</code> 接口包含所有的指标</p>
+<p>当前应用支持的指标，可以设置 <code>management.endpoint.health.show-details=always</code>后从 <code>/actuator/health</code> 接口获取</p>
+<p>先指定 readness 指标，之后可以将剩余的所有指标设置为 liveness 的指标</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">management.endpoint.health.show-details&#x3D;always</span><br><span class="line">management.endpoint.health.group.readiness.include&#x3D;ping</span><br><span class="line">management.endpoint.health.group.liveness.include&#x3D;*</span><br><span class="line">management.endpoint.health.group.liveness.exclude&#x3D;$&#123;management.endpoint.health.group.readiness.include&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><ul>
+<li>启动应用</li>
+</ul>
+<h3 id="请求相应的接口"><a href="#请求相应的接口" class="headerlink" title="请求相应的接口"></a>请求相应的接口</h3><ul>
+<li>health</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:8080/actuator/health</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;components&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;diskSpace&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;details&quot;</span>: &#123;</span><br><span class="line">                <span class="attr">&quot;total&quot;</span>: <span class="number">499963174912</span>,</span><br><span class="line">                <span class="attr">&quot;free&quot;</span>: <span class="number">380364800000</span>,</span><br><span class="line">                <span class="attr">&quot;threshold&quot;</span>: <span class="number">10485760</span>,</span><br><span class="line">                <span class="attr">&quot;exists&quot;</span>: <span class="literal">true</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;livenessStateProbeIndicator&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;ping&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;readinessStateProbeIndicator&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;groups&quot;</span>: [</span><br><span class="line">        <span class="string">&quot;liveness&quot;</span>,</span><br><span class="line">        <span class="string">&quot;readiness&quot;</span></span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>readiness</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:8080/actuator/health/readiness</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;components&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;ping&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>liveness</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:8080/actuator/health/liveness</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;components&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;custom&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;details&quot;</span>: &#123;</span><br><span class="line">                <span class="attr">&quot;Status&quot;</span>: <span class="string">&quot;Health&quot;</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;diskSpace&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;details&quot;</span>: &#123;</span><br><span class="line">                <span class="attr">&quot;exists&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">                <span class="attr">&quot;free&quot;</span>: <span class="number">380286464000</span>,</span><br><span class="line">                <span class="attr">&quot;threshold&quot;</span>: <span class="number">10485760</span>,</span><br><span class="line">                <span class="attr">&quot;total&quot;</span>: <span class="number">499963174912</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义检查项"><a href="#自定义检查项" class="headerlink" title="自定义检查项"></a>自定义检查项</h2><p>和自定义健康检查项一样，添加一个新的 <code>HealthIndicator</code>，添加到相应的分组即可</p>
+<ul>
+<li>CustomHealthIndicator.java</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class CustomHealthIndicator implements HealthIndicator &#123;</span><br><span class="line"></span><br><span class="line">    private boolean health &#x3D; true;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Health health() &#123;</span><br><span class="line">        if (health) &#123;</span><br><span class="line">            return Health.up().withDetail(&quot;Status&quot;, &quot;Health&quot;).build();</span><br><span class="line">        &#125;</span><br><span class="line">        return Health.down().withDetail(&quot;Status&quot;, &quot;Not Health&quot;).build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setHealth(boolean health) &#123;</span><br><span class="line">        this.health &#x3D; health;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>applicaiton.properties</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">management.endpoint.health.group.readiness.include&#x3D;ping,custom</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h3><ul>
+<li>readiness</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:8080/actuator/health/readiness</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;components&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;custom&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;details&quot;</span>: &#123;</span><br><span class="line">                <span class="attr">&quot;Status&quot;</span>: <span class="string">&quot;Health&quot;</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;ping&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;UP&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/SpringBoot-%E6%A1%86%E6%9E%B6%E8%87%AA%E5%B8%A6%E6%8F%92%E4%BB%B6%E6%9E%84%E5%BB%BA-Docker-%E9%95%9C%E5%83%8F/">
+        <span class="nav-arrow">← </span>
+        
+          SpringBoot 框架自带插件构建 Docker 镜像
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/gRPC-%E4%B8%AD-Binlog-%E6%89%93%E5%8D%B0%E5%8E%9F%E7%90%86/">
+        
+          gRPC 中 Binlog 打印原理
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Spring-Boot-2-3-Liveness-%E5%92%8C-Readness-%E6%8E%A5%E5%8F%A3%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">Spring Boot 2.3+ Liveness 和 Readness 接口使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">配置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%AF%B7%E6%B1%82%E7%9B%B8%E5%BA%94%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="toc-nav-text">请求相应的接口</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A3%80%E6%9F%A5%E9%A1%B9"><span class="toc-nav-text">自定义检查项</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95-1"><span class="toc-nav-text">测试</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/Spring-Boot-2-3-Liveness-和-Readness-接口使用/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Boot 2.3+ Liveness 和 Readness 接口使用",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

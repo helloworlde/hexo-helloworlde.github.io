@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC 中 Binlog 打印原理 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC 中 Binlog 打印原理</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-中-Binlog-打印原理"><a href="#gRPC-中-Binlog-打印原理" class="headerlink" title="gRPC 中 Binlog 打印原理"></a>gRPC 中 Binlog 打印原理</h1><p>gRPC 支持将请求调用的参数、Header 等信息以二进制的方式输出到文件中</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>binlog 的依赖在 <code>grpc-services</code>中，所以需要有该依赖</p>
+<ul>
+<li>创建 Channel 时指定</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">BinaryLog binaryLog = BinaryLogs.createBinaryLog(<span class="keyword">new</span> TempFileSink(), <span class="string">&quot;*&quot;</span>);</span><br><span class="line"><span class="keyword">this</span>.channel = ManagedChannelBuilder.forAddress(host, port)</span><br><span class="line">                                    .usePlaintext()</span><br><span class="line">                                    .setBinaryLog(binaryLog)</span><br><span class="line">                                    .build();</span><br></pre></td></tr></table></figure>
+
+<p>在创建时，需要指定打印的方法，<code>*</code>代表打印所有的方法，具体指定可以参考 <a target="_blank" rel="noopener" href="https://github.com/helloworlde/proposal/blob/master/A16-binary-logging.md#control-interface">Control Interface</a><br>也可以在创建时不指定参数，通过设置环境变量 <code>GRPC_BINARY_LOG_CONFIG=*</code>来指定需要打印的方法<br>如果需要指定文件的生成位置，可以重写<code>io.grpc.services.BinaryLogSink</code>，指定文件位置</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>在方法调用时，会判断有没有设置 binlog 对象，如果有则会封装方法，添加处理器和监听器；然后重新创建 <code>ServerMethodDefinition</code>；通过二进制日志拦截器 <code>io.grpc.services.BinlogHelper#getClientInterceptor</code> 拦截请求并写入日志 </p>
+<ul>
+<li>io.grpc.internal.ServerImpl.ServerTransportListenerImpl#startCall</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;ReqT, RespT&gt; <span class="function">ServerStreamListener <span class="title">startCall</span><span class="params">(ServerStream stream, String fullMethodName,</span></span></span><br><span class="line"><span class="function"><span class="params">    ServerMethodDefinition&lt;ReqT, RespT&gt; methodDef, Metadata headers,</span></span></span><br><span class="line"><span class="function"><span class="params">    Context.CancellableContext context, StatsTraceContext statsTraceCtx, Tag tag)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果 binlog 不为空，即需要记录binlog，则添加请求监听器和方法处理器记录 binlog</span></span><br><span class="line">  ServerMethodDefinition&lt;?, ?&gt; wMethodDef = binlog == <span class="keyword">null</span> ? interceptedDef : binlog.wrapMethodDefinition(interceptedDef);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> startWrappedCall(fullMethodName, wMethodDef, stream, headers, context, tag);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.services.BinaryLogProvider#wrapMethodDefinition</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public final &lt;ReqT, RespT&gt; ServerMethodDefinition&lt;?, ?&gt; wrapMethodDefinition(ServerMethodDefinition&lt;ReqT, RespT&gt; oMethodDef) &#123;</span><br><span class="line">  &#x2F;&#x2F; 根据方法获取二进制日志拦截器，如果没有该方法则不拦截</span><br><span class="line">  ServerInterceptor binlogInterceptor &#x3D; getServerInterceptor(oMethodDef.getMethodDescriptor().getFullMethodName());</span><br><span class="line">  if (binlogInterceptor &#x3D;&#x3D; null) &#123;</span><br><span class="line">    return oMethodDef;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  MethodDescriptor&lt;byte[], byte[]&gt; binMethod &#x3D; BinaryLogProvider.toByteBufferMethod(oMethodDef.getMethodDescriptor());</span><br><span class="line">  &#x2F;&#x2F; 包装方法，添加了处理器和监听器</span><br><span class="line">  ServerMethodDefinition&lt;byte[], byte[]&gt; binDef &#x3D; InternalServerInterceptors.wrapMethod(oMethodDef, binMethod);</span><br><span class="line">  &#x2F;&#x2F; 创建处理器</span><br><span class="line">  ServerCallHandler&lt;byte[], byte[]&gt; binlogHandler &#x3D;</span><br><span class="line">          InternalServerInterceptors.interceptCallHandlerCreate(binlogInterceptor, binDef.getServerCallHandler());</span><br><span class="line">  &#x2F;&#x2F; 创建服务方法定义</span><br><span class="line">  return ServerMethodDefinition.create(binMethod, binlogHandler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.services.BinlogHelper#getClientInterceptor</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line">public ClientInterceptor getClientInterceptor(final long callId) &#123;</span><br><span class="line">  return new ClientInterceptor() &#123;</span><br><span class="line">    boolean trailersOnlyResponse &#x3D; true;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public &lt;ReqT, RespT&gt; ClientCall&lt;ReqT, RespT&gt; interceptCall(</span><br><span class="line">            final MethodDescriptor&lt;ReqT, RespT&gt; method, CallOptions callOptions, Channel next) &#123;</span><br><span class="line">      final String methodName &#x3D; method.getFullMethodName();</span><br><span class="line">      final String authority &#x3D; next.authority();</span><br><span class="line">      final Deadline deadline &#x3D; min(callOptions.getDeadline(), Context.current().getDeadline());</span><br><span class="line"></span><br><span class="line">      return new SimpleForwardingClientCall&lt;ReqT, RespT&gt;(next.newCall(method, callOptions)) &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void start(final ClientCall.Listener&lt;RespT&gt; responseListener, Metadata headers) &#123;</span><br><span class="line">          final Duration timeout &#x3D; deadline &#x3D;&#x3D; null ? null</span><br><span class="line">                  : Durations.fromNanos(deadline.timeRemaining(TimeUnit.NANOSECONDS));</span><br><span class="line">          writer.logClientHeader(</span><br><span class="line">                  seq.getAndIncrement(),</span><br><span class="line">                  methodName,</span><br><span class="line">                  authority,</span><br><span class="line">                  timeout,</span><br><span class="line">                  headers,</span><br><span class="line">                  GrpcLogEntry.Logger.LOGGER_CLIENT,</span><br><span class="line">                  callId,</span><br><span class="line">                  &#x2F;*peerAddress&#x3D;*&#x2F; null);</span><br><span class="line">          ClientCall.Listener&lt;RespT&gt; wListener &#x3D;</span><br><span class="line">                  new SimpleForwardingClientCallListener&lt;RespT&gt;(responseListener) &#123;</span><br><span class="line">                    @Override</span><br><span class="line">                    public void onMessage(RespT message) &#123;</span><br><span class="line">                      writer.logRpcMessage(</span><br><span class="line">                              seq.getAndIncrement(),</span><br><span class="line">                              EventType.EVENT_TYPE_SERVER_MESSAGE,</span><br><span class="line">                              method.getResponseMarshaller(),</span><br><span class="line">                              message,</span><br><span class="line">                              GrpcLogEntry.Logger.LOGGER_CLIENT,</span><br><span class="line">                              callId);</span><br><span class="line">                      super.onMessage(message);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    @Override</span><br><span class="line">                    public void onHeaders(Metadata headers) &#123;</span><br><span class="line">                      trailersOnlyResponse &#x3D; false;</span><br><span class="line">                      writer.logServerHeader(</span><br><span class="line">                              seq.getAndIncrement(),</span><br><span class="line">                              headers,</span><br><span class="line">                              GrpcLogEntry.Logger.LOGGER_CLIENT,</span><br><span class="line">                              callId,</span><br><span class="line">                              getPeerSocket(getAttributes()));</span><br><span class="line">                      super.onHeaders(headers);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    @Override</span><br><span class="line">                    public void onClose(Status status, Metadata trailers) &#123;</span><br><span class="line">                      SocketAddress peer &#x3D; trailersOnlyResponse</span><br><span class="line">                              ? getPeerSocket(getAttributes()) : null;</span><br><span class="line">                      writer.logTrailer(</span><br><span class="line">                              seq.getAndIncrement(),</span><br><span class="line">                              status,</span><br><span class="line">                              trailers,</span><br><span class="line">                              GrpcLogEntry.Logger.LOGGER_CLIENT,</span><br><span class="line">                              callId,</span><br><span class="line">                              peer);</span><br><span class="line">                      super.onClose(status, trailers);</span><br><span class="line">                    &#125;</span><br><span class="line">                  &#125;;</span><br><span class="line">          super.start(wListener, headers);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void sendMessage(ReqT message) &#123;</span><br><span class="line">          writer.logRpcMessage(</span><br><span class="line">                  seq.getAndIncrement(),</span><br><span class="line">                  EventType.EVENT_TYPE_CLIENT_MESSAGE,</span><br><span class="line">                  method.getRequestMarshaller(),</span><br><span class="line">                  message,</span><br><span class="line">                  GrpcLogEntry.Logger.LOGGER_CLIENT,</span><br><span class="line">                  callId);</span><br><span class="line">          super.sendMessage(message);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void halfClose() &#123;</span><br><span class="line">          writer.logHalfClose(</span><br><span class="line">                  seq.getAndIncrement(),</span><br><span class="line">                  GrpcLogEntry.Logger.LOGGER_CLIENT,</span><br><span class="line">                  callId);</span><br><span class="line">          super.halfClose();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void cancel(String message, Throwable cause) &#123;</span><br><span class="line">          writer.logCancel(</span><br><span class="line">                  seq.getAndIncrement(),</span><br><span class="line">                  GrpcLogEntry.Logger.LOGGER_CLIENT,</span><br><span class="line">                  callId);</span><br><span class="line">          super.cancel(message, cause);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/Spring-Boot-2-3-Liveness-%E5%92%8C-Readness-%E6%8E%A5%E5%8F%A3%E4%BD%BF%E7%94%A8/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Boot 2.3+ Liveness 和 Readness 接口使用
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-NameResolver/">
+        
+          gRPC 使用自定义的 NameResolver
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E4%B8%AD-Binlog-%E6%89%93%E5%8D%B0%E5%8E%9F%E7%90%86"><span class="toc-nav-text">gRPC 中 Binlog 打印原理</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">使用</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">实现</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/gRPC-中-Binlog-打印原理/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC 中 Binlog 打印原理",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

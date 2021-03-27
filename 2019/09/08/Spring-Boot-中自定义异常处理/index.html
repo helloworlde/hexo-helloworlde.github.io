@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Boot 中自定义异常处理 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Boot 中自定义异常处理</h2>
+  <p class="post-date">2019-09-08</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Spring-Boot-中自定义异常处理"><a href="#Spring-Boot-中自定义异常处理" class="headerlink" title="Spring Boot 中自定义异常处理"></a>Spring Boot 中自定义异常处理</h1><ul>
+<li>项目地址<a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBootCollection/tree/master/SpringBoot-Exception">https://github.com/helloworlde/SpringBootCollection/tree/master/SpringBoot-Exception</a></li>
+</ul>
+<blockquote>
+<p>Spring Boot 中提供了默认的异常处理，但是对于应用来说，这些信息并不应该直接返回或者不够明确，需要结合自己的情况进行定制<br>自定义处理异常有两种方式:</p>
+<ul>
+<li><code>org.springframework.web.servlet.HandlerExceptionResolver#resolveException</code>方法</li>
+<li><code>org.springframework.web.bind.annotation.RestControllerAdvice</code>或<code>org.springframework.web.bind.annotation.ControllerAdvice</code>和<code>org.springframework.web.bind.annotation.ExceptionHandler</code>注解来实现</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>当两种方式都实现时，<code>HandlerExceptionResolver</code>要先于<code>ControllerAdvice</code>执行</p>
+</blockquote>
+<h2 id="使用-HandlerExceptionResolver-处理异常"><a href="#使用-HandlerExceptionResolver-处理异常" class="headerlink" title="使用 HandlerExceptionResolver 处理异常"></a>使用 HandlerExceptionResolver 处理异常</h2><ul>
+<li>CustomExceptionHandlerResolver.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomExceptionHandlerResolver</span> <span class="keyword">implements</span> <span class="title">HandlerExceptionResolver</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ObjectMapper OBJECT_MAPPER;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        OBJECT_MAPPER = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">        OBJECT_MAPPER.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, <span class="keyword">true</span>);</span><br><span class="line">        OBJECT_MAPPER.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, <span class="keyword">true</span>);</span><br><span class="line">        OBJECT_MAPPER.setDateFormat(<span class="keyword">new</span> SimpleDateFormat(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ModelAndView <span class="title">resolveException</span><span class="params">(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        String message = <span class="string">&quot;服务器错误&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (o <span class="keyword">instanceof</span> HandlerMethod) &#123;</span><br><span class="line">            <span class="keyword">if</span> (e <span class="keyword">instanceof</span> IllegalArgumentException) &#123;</span><br><span class="line">                message = <span class="string">&quot;参数错误&quot;</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> SecurityException) &#123;</span><br><span class="line">                message = <span class="string">&quot;不允许访问&quot;</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> NullPointerException) &#123;</span><br><span class="line">                message = <span class="string">&quot;空指针异常&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> NoHandlerFoundException) &#123;</span><br><span class="line">            message = <span class="string">&quot;未找到相应资源&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> HttpMediaTypeNotSupportedException) &#123;</span><br><span class="line">            message = <span class="string">&quot;请求类型不支持&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        httpServletResponse.setCharacterEncoding(StandardCharsets.UTF_8.name());</span><br><span class="line">        httpServletResponse.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            httpServletResponse.getWriter()</span><br><span class="line">                               .write(</span><br><span class="line">                                       OBJECT_MAPPER.writeValueAsString(</span><br><span class="line">                                               CustomResponseContent.builder()</span><br><span class="line">                                                                    .code(<span class="number">500</span>)</span><br><span class="line">                                                                    .status(<span class="string">&quot;fail&quot;</span>)</span><br><span class="line">                                                                    .message(message)</span><br><span class="line">                                                                    .build()</span><br><span class="line">                                       )</span><br><span class="line">                               );</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">            ex.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ModelAndView();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>还需要将该配置添加到应用中 </p>
+<ul>
+<li>CustomWebMvcConfigurer.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomWebMvcConfigurer</span> <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configureHandlerExceptionResolvers</span><span class="params">(List&lt;HandlerExceptionResolver&gt; resolvers)</span> </span>&#123;</span><br><span class="line">        resolvers.add(<span class="keyword">new</span> CustomExceptionHandlerResolver());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><ul>
+<li>添加接口</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/null&quot;)</span></span><br><span class="line"><span class="meta">@CustomResponse</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">getProduct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@GetMapping(&quot;/arg&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">getProducts</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>调用接口</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl localhost:8080/null</span><br><span class="line">&#123;<span class="string">&quot;code&quot;</span>:500,<span class="string">&quot;status&quot;</span>:<span class="string">&quot;fail&quot;</span>,<span class="string">&quot;data&quot;</span>:null,<span class="string">&quot;message&quot;</span>:<span class="string">&quot;空指针异常&quot;</span>&#125;%</span><br><span class="line"></span><br><span class="line">curl localhost:8080/arg</span><br><span class="line">&#123;<span class="string">&quot;code&quot;</span>:500,<span class="string">&quot;status&quot;</span>:<span class="string">&quot;fail&quot;</span>,<span class="string">&quot;data&quot;</span>:null,<span class="string">&quot;message&quot;</span>:<span class="string">&quot;参数错误&quot;</span>&#125;%</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="使用-RestControllerAdvice-ControllerAdvice-和-ExceptionHandler-处理异常"><a href="#使用-RestControllerAdvice-ControllerAdvice-和-ExceptionHandler-处理异常" class="headerlink" title="使用 RestControllerAdvice/ControllerAdvice 和 ExceptionHandler 处理异常"></a>使用 RestControllerAdvice/ControllerAdvice 和 ExceptionHandler 处理异常</h2><ul>
+<li>CustomControllerExceptionResolver.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="meta">@ControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomControllerExceptionResolver</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(&#123;NullPointerException.class&#125;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;?&gt; handlerNullPointerException(HttpServletRequest request, Throwable throwable) &#123;</span><br><span class="line">        CustomResponseContent responseContent = CustomResponseContent.builder()</span><br><span class="line">                                                                     .code(<span class="number">500</span>)</span><br><span class="line">                                                                     .status(<span class="string">&quot;fail&quot;</span>)</span><br><span class="line">                                                                     .message(<span class="string">&quot;空指针异常&quot;</span>)</span><br><span class="line">                                                                     .build();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;&gt;(responseContent, HttpStatus.INTERNAL_SERVER_ERROR);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(&#123;IllegalArgumentException.class&#125;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;?&gt; handlerIllegalArgumentException(HttpServletRequest request, Throwable throwable) &#123;</span><br><span class="line">        CustomResponseContent responseContent = CustomResponseContent.builder()</span><br><span class="line">                                                                     .code(<span class="number">400</span>)</span><br><span class="line">                                                                     .status(<span class="string">&quot;fail&quot;</span>)</span><br><span class="line">                                                                     .message(<span class="string">&quot;参数错误&quot;</span>)</span><br><span class="line">                                                                     .build();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;&gt;(responseContent, HttpStatus.BAD_REQUEST);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(&#123;MethodArgumentNotValidException.class&#125;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;?&gt; handlerMethodArgumentNotValidException(HttpServletRequest request, MethodArgumentNotValidException e) &#123;</span><br><span class="line">        String errorMessage = e.getBindingResult()</span><br><span class="line">                               .getAllErrors()</span><br><span class="line">                               .stream()</span><br><span class="line">                               .map(f -&gt; ((FieldError) f).getField() + <span class="string">&quot;:&quot;</span> + f.getDefaultMessage())</span><br><span class="line">                               .collect(Collectors.joining(<span class="string">&quot;;&quot;</span>));</span><br><span class="line"></span><br><span class="line">        CustomResponseContent responseContent = CustomResponseContent.builder()</span><br><span class="line">                                                                     .code(<span class="number">400</span>)</span><br><span class="line">                                                                     .status(<span class="string">&quot;fail&quot;</span>)</span><br><span class="line">                                                                     .message(errorMessage)</span><br><span class="line">                                                                     .build();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;&gt;(responseContent, HttpStatus.BAD_REQUEST);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@ExceptionHandler(&#123;Exception.class&#125;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;?&gt; handlerException(HttpServletRequest request, Throwable throwable) &#123;</span><br><span class="line">        CustomResponseContent responseContent = CustomResponseContent.builder()</span><br><span class="line">                                                                     .code(<span class="number">500</span>)</span><br><span class="line">                                                                     .status(<span class="string">&quot;fail&quot;</span>)</span><br><span class="line">                                                                     .message(throwable.getMessage())</span><br><span class="line">                                                                     .build();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;&gt;(responseContent, HttpStatus.INTERNAL_SERVER_ERROR);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h3><ul>
+<li>添加接口</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/null&quot;)</span></span><br><span class="line"><span class="meta">@CustomResponse</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">getProduct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@GetMapping(&quot;/arg&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">getProducts</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@PostMapping(&quot;/product&quot;)</span></span><br><span class="line"><span class="meta">@CustomResponse</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Product <span class="title">product</span><span class="params">(<span class="meta">@RequestBody</span> <span class="meta">@Validated</span> Product product)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> product;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加接口参数校验</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@Builder</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Product</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Long serialVersionUID = <span class="number">1435515995276255188L</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotNull(message = &quot;id 不能为空&quot;)</span></span><br><span class="line">    <span class="meta">@Min(value = 1, message = &quot;id 必须大于0&quot;)</span></span><br><span class="line">    <span class="meta">@Max(value = 10, message = &quot;id 不能小于 10&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotNull(message = &quot;名称不能为空&quot;)</span></span><br><span class="line">    <span class="meta">@Pattern(regexp = &quot;product[\\w]+&quot;, message = &quot;名称必须以 product 开头&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PositiveOrZero(message = &quot;价格必须是正数&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Long price;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>测试</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">curl localhost:8080/null</span><br><span class="line">&#123;<span class="string">&quot;code&quot;</span>:500,<span class="string">&quot;status&quot;</span>:<span class="string">&quot;fail&quot;</span>,<span class="string">&quot;data&quot;</span>:null,<span class="string">&quot;message&quot;</span>:<span class="string">&quot;空指针异常&quot;</span>&#125;%</span><br><span class="line"></span><br><span class="line">curl localhost:8080/arg</span><br><span class="line">&#123;<span class="string">&quot;code&quot;</span>:400,<span class="string">&quot;status&quot;</span>:<span class="string">&quot;fail&quot;</span>,<span class="string">&quot;data&quot;</span>:null,<span class="string">&quot;message&quot;</span>:<span class="string">&quot;参数错误&quot;</span>&#125;%</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">curl -X POST \</span><br><span class="line">  http://localhost:8080/product \</span><br><span class="line">  -H <span class="string">&#x27;Content-Type: application/json&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;&#123;</span></span><br><span class="line"><span class="string">    &quot;id&quot;: 1</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br><span class="line">&#123;<span class="string">&quot;code&quot;</span>:400,<span class="string">&quot;status&quot;</span>:<span class="string">&quot;fail&quot;</span>,<span class="string">&quot;data&quot;</span>:null,<span class="string">&quot;message&quot;</span>:<span class="string">&quot;name:名称不能为空&quot;</span>&#125;%</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">curl -X POST \</span><br><span class="line">  http://localhost:8080/product \</span><br><span class="line">  -H <span class="string">&#x27;Content-Type: application/json&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;&#123;</span></span><br><span class="line"><span class="string">    &quot;id&quot;: 0,</span></span><br><span class="line"><span class="string">    &quot;name&quot;: 1,</span></span><br><span class="line"><span class="string">    &quot;price&quot;: -100</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br><span class="line">&#123;<span class="string">&quot;code&quot;</span>:400,<span class="string">&quot;status&quot;</span>:<span class="string">&quot;fail&quot;</span>,<span class="string">&quot;data&quot;</span>:null,<span class="string">&quot;message&quot;</span>:<span class="string">&quot;id:id 必须大于0;price:价格必须是正数;name:名称必须以 product 开头&quot;</span>&#125;%</span><br></pre></td></tr></table></figure>
+
+<h2 id="403-404…-等错误"><a href="#403-404…-等错误" class="headerlink" title="403/404… 等错误"></a>403/404… 等错误</h2><p>添加了上述的异常处理后，还有一部分异常无法处理，如404 错误，这是因为这些错误的异常处理并不经过异常处理器，而是被转发到 <code>/error</code>的路径下，默认由<code>org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController</code>处理，所以，继承<code>org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorController</code>并添加相应实现即可自定义处理该异常</p>
+<h3 id="返回-JSON-数据"><a href="#返回-JSON-数据" class="headerlink" title="返回 JSON 数据"></a>返回 JSON 数据</h3><ul>
+<li>CustomNoHandlerExceptionResolver.java </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/error&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomNoHandlerExceptionResolver</span> <span class="keyword">extends</span> <span class="title">AbstractErrorController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomNoHandlerExceptionResolver</span><span class="params">(ErrorAttributes errorAttributes)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(errorAttributes);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getErrorPath</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;?&gt; error(HttpServletRequest request, HttpServletResponse response) &#123;</span><br><span class="line">        Optional&lt;String&gt; originRequestUri = Optional.ofNullable((String) request.getAttribute(<span class="string">&quot;javax.servlet.error.request_uri&quot;</span>));</span><br><span class="line">        String reasonPhrase = HttpStatus.valueOf(response.getStatus()).getReasonPhrase();</span><br><span class="line"></span><br><span class="line">        CustomResponseContent responseContent = CustomResponseContent.builder()</span><br><span class="line">                                                                     .code(response.getStatus())</span><br><span class="line">                                                                     .status(<span class="string">&quot;fail&quot;</span>)</span><br><span class="line">                                                                     .message(originRequestUri.orElse(<span class="string">&quot;/error&quot;</span>) + <span class="string">&quot;:&quot;</span> + reasonPhrase)</span><br><span class="line">                                                                     .build();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;&gt;(responseContent, HttpStatus.valueOf(response.getStatus()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>测试</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl localhost:8080/404</span><br><span class="line">&#123;<span class="string">&quot;code&quot;</span>:404,<span class="string">&quot;status&quot;</span>:<span class="string">&quot;fail&quot;</span>,<span class="string">&quot;data&quot;</span>:null,<span class="string">&quot;message&quot;</span>:<span class="string">&quot;/404:Not Found&quot;</span>&#125;%</span><br></pre></td></tr></table></figure>
+
+<h3 id="返回错误页面"><a href="#返回错误页面" class="headerlink" title="返回错误页面"></a>返回错误页面</h3><p>当通过页面访问时，我们希望返回一个页面，可以通过指定 <code>produces=&quot;text/html&quot;</code>处理来自网页的请求</p>
+<p>在<code>resources/public/error</code>目录下添加相应的文件，如 <code>404.html</code>等，根据不同的错误返回相应的页面</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(produces = MediaType.TEXT_HTML_VALUE)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ModelAndView <span class="title">pageError</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ModelAndView(String.format(<span class="string">&quot;error/%d.html&quot;</span>, response.getStatus()));</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Exception" >
+    <span class="tag-code">Exception</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/09/08/Spring-Boot-%E4%B8%AD%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E6%A0%BC%E5%BC%8F/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Boot 中自定义接口返回格式
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8-WebSocket/">
+        
+          Spring Boot 中使用 WebSocket
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Spring-Boot-%E4%B8%AD%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="toc-nav-text">Spring Boot 中自定义异常处理</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-HandlerExceptionResolver-%E5%A4%84%E7%90%86%E5%BC%82%E5%B8%B8"><span class="toc-nav-text">使用 HandlerExceptionResolver 处理异常</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-RestControllerAdvice-ControllerAdvice-%E5%92%8C-ExceptionHandler-%E5%A4%84%E7%90%86%E5%BC%82%E5%B8%B8"><span class="toc-nav-text">使用 RestControllerAdvice&#x2F;ControllerAdvice 和 ExceptionHandler 处理异常</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95-1"><span class="toc-nav-text">测试</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#403-404%E2%80%A6-%E7%AD%89%E9%94%99%E8%AF%AF"><span class="toc-nav-text">403&#x2F;404… 等错误</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%BF%94%E5%9B%9E-JSON-%E6%95%B0%E6%8D%AE"><span class="toc-nav-text">返回 JSON 数据</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%BF%94%E5%9B%9E%E9%94%99%E8%AF%AF%E9%A1%B5%E9%9D%A2"><span class="toc-nav-text">返回错误页面</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2019/09/08/Spring-Boot-中自定义异常处理/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Boot 中自定义异常处理",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

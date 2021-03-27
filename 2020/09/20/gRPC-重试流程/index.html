@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC 重试流程 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC 重试流程</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-重试流程"><a href="#gRPC-重试流程" class="headerlink" title="gRPC 重试流程"></a>gRPC 重试流程</h1><p>当第一次调用失败，流监听器关闭的时候，会根据请求的处理状态和方法的配置，判断是否需要重试</p>
+<p>请求的处理状态有三种，在<code>io.grpc.internal.ClientStreamListener.RpcProgress</code>中定义：</p>
+<ul>
+<li><code>PROCESSED</code>: 请求被正常处理，按照返回的状态码决定是否要重试</li>
+<li><code>REFUSED</code>: 没有被服务端的应用逻辑层处理，直接重试，不计入重试次数</li>
+<li><code>DROPPED</code>:  请求被负载均衡丢弃了，不重试，如果是对冲则取消其他的对冲请求，直接提交</li>
+</ul>
+<h2 id="发起请求"><a href="#发起请求" class="headerlink" title="发起请求"></a>发起请求</h2><ul>
+<li>io.grpc.stub.ClientCalls#blockingUnaryCall</li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-java-blockingUnaryCall-diagram.png" alt="grpc-java-blockingUnaryCall-diagram.png"></p>
+<ul>
+<li>io.grpc.internal.ClientCallImpl#startInternal</li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-java-client-call-start.png" alt="grpc-java-client-call-start.png"></p>
+<ul>
+<li>io.grpc.internal.ManagedChannelImpl.ChannelTransportProvider#newRetriableStream</li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-java-transport-provider-new-retriable-stream.png" alt="grpc-java-transport-provider-new-retriable-stream.png"></p>
+<ul>
+<li>io.grpc.internal.RetriableStream#start</li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-java-retriable-stream-start.png" alt="grpc-java-retriable-stream-start.png"></p>
+<ul>
+<li>io.grpc.internal.RetriableStream#createSubstream</li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-java-retriable-stream-create-sub-stream.png" alt="grpc-java-retriable-stream-create-sub-stream.png"></p>
+<ul>
+<li>io.grpc.internal.ManagedChannelImpl.ChannelTransportProvider#newRetriableStream#RetryStream#newSubstream</li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-java-retriable-stream-new-sub-stream.png" alt="grpc-java-retriable-stream-new-sub-stream.png"></p>
+<ol>
+<li>通过生成的代码中的方法，调用 <code>io.grpc.stub.ClientCalls#blockingUnaryCall</code></li>
+</ol>
+<p>首先通过 channel 创建<code>ClientCall</code>，然后通过 <code>futureUnaryCall</code> 提交请求，返回 Future，根据返回的 Future 循环等待，通过<code>executor.waitAndDrain()</code>执行请求，直到 Future 完成，返回结果</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;ReqT, RespT&gt; <span class="function">RespT <span class="title">blockingUnaryCall</span><span class="params">(Channel channel,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     MethodDescriptor&lt;ReqT, RespT&gt; method,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     CallOptions callOptions,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     ReqT req)</span> </span>&#123;</span><br><span class="line">   <span class="comment">// 创建新的调用的 ClientCall，指定了调用类型和执行器</span></span><br><span class="line">   ClientCall&lt;ReqT, RespT&gt; call = channel.newCall(method, callOptions.withOption(ClientCalls.STUB_TYPE_OPTION, StubType.BLOCKING)</span><br><span class="line">                                                                     .withExecutor(executor));</span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">     <span class="comment">// 执行调用，发出请求</span></span><br><span class="line">     ListenableFuture&lt;RespT&gt; responseFuture = futureUnaryCall(call, req);</span><br><span class="line">     <span class="keyword">while</span> (!responseFuture.isDone()) &#123;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="comment">// 执行提交的 Runnable </span></span><br><span class="line">         executor.waitAndDrain();</span><br><span class="line">       &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">         interrupt = <span class="keyword">true</span>;</span><br><span class="line">         call.cancel(<span class="string">&quot;Thread interrupted&quot;</span>, e);</span><br><span class="line">       &#125;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">return</span> getUnchecked(responseFuture);</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>执行 unary 调用 <code>futureUnaryCall</code></li>
+</ol>
+<p>这里创建了 Future，通过 <code>asyncUnaryRequestCall</code> 继续调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;ReqT, RespT&gt; <span class="function">ListenableFuture&lt;RespT&gt; <span class="title">futureUnaryCall</span><span class="params">(ClientCall&lt;ReqT, RespT&gt; call, ReqT req)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 初始化 GrpcFuture</span></span><br><span class="line">  GrpcFuture&lt;RespT&gt; responseFuture = <span class="keyword">new</span> GrpcFuture&lt;&gt;(call);</span><br><span class="line">  <span class="comment">// 将 GrpcFuture 包装为继承了 Listener 的 UnaryStreamToFuture，提交任务</span></span><br><span class="line">  asyncUnaryRequestCall(call, req, <span class="keyword">new</span> UnaryStreamToFuture&lt;&gt;(responseFuture));</span><br><span class="line">  <span class="keyword">return</span> responseFuture;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>异步调用</li>
+</ol>
+<p>执行调用，发送消息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> &lt;ReqT, RespT&gt; <span class="function"><span class="keyword">void</span> <span class="title">asyncUnaryRequestCall</span><span class="params">(ClientCall&lt;ReqT, RespT&gt; call,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                        ReqT req,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                        StartableListener&lt;RespT&gt; responseListener)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 开始调用</span></span><br><span class="line">  startCall(call, responseListener);</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 发送消息</span></span><br><span class="line">    call.sendMessage(req);</span><br><span class="line">    <span class="comment">// 半关闭连接</span></span><br><span class="line">    call.halfClose();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>开始一次调用，通过 responseListener 处理返回响应</li>
+</ol>
+<p>开始调用，并启动响应监听器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> &lt;ReqT, RespT&gt; <span class="function"><span class="keyword">void</span> <span class="title">startCall</span><span class="params">(ClientCall&lt;ReqT, RespT&gt; call,</span></span></span><br><span class="line"><span class="function"><span class="params">                                            StartableListener&lt;RespT&gt; responseListener)</span> </span>&#123;</span><br><span class="line">  call.start(responseListener, <span class="keyword">new</span> Metadata());</span><br><span class="line">  responseListener.onStart();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>执行请求调用</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">startInternal</span><span class="params">(<span class="keyword">final</span> Listener&lt;RespT&gt; observer, Metadata headers)</span> </span>&#123;</span><br><span class="line">  checkState(stream == <span class="keyword">null</span>, <span class="string">&quot;Already started&quot;</span>);</span><br><span class="line">  checkState(!cancelCalled, <span class="string">&quot;call was cancelled&quot;</span>);</span><br><span class="line">  checkNotNull(observer, <span class="string">&quot;observer&quot;</span>);</span><br><span class="line">  checkNotNull(headers, <span class="string">&quot;headers&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果已经取消了，则不创建流，通知监听器取消回调</span></span><br><span class="line">  <span class="keyword">if</span> (context.isCancelled()) &#123;</span><br><span class="line">    stream = NoopClientStream.INSTANCE;</span><br><span class="line">    executeCloseObserverInContext(observer, statusFromCancelled(context));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 压缩器</span></span><br><span class="line">  <span class="keyword">final</span> String compressorName = callOptions.getCompressor();</span><br><span class="line">  Compressor compressor;</span><br><span class="line">  <span class="keyword">if</span> (compressorName != <span class="keyword">null</span>) &#123;</span><br><span class="line">    compressor = compressorRegistry.lookupCompressor(compressorName);</span><br><span class="line">    <span class="comment">// 如果设置了压缩器名称，但是没有相应的压缩器，则返回错误，关闭监听器</span></span><br><span class="line">    <span class="keyword">if</span> (compressor == <span class="keyword">null</span>) &#123;</span><br><span class="line">      stream = NoopClientStream.INSTANCE;</span><br><span class="line">      Status status = Status.INTERNAL.withDescription(String.format(<span class="string">&quot;Unable to find compressor by name %s&quot;</span>, compressorName));</span><br><span class="line">      executeCloseObserverInContext(observer, status);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    compressor = Codec.Identity.NONE;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 根据参数添加 Header</span></span><br><span class="line">  prepareHeaders(headers, decompressorRegistry, compressor, fullStreamDecompression);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 最后期限</span></span><br><span class="line">  Deadline effectiveDeadline = effectiveDeadline();</span><br><span class="line">  <span class="keyword">boolean</span> deadlineExceeded = effectiveDeadline != <span class="keyword">null</span> &amp;&amp; effectiveDeadline.isExpired();</span><br><span class="line">  <span class="comment">// 如果没有过期</span></span><br><span class="line">  <span class="keyword">if</span> (!deadlineExceeded) &#123;</span><br><span class="line">    <span class="comment">// 如果打开了重试，则创建重试流</span></span><br><span class="line">    <span class="keyword">if</span> (retryEnabled) &#123;</span><br><span class="line">      stream = clientTransportProvider.newRetriableStream(method, callOptions, headers, context);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 根据获取 ClientTransport</span></span><br><span class="line">      ClientTransport transport = clientTransportProvider.get(<span class="keyword">new</span> PickSubchannelArgsImpl(method, headers, callOptions));</span><br><span class="line">      Context origContext = context.attach();</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 创建流</span></span><br><span class="line">        stream = transport.newStream(method, headers, callOptions);</span><br><span class="line">      &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        context.detach(origContext);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 初始化超时失败的流</span></span><br><span class="line">    stream = <span class="keyword">new</span> FailingClientStream(DEADLINE_EXCEEDED.withDescription(<span class="string">&quot;ClientCall started after deadline exceeded: &quot;</span> + effectiveDeadline));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 直接执行器</span></span><br><span class="line">  <span class="keyword">if</span> (callExecutorIsDirect) &#123;</span><br><span class="line">    stream.optimizeForDirectExecutor();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 调用地址</span></span><br><span class="line">  <span class="keyword">if</span> (callOptions.getAuthority() != <span class="keyword">null</span>) &#123;</span><br><span class="line">    stream.setAuthority(callOptions.getAuthority());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 最大传入字节数</span></span><br><span class="line">  <span class="keyword">if</span> (callOptions.getMaxInboundMessageSize() != <span class="keyword">null</span>) &#123;</span><br><span class="line">    stream.setMaxInboundMessageSize(callOptions.getMaxInboundMessageSize());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 最大传出字节数</span></span><br><span class="line">  <span class="keyword">if</span> (callOptions.getMaxOutboundMessageSize() != <span class="keyword">null</span>) &#123;</span><br><span class="line">    stream.setMaxOutboundMessageSize(callOptions.getMaxOutboundMessageSize());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 最后执行时间</span></span><br><span class="line">  <span class="keyword">if</span> (effectiveDeadline != <span class="keyword">null</span>) &#123;</span><br><span class="line">    stream.setDeadline(effectiveDeadline);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 压缩器</span></span><br><span class="line">  stream.setCompressor(compressor);</span><br><span class="line">  <span class="comment">// 解压缩流</span></span><br><span class="line">  <span class="keyword">if</span> (fullStreamDecompression) &#123;</span><br><span class="line">    stream.setFullStreamDecompression(fullStreamDecompression);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 解压流注册器</span></span><br><span class="line">  stream.setDecompressorRegistry(decompressorRegistry);</span><br><span class="line">  <span class="comment">// 记录开始调用</span></span><br><span class="line">  channelCallsTracer.reportCallStarted();</span><br><span class="line">  <span class="comment">// 封装支持取消的流监听器</span></span><br><span class="line">  cancellationListener = <span class="keyword">new</span> ContextCancellationListener(observer);</span><br><span class="line">  <span class="comment">// 初始化支持 header 操作的 ClientStreamListener</span></span><br><span class="line">  <span class="comment">// 调用 start 方法，修改流的状态</span></span><br><span class="line">  stream.start(<span class="keyword">new</span> ClientStreamListenerImpl(observer));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 稍后将上下文取消传播到被调用端</span></span><br><span class="line">  context.addListener(cancellationListener, directExecutor());</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (effectiveDeadline != <span class="keyword">null</span></span><br><span class="line">          <span class="comment">// 如果上下文具有有效的截止日期，则无需安排额外的任务</span></span><br><span class="line">          &amp;&amp; !effectiveDeadline.equals(context.getDeadline())</span><br><span class="line">          <span class="comment">// 如果 channel 已终止，则无需安排额外的任务</span></span><br><span class="line">          &amp;&amp; deadlineCancellationExecutor != <span class="keyword">null</span></span><br><span class="line">          <span class="comment">// 如果截止时间已经到期，请让失败的流处理</span></span><br><span class="line">          &amp;&amp; !(stream <span class="keyword">instanceof</span> FailingClientStream)) &#123;</span><br><span class="line">    <span class="comment">// 提交任务，并返回回调</span></span><br><span class="line">    deadlineCancellationNotifyApplicationFuture = startDeadlineNotifyApplicationTimer(effectiveDeadline, observer);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 移除 context 和监听器</span></span><br><span class="line">  <span class="keyword">if</span> (cancelListenersShouldBeRemoved) &#123;</span><br><span class="line">    removeContextListenerAndCancelDeadlineFuture();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="计算下次请求时间间隔"><a href="#计算下次请求时间间隔" class="headerlink" title="计算下次请求时间间隔"></a>计算下次请求时间间隔</h4><p>下次重试请求的时间间隔不固定，由 <code>initialBackoffNanos</code>,<code>backoffMultiplier</code>, <code>maxBackoffNanos</code> 和随机数共同决定</p>
+<ul>
+<li>第一次的延时</li>
+</ul>
+<p>第一次延时是 初始延时 <code>initialBackoffNanos</code> 乘以随机数</p>
+<p>在获得了第一次延时之后，会计算下一次延时；下一次延时是前一次延时 <code>nextBackoffIntervalNanos</code>乘以退避指数 <code>backoffMultiplier</code>，与最大延时 <code>maxBackoffNanos</code>比较，取最小的，然后再乘以随机数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nextBackoffIntervalNanos = retryPolicy.initialBackoffNanos</span><br><span class="line">backoffNanos = (<span class="keyword">long</span>) (nextBackoffIntervalNanos * random.nextDouble())</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>下一次延时</li>
+</ul>
+<p>在获得了第一次延时之后，会计算下一次延时；下一次延时是前一次延时 <code>nextBackoffIntervalNanos</code>乘以退避指数 <code>backoffMultiplier</code>，与最大延时 <code>maxBackoffNanos</code>比较，取最小的，然后再乘以随机数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 计算下一次延时</span></span><br><span class="line">nextBackoffIntervalNanos = Math.min((<span class="keyword">long</span>) (nextBackoffIntervalNanos * retryPolicy.backoffMultiplier), retryPolicy.maxBackoffNanos);</span><br><span class="line"></span><br><span class="line">backoffNanos = (<span class="keyword">long</span>) (nextBackoffIntervalNanos * random.nextDouble())</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/gRPC-%E5%AF%B9%E5%86%B2%E5%8E%9F%E7%90%86/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC 对冲原理
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/gRPC-%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/">
+        
+          gRPC 中的核心概念
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E9%87%8D%E8%AF%95%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">gRPC 重试流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82"><span class="toc-nav-text">发起请求</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E8%AE%A1%E7%AE%97%E4%B8%8B%E6%AC%A1%E8%AF%B7%E6%B1%82%E6%97%B6%E9%97%B4%E9%97%B4%E9%9A%94"><span class="toc-nav-text">计算下次请求时间间隔</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/gRPC-重试流程/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC 重试流程",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

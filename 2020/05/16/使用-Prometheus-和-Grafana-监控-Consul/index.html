@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      使用 Prometheus 和 Grafana 监控 Consul | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>使用 Prometheus 和 Grafana 监控 Consul</h2>
+  <p class="post-date">2020-05-16</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="使用-Prometheus-和-Grafana-监控-Consul"><a href="#使用-Prometheus-和-Grafana-监控-Consul" class="headerlink" title="使用 Prometheus 和 Grafana 监控 Consul"></a>使用 Prometheus 和 Grafana 监控 Consul</h1><p>使用 Prometheus  和 Grafana 监控 Consul ，便于了解 Consul当前的状态，使用 Docker分别启动多个容器</p>
+<h2 id="启动-Consul"><a href="#启动-Consul" class="headerlink" title="启动 Consul"></a>启动 Consul</h2><ul>
+<li>创建配置文件 </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p ~/docker/consul/config</span><br><span class="line">vi ~/docker/consul/config/config.json</span><br></pre></td></tr></table></figure>
+
+<p>添加以下内容，目的是为了启用 Consul 的 Prometheus，否则会在调用相关端口时提示 <code>415 Unsupport Media Type</code> 和 <code>Prometheus is not enabled since its retention time is not positive</code></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;telemetry&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;prometheus_retention_time&quot;</span>: <span class="string">&quot;480h&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;disable_hostname&quot;</span>: <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动容器</li>
+</ul>
+<p>将当前目录挂载到容器的config目录下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run \</span><br><span class="line">       -d \</span><br><span class="line">       --name consul \</span><br><span class="line">       -v ~/docker/consul/config:/consul/config \</span><br><span class="line">       -p 8500:8500 \</span><br><span class="line">       consul</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>检查是否正常</li>
+</ul>
+<p>如果正常的话会返回相应的 Prometheus 数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://127.0.0.1:8500/v1/agent/metrics\?format\=prometheus</span><br></pre></td></tr></table></figure>
+
+<h2 id="启动-Prometheus"><a href="#启动-Prometheus" class="headerlink" title="启动 Prometheus"></a>启动 Prometheus</h2><ul>
+<li>创建配置文件 </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p ~/docker/prometheus/config</span><br><span class="line">vi ~/docker/prometheus/config/prometheus.yml</span><br></pre></td></tr></table></figure>
+
+<p>添加以下内容:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">global:</span></span><br><span class="line">  <span class="attr">scrape_interval:</span> <span class="string">15s</span></span><br><span class="line">  <span class="attr">scrape_timeout:</span> <span class="string">10s</span></span><br><span class="line">  <span class="attr">evaluation_interval:</span> <span class="string">15s</span></span><br><span class="line"><span class="attr">alerting:</span></span><br><span class="line">  <span class="attr">alertmanagers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">static_configs:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">targets:</span> []</span><br><span class="line">    <span class="attr">scheme:</span> <span class="string">http</span></span><br><span class="line">    <span class="attr">timeout:</span> <span class="string">10s</span></span><br><span class="line">    <span class="attr">api_version:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">scrape_configs:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">prometheus</span></span><br><span class="line">  <span class="attr">honor_timestamps:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">scrape_interval:</span> <span class="string">15s</span></span><br><span class="line">  <span class="attr">scrape_timeout:</span> <span class="string">10s</span></span><br><span class="line">  <span class="attr">metrics_path:</span> <span class="string">/metrics</span></span><br><span class="line">  <span class="attr">scheme:</span> <span class="string">http</span></span><br><span class="line">  <span class="attr">static_configs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">targets:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">localhost:9090</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">consul</span></span><br><span class="line">  <span class="attr">honor_timestamps:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">scrape_interval:</span> <span class="string">15s</span></span><br><span class="line">  <span class="attr">scrape_timeout:</span> <span class="string">10s</span></span><br><span class="line">  <span class="attr">metrics_path:</span> <span class="string">&#x27;/v1/agent/metrics&#x27;</span></span><br><span class="line">  <span class="attr">scheme:</span> <span class="string">http</span></span><br><span class="line">  <span class="attr">static_configs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">targets:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">host.docker.internal:8500</span></span><br></pre></td></tr></table></figure>
+
+<p>其中<code>targets</code>的值为 <code>host.docker.internal:8500</code>，目的是为了从容器中通过宿主机访问另一个容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run \</span><br><span class="line">	-d \</span><br><span class="line">	--name prometheus \</span><br><span class="line">    -p 9090:9090 \</span><br><span class="line">    -v ~/docker/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml \</span><br><span class="line">    prom/prometheus    </span><br></pre></td></tr></table></figure>
+
+<p>待启动后访问 <a target="_blank" rel="noopener" href="http://localhost:9090/graph">http://localhost:9090/graph</a>，可以看到 Prometheus的页面，选择 Status =&gt; Targets，可以看到 Consul 和 Prometheus 的状态都是UP</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/consul-prometheus-targets.png" alt="consul-prometheus-targets.png"></p>
+<h2 id="启动-Grafana"><a href="#启动-Grafana" class="headerlink" title="启动 Grafana"></a>启动 Grafana</h2><ul>
+<li>启动容器</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run \</span><br><span class="line">     -d \</span><br><span class="line">     --name=grafana \</span><br><span class="line">     -p 3000:3000 \</span><br><span class="line">     grafana/grafana</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>访问Grafana </li>
+</ul>
+<p>访问 <a target="_blank" rel="noopener" href="http://localhost:3000/">http://localhost:3000/</a>，用户名和密码都是 <code>admin</code>，输入后重新设置密码</p>
+<ul>
+<li>创建数据源 </li>
+</ul>
+<p>Dashboard 点击 <code>Create a datasource</code>，选择 Prometheus，URL 输入 <code>http://host.docker.internal:9090</code>，点击 <code>Save &amp; Test</code>，看到访问成功</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/consul-grafana-datasource.png" alt="consul-grafana-datasource.png"></p>
+<ul>
+<li>添加监控看板</li>
+</ul>
+<p>点击左侧<code>+</code>按钮，选择 <code>import</code>，输入Dashboard ID为 <code>10642</code>，选择Prometheus为刚才添加的数据源，点击Import后即可看到监控面板</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/consul-grafana-dashboard.png" alt="consul-grafana-dashboard.png"></p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/consul-grafana-dashboard-data.png" alt="consul-grafana-dashboard-data.png"></p>
+<hr>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><h3 id="415-Unsupported-Media-Type"><a href="#415-Unsupported-Media-Type" class="headerlink" title="415 Unsupported Media Type"></a>415 Unsupported Media Type</h3><p>Consul 启动之后Prometheus的Target提示 <code>415 Unsupported Media Type</code></p>
+<ul>
+<li>415 Unsupported Media Type</li>
+<li>Prometheus is not enabled since its retention time is not positive* Closing connection 0</li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/consul-prometheus-target-error.png" alt="consul-prometheus-target-error.png"></p>
+<p>通过CURL访问数据接口，发现提示同样的问题：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">curl -v localhost:8500/v1/agent/metrics\?format=prometheus</span><br><span class="line">*   Trying ::1...</span><br><span class="line">* TCP_NODELAY <span class="built_in">set</span></span><br><span class="line">* Connected to localhost (::1) port 8500 (<span class="comment">#0)</span></span><br><span class="line">&gt; GET /v1/agent/metrics?format=prometheus HTTP/1.1</span><br><span class="line">&gt; Host: localhost:8500</span><br><span class="line">&gt; User-Agent: curl/7.64.1</span><br><span class="line">&gt; Accept: */*</span><br><span class="line">&gt;</span><br><span class="line">&lt; HTTP/1.1 415 Unsupported Media Type</span><br><span class="line">&lt; Vary: Accept-Encoding</span><br><span class="line">&lt; Date: Thu, 07 May 2020 00:09:23 GMT</span><br><span class="line">&lt; Content-Length: 66</span><br><span class="line">&lt; Content-Type: text/plain; charset=utf-8</span><br><span class="line">&lt;</span><br><span class="line">* Connection <span class="comment">#0 to host localhost left intact</span></span><br><span class="line">Prometheus is not enabled since its retention time is not positive* Closing connection 0</span><br></pre></td></tr></table></figure>
+
+<p>解决方法是修改Consul的配置，将自定义的配置挂载到容器 <code>/consul/config</code>目录下</p>
+<p>config.json</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;telemetry&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;prometheus_retention_time&quot;</span>: <span class="string">&quot;480h&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;disable_hostname&quot;</span>: <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="“INVALID”-is-not-a-valid-start-token"><a href="#“INVALID”-is-not-a-valid-start-token" class="headerlink" title="“INVALID” is not a valid start token"></a>“INVALID” is not a valid start token</h3><p>这个问题是因为数据格式不正确导致的，通过指定拉取的数据格式即可解决，在 Prometheus 的配置文件添加中<code>param</code> 参数，这样会在请求时将参数附加在链接中</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">consul</span></span><br><span class="line">  <span class="attr">honor_timestamps:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">scrape_interval:</span> <span class="string">15s</span></span><br><span class="line">  <span class="attr">scrape_timeout:</span> <span class="string">10s</span></span><br><span class="line">  <span class="attr">metrics_path:</span> <span class="string">&#x27;/v1/agent/metrics&#x27;</span></span><br><span class="line">  <span class="attr">scheme:</span> <span class="string">http</span></span><br><span class="line">  <span class="attr">param:</span> </span><br><span class="line">    <span class="attr">format:</span> [<span class="string">&quot;prometheus&quot;</span>]</span><br><span class="line">  <span class="attr">static_configs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">targets:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">host.docker.internal:8500</span></span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Prometheus" >
+    <span class="tag-code">Prometheus</span>
+  </a>
+
+  <a href="/tags#Grafana" >
+    <span class="tag-code">Grafana</span>
+  </a>
+
+  <a href="/tags#Consul" >
+    <span class="tag-code">Consul</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/04/10/Seata-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%83%A8%E7%BD%B2%E5%AE%9E%E8%B7%B5/">
+        <span class="nav-arrow">← </span>
+        
+          Seata 高可用部署实践
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/05/16/%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-SpringBoot-%E5%BA%94%E7%94%A8/">
+        
+          使用 Prometheus 和 Grafana 监控 SpringBoot 应用
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-Consul"><span class="toc-nav-text">使用 Prometheus 和 Grafana 监控 Consul</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Consul"><span class="toc-nav-text">启动 Consul</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Prometheus"><span class="toc-nav-text">启动 Prometheus</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8-Grafana"><span class="toc-nav-text">启动 Grafana</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-nav-text">遇到的问题</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#415-Unsupported-Media-Type"><span class="toc-nav-text">415 Unsupported Media Type</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E2%80%9CINVALID%E2%80%9D-is-not-a-valid-start-token"><span class="toc-nav-text">“INVALID” is not a valid start token</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/05/16/使用-Prometheus-和-Grafana-监控-Consul/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "使用 Prometheus 和 Grafana 监控 Consul",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Boot 中集成 Spring Security | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Boot 中集成 Spring Security</h2>
+  <p class="post-date">2018-01-01</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><blockquote>
+<p>Spring Boot 集成 Spring Security的简单应用，从数据库读取数据校验用户，页面使用Thymeleaf模板</p>
+</blockquote>
+<hr>
+<h3 id="项目地址-https-github-com-helloworlde-SpringSecurity"><a href="#项目地址-https-github-com-helloworlde-SpringSecurity" class="headerlink" title="项目地址 https://github.com/helloworlde/SpringSecurity"></a>项目地址 <a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringSecurity">https://github.com/helloworlde/SpringSecurity</a></h3><h3 id="演示-http-project-hellowood-com-cn-Security"><a href="#演示-http-project-hellowood-com-cn-Security" class="headerlink" title="演示 http://project.hellowood.com.cn/Security/"></a>演示 <a target="_blank" rel="noopener" href="http://project.hellowood.com.cn/Security/">http://project.hellowood.com.cn/Security/</a></h3><h2 id="创建-Spring-Boot-应用"><a href="#创建-Spring-Boot-应用" class="headerlink" title="创建 Spring Boot 应用"></a>创建 Spring Boot 应用</h2><h2 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">compile(&#39;org.springframework.boot:spring-boot-starter-security&#39;)</span><br><span class="line">compile(&#39;org.springframework.boot:spring-boot-starter-web&#39;)</span><br><span class="line">compile(&#39;org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.0&#39;)</span><br><span class="line">compile(&#39;org.springframework.boot:spring-boot-starter-thymeleaf&#39;)</span><br><span class="line">runtime(&#39;mysql:mysql-connector-java&#39;)</span><br><span class="line">runtime(&#39;org.springframework.boot:spring-boot-starter-tomcat&#39;)</span><br><span class="line">testCompile(&#39;org.springframework.boot:spring-boot-starter-test&#39;)</span><br><span class="line">testCompile(&#39;org.springframework.security:spring-security-test&#39;)    </span><br></pre></td></tr></table></figure>
+
+<h2 id="创建用户表并插入数据"><a href="#创建用户表并插入数据" class="headerlink" title="创建用户表并插入数据"></a>创建用户表并插入数据</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE user (</span><br><span class="line">  id       INT                  AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">  username VARCHAR(45) NOT NULL,</span><br><span class="line">  password VARCHAR(45) NOT NULL,</span><br><span class="line">  enabled  INT         NOT NULL DEFAULT 1</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">INSERT INTO user (username, password, enabled) VALUES (&#39;username&#39;, &#39;password&#39;, TRUE);</span><br></pre></td></tr></table></figure>
+<h2 id="添加配置信息"><a href="#添加配置信息" class="headerlink" title="添加配置信息"></a>添加配置信息</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">spring.datasource.url&#x3D;jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;security?useSSL&#x3D;false</span><br><span class="line">spring.datasource.username&#x3D;security</span><br><span class="line">spring.datasource.password&#x3D;security</span><br><span class="line">spring.datasource.driver-class-name&#x3D;com.mysql.jdbc.Driver</span><br><span class="line">mybatis.type-aliases-package&#x3D;cn.com.hellowood.springsecurity.mapper</span><br><span class="line">mybatis.mapper-locations&#x3D;mappers&#x2F;**Mapper.xml</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加-Security-配置文件"><a href="#添加-Security-配置文件" class="headerlink" title="添加 Security 配置文件"></a>添加 Security 配置文件</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">import cn.com.hellowood.springsecurity.security.CustomAuthenticationProvider;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;</span><br><span class="line">import org.springframework.security.config.annotation.web.builders.HttpSecurity;</span><br><span class="line">import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;</span><br><span class="line">import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;</span><br><span class="line"></span><br><span class="line">@EnableWebSecurity</span><br><span class="line">public class SecurityConfig extends WebSecurityConfigurerAdapter &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private CustomAuthenticationProvider customAuthenticationProvider;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void configure(HttpSecurity http) throws Exception &#123;</span><br><span class="line">        &#x2F;&#x2F; 所有请求均可访问</span><br><span class="line">        http.authorizeRequests()</span><br><span class="line">                .antMatchers(&quot;&#x2F;&quot;, &quot;&#x2F;login&quot;, &quot;&#x2F;login-error&quot;, &quot;&#x2F;css&#x2F;**&quot;, &quot;&#x2F;index&quot;)</span><br><span class="line">                .permitAll();</span><br><span class="line">        </span><br><span class="line">        &#x2F;&#x2F; 其余所有请求均需要权限</span><br><span class="line">        http.authorizeRequests()</span><br><span class="line">                .anyRequest()</span><br><span class="line">                .authenticated();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 配置登录页面的表单 action 必须是 &#39;&#x2F;login&#39;, 用户名和密码的参数名必须是 &#39;username&#39; 和 &#39;password&#39;，</span><br><span class="line">        &#x2F;&#x2F; 登录失败的 url 是 &#39;&#x2F;login-error&#39;</span><br><span class="line">        http.formLogin()</span><br><span class="line">                .loginPage(&quot;&#x2F;login&quot;)</span><br><span class="line">                .loginProcessingUrl(&quot;&#x2F;login&quot;)</span><br><span class="line">                .usernameParameter(&quot;username&quot;)</span><br><span class="line">                .passwordParameter(&quot;password&quot;)</span><br><span class="line">                .failureUrl(&quot;&#x2F;login-error&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Configure global.</span><br><span class="line">     *</span><br><span class="line">     * @param auth the auth</span><br><span class="line">     * @throws Exception the exception</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Autowired</span><br><span class="line">    public void configureGlobal(AuthenticationManagerBuilder auth) &#123;</span><br><span class="line">        &#x2F;&#x2F; 使用自定义的 Authentication Provider</span><br><span class="line">        auth.authenticationProvider(customAuthenticationProvider);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="添加自定义的-Authentication-Provider-类"><a href="#添加自定义的-Authentication-Provider-类" class="headerlink" title="添加自定义的 Authentication Provider 类"></a>添加自定义的 Authentication Provider 类</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">import cn.com.hellowood.springsecurity.model.UserModel;</span><br><span class="line">import cn.com.hellowood.springsecurity.service.UserService;</span><br><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.security.authentication.AccountExpiredException;</span><br><span class="line">import org.springframework.security.authentication.AuthenticationProvider;</span><br><span class="line">import org.springframework.security.authentication.BadCredentialsException;</span><br><span class="line">import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;</span><br><span class="line">import org.springframework.security.core.Authentication;</span><br><span class="line">import org.springframework.security.core.AuthenticationException;</span><br><span class="line">import org.springframework.security.core.GrantedAuthority;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line">import javax.servlet.http.HttpSession;</span><br><span class="line">import java.util.ArrayList;</span><br><span class="line">import java.util.List;</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">public class CustomAuthenticationProvider implements AuthenticationProvider &#123;</span><br><span class="line"></span><br><span class="line">    private final Logger logger &#x3D; LoggerFactory.getLogger(getClass());</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private HttpSession session;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private UserService userService;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Validate user info is correct form database</span><br><span class="line">     *</span><br><span class="line">     * @param authentication</span><br><span class="line">     * @return</span><br><span class="line">     * @throws AuthenticationException</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Override</span><br><span class="line">    public Authentication authenticate(Authentication authentication) throws AuthenticationException &#123;</span><br><span class="line">        String username &#x3D; authentication.getName();</span><br><span class="line">        String password &#x3D; authentication.getCredentials().toString();</span><br><span class="line">        List&lt;GrantedAuthority&gt; grantedAuthorities &#x3D; new ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 检查用户名密码是否正确</span><br><span class="line">        UserModel user &#x3D; userService.loadUserByUsernameAndPassword(username, password);</span><br><span class="line">        if (user &#x3D;&#x3D; null) &#123;</span><br><span class="line">            logger.error(&quot;&#123;&#125; login failed, username or password is wrong&quot;, username);</span><br><span class="line">            throw new BadCredentialsException(&quot;Username or password is not correct&quot;);</span><br><span class="line">        &#125; else if (!user.getEnabled()) &#123;</span><br><span class="line">            throw new AccountExpiredException(&quot;Account had expired&quot;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 用户信息有效时将其放入 session 中</span><br><span class="line">        session.setAttribute(&quot;user&quot;, user);</span><br><span class="line">        Authentication auth &#x3D; new UsernamePasswordAuthenticationToken(username, password, grantedAuthorities);</span><br><span class="line">        return auth;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public boolean supports(Class&lt;?&gt; authentication) &#123;</span><br><span class="line">        return authentication.equals(UsernamePasswordAuthenticationToken.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加校验用户信息所需要的类"><a href="#添加校验用户信息所需要的类" class="headerlink" title="添加校验用户信息所需要的类"></a>添加校验用户信息所需要的类</h2><ul>
+<li><p>添加 UserModel.java</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class UserModel &#123;</span><br><span class="line"></span><br><span class="line">    private Integer id;</span><br><span class="line"></span><br><span class="line">    private String username;</span><br><span class="line"></span><br><span class="line">    private String password;</span><br><span class="line"></span><br><span class="line">    private Boolean enabled;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Instantiates a new User model.</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public UserModel() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Instantiates a new User model.</span><br><span class="line">     *</span><br><span class="line">     * @param id       the id</span><br><span class="line">     * @param username the username</span><br><span class="line">     * @param password the password</span><br><span class="line">     * @param enabled  the enabled</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public UserModel(Integer id, String username, String password, Boolean enabled) &#123;</span><br><span class="line">        this.id &#x3D; id;</span><br><span class="line">        this.username &#x3D; username;</span><br><span class="line">        this.password &#x3D; password;</span><br><span class="line">        this.enabled &#x3D; enabled;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Gets id.</span><br><span class="line">     *</span><br><span class="line">     * @return the id</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public Integer getId() &#123;</span><br><span class="line">        return id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Sets id.</span><br><span class="line">     *</span><br><span class="line">     * @param id the id</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public void setId(Integer id) &#123;</span><br><span class="line">        this.id &#x3D; id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Gets username.</span><br><span class="line">     *</span><br><span class="line">     * @return the username</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public String getUsername() &#123;</span><br><span class="line">        return username;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Sets username.</span><br><span class="line">     *</span><br><span class="line">     * @param username the username</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public void setUsername(String username) &#123;</span><br><span class="line">        this.username &#x3D; username;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Gets password.</span><br><span class="line">     *</span><br><span class="line">     * @return the password</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public String getPassword() &#123;</span><br><span class="line">        return password;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Sets password.</span><br><span class="line">     *</span><br><span class="line">     * @param password the password</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public void setPassword(String password) &#123;</span><br><span class="line">        this.password &#x3D; password;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Gets enabled.</span><br><span class="line">     *</span><br><span class="line">     * @return the enabled</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public Boolean getEnabled() &#123;</span><br><span class="line">        return enabled;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Sets enabled.</span><br><span class="line">     *</span><br><span class="line">     * @param enabled the enabled</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public void setEnabled(Boolean enabled) &#123;</span><br><span class="line">        this.enabled &#x3D; enabled;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public String toString() &#123;</span><br><span class="line">        return &quot;UserModel&#123;&quot; +</span><br><span class="line">                &quot;id&#x3D;&quot; + id +</span><br><span class="line">                &quot;, username&#x3D;&#39;&quot; + username + &#39;\&#39;&#39; +</span><br><span class="line">                &quot;, password&#x3D;&#39;&quot; + password + &#39;\&#39;&#39; +</span><br><span class="line">                &quot;, enabled&#x3D;&quot; + enabled +</span><br><span class="line">                &#39;&#125;&#39;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>添加 UserService.java</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">import cn.com.hellowood.springsecurity.mapper.UserMapper;</span><br><span class="line">import cn.com.hellowood.springsecurity.model.UserModel;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.stereotype.Service;</span><br><span class="line"></span><br><span class="line">@Service(&quot;userService&quot;)</span><br><span class="line">public class UserService &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private UserMapper userMapper;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Load user by username and password user model.</span><br><span class="line">     *</span><br><span class="line">     * @param username the username</span><br><span class="line">     * @param password the password</span><br><span class="line">     * @return the user model</span><br><span class="line">     *&#x2F;</span><br><span class="line">    public UserModel loadUserByUsernameAndPassword(String username, String password) &#123;</span><br><span class="line">        return userMapper.getUserByUsernameAndPassword(username, password);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>添加 UserMapper.java</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">import cn.com.hellowood.springsecurity.model.UserModel;</span><br><span class="line">import org.apache.ibatis.annotations.Mapper;</span><br><span class="line">import org.apache.ibatis.annotations.Param;</span><br><span class="line"></span><br><span class="line">@Mapper</span><br><span class="line">public interface UserMapper &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Gets user by username and password.</span><br><span class="line">     *</span><br><span class="line">     * @param username the username</span><br><span class="line">     * @param password the password</span><br><span class="line">     * @return the user by username and password</span><br><span class="line">     *&#x2F;</span><br><span class="line">    UserModel getUserByUsernameAndPassword(@Param(&quot;username&quot;) String username,</span><br><span class="line">                                           @Param(&quot;password&quot;) String password);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>添加 UserMapper.xml </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot; ?&gt;</span><br><span class="line">&lt;!DOCTYPE mapper PUBLIC &quot;-&#x2F;&#x2F;mybatis.org&#x2F;&#x2F;DTD Mapper 3.0&#x2F;&#x2F;EN&quot; &quot;http:&#x2F;&#x2F;mybatis.org&#x2F;dtd&#x2F;mybatis-3-mapper.dtd&quot; &gt;</span><br><span class="line">&lt;mapper namespace&#x3D;&quot;cn.com.hellowood.springsecurity.mapper.UserMapper&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;resultMap id&#x3D;&quot;baseResultMap&quot; type&#x3D;&quot;cn.com.hellowood.springsecurity.model.UserModel&quot;&gt;</span><br><span class="line">        &lt;id column&#x3D;&quot;id&quot; property&#x3D;&quot;id&quot; javaType&#x3D;&quot;java.lang.Integer&quot; jdbcType&#x3D;&quot;INTEGER&quot;&gt;&lt;&#x2F;id&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;username&quot; property&#x3D;&quot;username&quot; javaType&#x3D;&quot;java.lang.String&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;password&quot; property&#x3D;&quot;password&quot; javaType&#x3D;&quot;java.lang.String&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;enabled&quot; property&#x3D;&quot;enabled&quot; javaType&#x3D;&quot;java.lang.Boolean&quot; jdbcType&#x3D;&quot;INTEGER&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;&#x2F;resultMap&gt;</span><br><span class="line"></span><br><span class="line">    &lt;select id&#x3D;&quot;getUserByUsernameAndPassword&quot; resultType&#x3D;&quot;cn.com.hellowood.springsecurity.model.UserModel&quot;&gt;</span><br><span class="line">        SELECT</span><br><span class="line">            id,</span><br><span class="line">            username,</span><br><span class="line">            password,</span><br><span class="line">            enabled</span><br><span class="line">        FROM user</span><br><span class="line">        WHERE username &#x3D; #&#123;username, jdbcType&#x3D;VARCHAR&#125;</span><br><span class="line">              AND password &#x3D; #&#123;password, jdbcType&#x3D;VARCHAR&#125;</span><br><span class="line">    &lt;&#x2F;select&gt;</span><br><span class="line">&lt;&#x2F;mapper&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="添加页面"><a href="#添加页面" class="headerlink" title="添加页面"></a>添加页面</h2></li>
+<li><p>index.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html xmlns&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;1999&#x2F;xhtml&quot; xmlns:th&#x3D;&quot;http:&#x2F;&#x2F;www.thymeleaf.org&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;Spring Security&lt;&#x2F;title&gt;</span><br><span class="line">    &lt;meta charset&#x3D;&quot;utf-8&quot;&#x2F;&gt;</span><br><span class="line">    &lt;meta name&#x3D;&quot;viewport&quot; content&#x3D;&quot;width&#x3D;device-width, initial-scale&#x3D;1, shrink-to-fit&#x3D;no&quot;&#x2F;&gt;</span><br><span class="line">    &lt;link rel&#x3D;&quot;stylesheet&quot; href&#x3D;&quot;&#x2F;css&#x2F;main.css&quot; th:href&#x3D;&quot;@&#123;&#x2F;css&#x2F;main.css&#125;&quot;&#x2F;&gt;</span><br><span class="line">    &lt;link rel&#x3D;&quot;stylesheet&quot; href&#x3D;&quot;&#x2F;css&#x2F;bootstrap.min.css&quot; th:href&#x3D;&quot;@&#123;&#x2F;css&#x2F;bootstrap.min.css&#125;&quot;&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;div class&#x3D;&quot;container&quot;&gt;</span><br><span class="line">    &lt;form action&#x3D;&quot;#&quot; class&#x3D;&quot;form-signin&quot;&gt;</span><br><span class="line">        &lt;h2 class&#x3D;&quot;form-signin-heading&quot;&gt;Hello Spring Security&lt;&#x2F;h2&gt;</span><br><span class="line">        &lt;h5 class&#x3D;&quot;form-signin-heading content-adjust&quot;&gt;Anyone can access this page&lt;&#x2F;h5&gt;</span><br><span class="line">        &lt;div th:if&#x3D;&quot;$&#123;session.user&#125; !&#x3D; null&quot;&gt;</span><br><span class="line">            &lt;h5 class&#x3D;&quot;form-signin-heading content-adjust&quot;&gt;Your username is &lt;span th:text&#x3D;&quot;$&#123;session.user.username&#125;&quot;&gt;&lt;&#x2F;span&gt;&lt;&#x2F;h5&gt;</span><br><span class="line">            &lt;a href&#x3D;&quot;&#x2F;user&#x2F;index&quot; th:href&#x3D;&quot;@&#123;&#x2F;user&#x2F;index&#125;&quot; class&#x3D;&quot;btn btn-success btn-block&quot;&gt;To Security page&lt;&#x2F;a&gt;</span><br><span class="line">        &lt;&#x2F;div&gt;</span><br><span class="line">        &lt;div th:if&#x3D;&quot;$&#123;session.user&#125; &#x3D;&#x3D; null&quot;&gt;</span><br><span class="line">            &lt;a href&#x3D;&quot;&#x2F;index&quot; th:href&#x3D;&quot;@&#123;&#x2F;login&#125;&quot; class&#x3D;&quot;btn btn-primary btn-block&quot;&gt;To Login page&lt;&#x2F;a&gt;</span><br><span class="line">        &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;&#x2F;form&gt;</span><br><span class="line">    &lt;div th:fragment&#x3D;&quot;logout&quot; class&#x3D;&quot;logout&quot; th:if&#x3D;&quot;$&#123;session.user&#125; !&#x3D; null&quot;&gt;</span><br><span class="line">        &lt;form action&#x3D;&quot;#&quot; th:action&#x3D;&quot;@&#123;&#x2F;logout&#125;&quot; method&#x3D;&quot;post&quot; class&#x3D;&quot;form-signin&quot;&gt;</span><br><span class="line">            &lt;button class&#x3D;&quot;btn btn-warning btn-block&quot; type&#x3D;&quot;submit&quot;&gt;Log out&lt;&#x2F;button&gt;</span><br><span class="line">        &lt;&#x2F;form&gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line">&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure></li>
+<li><p>login.html </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html xmlns&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;1999&#x2F;xhtml&quot; xmlns:th&#x3D;&quot;http:&#x2F;&#x2F;www.thymeleaf.org&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;Login page&lt;&#x2F;title&gt;</span><br><span class="line">    &lt;meta charset&#x3D;&quot;utf-8&quot;&#x2F;&gt;</span><br><span class="line">    &lt;meta name&#x3D;&quot;viewport&quot; content&#x3D;&quot;width&#x3D;device-width, initial-scale&#x3D;1, shrink-to-fit&#x3D;no&quot;&#x2F;&gt;</span><br><span class="line">    &lt;link rel&#x3D;&quot;stylesheet&quot; href&#x3D;&quot;&#x2F;css&#x2F;main.css&quot; th:href&#x3D;&quot;@&#123;&#x2F;css&#x2F;main.css&#125;&quot;&#x2F;&gt;</span><br><span class="line">    &lt;link rel&#x3D;&quot;stylesheet&quot; href&#x3D;&quot;&#x2F;css&#x2F;bootstrap.min.css&quot; th:href&#x3D;&quot;@&#123;&#x2F;css&#x2F;bootstrap.min.css&#125;&quot;&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;div class&#x3D;&quot;container&quot;&gt;</span><br><span class="line">    &lt;form th:action&#x3D;&quot;@&#123;&#x2F;login&#125;&quot; method&#x3D;&quot;post&quot; class&#x3D;&quot;form-signin&quot;&gt;</span><br><span class="line">        &lt;h2 class&#x3D;&quot;form-signin-heading&quot;&gt;Please sign in&lt;&#x2F;h2&gt;</span><br><span class="line">        &lt;div&gt;</span><br><span class="line">            &lt;label for&#x3D;&quot;username&quot; class&#x3D;&quot;sr-only&quot;&gt;Username&lt;&#x2F;label&gt;</span><br><span class="line">            &lt;input type&#x3D;&quot;text&quot; id&#x3D;&quot;username&quot; name&#x3D;&quot;username&quot;</span><br><span class="line">                   th:class&#x3D;&quot;$&#123;loginError&#125; ? &#39;form-control is-invalid&#39; : &#39;form-control&#39;&quot; placeholder&#x3D;&quot;Username&quot;</span><br><span class="line">                   required&#x3D;&quot;required&quot;</span><br><span class="line">                   autofocus&#x3D;&quot;autofocus&quot;&#x2F;&gt;</span><br><span class="line">            &lt;div class&#x3D;&quot;invalid-feedback&quot; th:if&#x3D;&quot;$&#123;loginError&#125;&quot;&gt;</span><br><span class="line">                Wrong username or password</span><br><span class="line">            &lt;&#x2F;div&gt;</span><br><span class="line">        &lt;&#x2F;div&gt;</span><br><span class="line">        &lt;div&gt;</span><br><span class="line">            &lt;label for&#x3D;&quot;password&quot; class&#x3D;&quot;sr-only&quot;&gt;Password&lt;&#x2F;label&gt;</span><br><span class="line">            &lt;input type&#x3D;&quot;password&quot; id&#x3D;&quot;password&quot; name&#x3D;&quot;password&quot; class&#x3D;&quot;form-control&quot; placeholder&#x3D;&quot;Password&quot;</span><br><span class="line">                   required&#x3D;&quot;required&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;div&gt;</span><br><span class="line">        &lt;button class&#x3D;&quot;btn btn-success btn-block&quot; type&#x3D;&quot;submit&quot;&gt;Sign in&lt;&#x2F;button&gt;</span><br><span class="line">        &lt;a href&#x3D;&quot;&#x2F;index&quot; th:href&#x3D;&quot;@&#123;&#x2F;index&#125;&quot; class&#x3D;&quot;btn btn-primary btn-block&quot;&gt;Back to Home page&lt;&#x2F;a&gt;</span><br><span class="line">    &lt;&#x2F;form&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line">&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure></li>
+<li><p>user/index.html</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html xmlns&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;1999&#x2F;xhtml&quot; xmlns:th&#x3D;&quot;http:&#x2F;&#x2F;www.thymeleaf.org&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;Spring Security&lt;&#x2F;title&gt;</span><br><span class="line">    &lt;meta charset&#x3D;&quot;utf-8&quot;&#x2F;&gt;</span><br><span class="line">    &lt;meta name&#x3D;&quot;viewport&quot; content&#x3D;&quot;width&#x3D;device-width, initial-scale&#x3D;1, shrink-to-fit&#x3D;no&quot;&#x2F;&gt;</span><br><span class="line">    &lt;link rel&#x3D;&quot;stylesheet&quot; href&#x3D;&quot;&#x2F;css&#x2F;main.css&quot; th:href&#x3D;&quot;@&#123;&#x2F;css&#x2F;main.css&#125;&quot;&#x2F;&gt;</span><br><span class="line">    &lt;link rel&#x3D;&quot;stylesheet&quot; href&#x3D;&quot;&#x2F;css&#x2F;bootstrap.min.css&quot; th:href&#x3D;&quot;@&#123;&#x2F;css&#x2F;bootstrap.min.css&#125;&quot;&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;div class&#x3D;&quot;container&quot;&gt;</span><br><span class="line">    &lt;form action&#x3D;&quot;#&quot; class&#x3D;&quot;form-signin&quot;&gt;</span><br><span class="line">        &lt;h2 class&#x3D;&quot;form-signin-heading&quot;&gt;Hello Spring Security&lt;&#x2F;h2&gt;</span><br><span class="line">        &lt;h5 class&#x3D;&quot;form-signin-heading content-adjust&quot;&gt;Only logged in user can access this page&lt;&#x2F;h5&gt;</span><br><span class="line">        &lt;div th:if&#x3D;&quot;$&#123;session.user&#125; !&#x3D; null&quot;&gt;</span><br><span class="line">            &lt;h5 class&#x3D;&quot;form-signin-heading content-adjust&quot;&gt;Logged user is &lt;span th:text&#x3D;&quot;$&#123;session.user.username&#125;&quot;&gt;&lt;&#x2F;span&gt;&lt;&#x2F;h5&gt;</span><br><span class="line">            &lt;a href&#x3D;&quot;&#x2F;index&quot; th:href&#x3D;&quot;@&#123;&#x2F;index&#125;&quot; class&#x3D;&quot;btn btn-primary btn-block&quot;&gt;Back to Home page&lt;&#x2F;a&gt;</span><br><span class="line">        &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;&#x2F;form&gt;</span><br><span class="line">    &lt;div th:substituteby&#x3D;&quot;index::logout&quot;&gt;&lt;&#x2F;div&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line">&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="添加-Controller"><a href="#添加-Controller" class="headerlink" title="添加 Controller"></a>添加 Controller</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">import org.springframework.stereotype.Controller;</span><br><span class="line">import org.springframework.ui.Model;</span><br><span class="line">import org.springframework.web.bind.annotation.RequestMapping;</span><br><span class="line"></span><br><span class="line">@Controller</span><br><span class="line">public class MainController &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Root page.</span><br><span class="line">     *</span><br><span class="line">     * @return the index page url</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @RequestMapping(&quot;&#x2F;&quot;)</span><br><span class="line">    public String root() &#123;</span><br><span class="line">        return &quot;redirect:&#x2F;index&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Index page.</span><br><span class="line">     *</span><br><span class="line">     * @return the index page url</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @RequestMapping(&quot;&#x2F;index&quot;)</span><br><span class="line">    public String index() &#123;</span><br><span class="line">        return &quot;index&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * User index page.</span><br><span class="line">     *</span><br><span class="line">     * @return the user index page url</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @RequestMapping(&quot;&#x2F;user&#x2F;index&quot;)</span><br><span class="line">    public String userIndex() &#123;</span><br><span class="line">        return &quot;user&#x2F;index&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Login page.</span><br><span class="line">     *</span><br><span class="line">     * @return the login page url</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @RequestMapping(&quot;&#x2F;login&quot;)</span><br><span class="line">    public String login() &#123;</span><br><span class="line">        return &quot;login&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Login error page.</span><br><span class="line">     *</span><br><span class="line">     * @param model the model</span><br><span class="line">     * @return the login error page url</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @RequestMapping(&quot;&#x2F;login-error&quot;)</span><br><span class="line">    public String loginError(Model model) &#123;</span><br><span class="line">        model.addAttribute(&quot;loginError&quot;, true);</span><br><span class="line">        return &quot;login&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<p>启动应用，访问<a target="_blank" rel="noopener" href="http://localhost:8080/user/index">http://localhost:8080/user/index</a>，此时没有登录，会被拦截并重定向到登录页面<a target="_blank" rel="noopener" href="http://localhost:8080/login">http://localhost:8080/login</a>，输入用户名 <code>username</code> 和密码 <code>password</code>，登录成功后再次访问<a target="_blank" rel="noopener" href="http://localhost:8080/user/index">http://localhost:8080/user/index</a>，此时该 url 可以正常访问，当输入错误的用户名或密码时会提示错误信息，说明 Spring Security 配置正确</p>
+</blockquote>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Spring Security" >
+    <span class="tag-code">Spring Security</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/01/Spring-MVC-%E4%BD%BF%E7%94%A8-Spring-Session-%E5%AE%9E%E7%8E%B0-Session-%E5%85%B1%E4%BA%AB-Redis/">
+        <span class="nav-arrow">← </span>
+        
+          Spring MVC 使用 Spring Session 实现 Session 共享-Redis
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/01/Spring-Security-%E4%B8%AD%E5%AE%9E%E7%8E%B0-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD/">
+        
+          Spring Security 中实现 Remember Me 记住密码功能
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%A1%B9%E7%9B%AE%E5%9C%B0%E5%9D%80-https-github-com-helloworlde-SpringSecurity"><span class="toc-nav-text">项目地址 https:&#x2F;&#x2F;github.com&#x2F;helloworlde&#x2F;SpringSecurity</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%BC%94%E7%A4%BA-http-project-hellowood-com-cn-Security"><span class="toc-nav-text">演示 http:&#x2F;&#x2F;project.hellowood.com.cn&#x2F;Security&#x2F;</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA-Spring-Boot-%E5%BA%94%E7%94%A8"><span class="toc-nav-text">创建 Spring Boot 应用</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7%E8%A1%A8%E5%B9%B6%E6%8F%92%E5%85%A5%E6%95%B0%E6%8D%AE"><span class="toc-nav-text">创建用户表并插入数据</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF"><span class="toc-nav-text">添加配置信息</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0-Security-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-nav-text">添加 Security 配置文件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-Authentication-Provider-%E7%B1%BB"><span class="toc-nav-text">添加自定义的 Authentication Provider 类</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%A0%A1%E9%AA%8C%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E6%89%80%E9%9C%80%E8%A6%81%E7%9A%84%E7%B1%BB"><span class="toc-nav-text">添加校验用户信息所需要的类</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E9%A1%B5%E9%9D%A2"><span class="toc-nav-text">添加页面</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0-Controller"><span class="toc-nav-text">添加 Controller</span></a>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/01/Spring-Boot-中集成-Spring-Security/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Boot 中集成 Spring Security",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

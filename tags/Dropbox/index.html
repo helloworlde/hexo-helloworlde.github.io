@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Archives</h2>
+  <p class="post-date">文章归档</p>
+</div>
+<main class="app-body" id="archives">
+  
+  
+  
+    <section class="time-section">
+  <h1 class="section-year">
+    2021
+  </h1>
+  <div class="section-list">
+    
+    
+      <div class="section-list-item">
+        <a href="/2021/03/27/%E4%BD%BF%E7%94%A8%E8%85%BE%E8%AE%AF%E4%BA%91%E7%9A%84Serverless%E9%83%A8%E7%BD%B2%E5%A4%A9%E6%B0%94%E5%BA%94%E7%94%A8/" class="archive-title">使用腾讯云的Serverless部署天气应用</a>
+        <p class="archive-date">03-27</p>
+      </div>
+    
+  </div>
+</section>
+  
+    <section class="time-section">
+  <h1 class="section-year">
+    2020
+  </h1>
+  <div class="section-list">
+    
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/gRPC-%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%E4%B8%8E%E9%87%8D%E8%AF%95%E6%97%B6%E9%97%B4%E9%97%B4%E9%9A%94/" class="archive-title">gRPC 超时时间与重试时间间隔</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/gRPC-%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/" class="archive-title">gRPC 中的核心概念</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/gRPC-%E9%87%8D%E8%AF%95%E6%B5%81%E7%A8%8B/" class="archive-title">gRPC 重试流程</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/gRPC-%E5%AF%B9%E5%86%B2%E5%8E%9F%E7%90%86/" class="archive-title">gRPC 对冲原理</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/gRPC-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/" class="archive-title">gRPC  自定义健康检查</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/gRPC-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/" class="archive-title">gRPC  健康检查</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/gRPC-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="archive-title">gRPC  负载均衡</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/HPA-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E6%8C%87%E6%A0%87%E8%87%AA%E5%8A%A8%E6%89%A9%E7%BC%A9%E5%AE%B9/" class="archive-title">HPA 使用自定义的指标自动扩缩容</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/gRPC-%E5%91%BD%E5%90%8D%E8%A7%A3%E6%9E%90/" class="archive-title">gRPC 命名解析</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-NameResolver/" class="archive-title">gRPC 使用自定义的 NameResolver</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/gRPC-%E4%B8%AD-Binlog-%E6%89%93%E5%8D%B0%E5%8E%9F%E7%90%86/" class="archive-title">gRPC 中 Binlog 打印原理</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/Spring-Boot-2-3-Liveness-%E5%92%8C-Readness-%E6%8E%A5%E5%8F%A3%E4%BD%BF%E7%94%A8/" class="archive-title">Spring Boot 2.3+ Liveness 和 Readness 接口使用</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/SpringBoot-%E6%A1%86%E6%9E%B6%E8%87%AA%E5%B8%A6%E6%8F%92%E4%BB%B6%E6%9E%84%E5%BB%BA-Docker-%E9%95%9C%E5%83%8F/" class="archive-title">SpringBoot 框架自带插件构建 Docker 镜像</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-Grafana-%E7%9B%91%E6%8E%A7/" class="archive-title">Raspberry Pi 4 使用 Grafana 监控</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-USB-%E4%BB%8E-SSD-%E5%90%AF%E5%8A%A8/" class="archive-title">Raspberry Pi 4 使用 USB 从 SSD 启动</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Consul-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" class="archive-title">Spring Cloud 使用 Consul 作为配置中心</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-1/" class="archive-title">Spring Cloud 使用 Kubernetes 作为配置中心</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/Spring-Cloud-Consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/" class="archive-title">Spring Cloud Consul 服务注册和发现</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/Spring-Cloud-Kubernetes-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/" class="archive-title">Spring Cloud Kubernetes 服务注册和发现</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/Spring-Cloud-Gateway-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" class="archive-title">Spring Cloud Gateway 使用 Kubernetes 作为服务发现</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/09/20/Spring-Cloud-Gateway-%E4%BD%BF%E7%94%A8-Kubernetes-%E5%AE%9E%E7%8E%B0%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="archive-title">Spring Cloud Gateway 使用 Kubernetes 实现负载均衡</a>
+        <p class="archive-date">09-20</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/05/16/Prometheus-%E4%BD%BF%E7%94%A8-Consul-%E8%87%AA%E5%8A%A8%E5%8F%91%E7%8E%B0-Spring-Boot-%E6%9C%8D%E5%8A%A1%E5%B9%B6%E6%8B%89%E5%8F%96%E6%95%B0%E6%8D%AE/" class="archive-title">Prometheus 使用 Consul 自动发现 Spring Boot 服务并拉取数据</a>
+        <p class="archive-date">05-16</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/05/16/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89-Grafana-%E9%9D%A2%E6%9D%BF%E7%9B%91%E6%8E%A7-Consul/" class="archive-title">使用自定义 Grafana 面板监控 Consul</a>
+        <p class="archive-date">05-16</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/05/16/%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-SpringBoot-%E5%BA%94%E7%94%A8/" class="archive-title">使用 Prometheus 和 Grafana 监控 SpringBoot 应用</a>
+        <p class="archive-date">05-16</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/05/16/%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-Consul/" class="archive-title">使用 Prometheus 和 Grafana 监控 Consul</a>
+        <p class="archive-date">05-16</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2020/04/10/Seata-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%83%A8%E7%BD%B2%E5%AE%9E%E8%B7%B5/" class="archive-title">Seata 高可用部署实践</a>
+        <p class="archive-date">04-10</p>
+      </div>
+    
+  </div>
+</section>
+  
+    <section class="time-section">
+  <h1 class="section-year">
+    2019
+  </h1>
+  <div class="section-list">
+    
+    
+      <div class="section-list-item">
+        <a href="/2019/12/29/Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E4%BD%BF%E7%94%A8-Prometheus/" class="archive-title">Kubernetes 中使用 Helm 部署使用 Prometheus</a>
+        <p class="archive-date">12-29</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/12/15/%E6%A0%91%E8%8E%93%E6%B4%BE-4b-%E6%97%A0%E7%BD%91%E7%BA%BF%E5%AE%89%E8%A3%85-Ubuntu-%E5%B9%B6%E5%88%9D%E5%A7%8B%E5%8C%96/" class="archive-title">树莓派 4b 无网线安装 Ubuntu 并初始化</a>
+        <p class="archive-date">12-15</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/12/07/%E4%BD%BF%E7%94%A8-GitHub-%E4%BD%9C%E4%B8%BA-Helm-%E4%BB%93%E5%BA%93/" class="archive-title">使用 GitHub 作为 Helm 仓库</a>
+        <p class="archive-date">12-07</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/15/Go-%E8%B0%83%E7%94%A8-Windows-%E7%9A%84%E7%B3%BB%E7%BB%9F-API%EF%BC%8C%E6%A3%80%E6%B5%8B%E6%98%AF%E5%90%A6%E9%94%81%E5%B1%8F/" class="archive-title">Go 调用 Windows 的系统 API，检测是否锁屏</a>
+        <p class="archive-date">09-15</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Kubenetes-%E9%83%A8%E7%BD%B2-Dashboard/" class="archive-title">Kubenetes 部署 Dashboard</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-%E4%BD%BF%E7%94%A8%E5%8A%A0%E5%AF%86%E9%85%8D%E7%BD%AE/" class="archive-title">Spring Cloud 使用 Kubernetes 作为配置中心 - 使用加密配置</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" class="archive-title">Spring Cloud 使用 Kubernetes 作为配置中心</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" class="archive-title">Spring Cloud 使用 Kubernetes 作为注册中心</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Kubenetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Traefik-%E4%BD%9C%E4%B8%BA-Ingress-%E8%BD%AC%E5%8F%91%E6%B5%81%E9%87%8F/" class="archive-title">Kubenetes 中使用 Traefik 作为 Ingress 转发流量</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/" class="archive-title">Kubernetes 中使用 Helm 部署应用</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Kubernetes-%E4%B8%AD%E5%AE%89%E8%A3%85-Helm/" class="archive-title">Kubernetes 中安装 Helm</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Go-%E5%BC%80%E5%8F%91%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7-OSS%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" class="archive-title">Go 开发命令行工具-OSS文件上传</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8Spring-Cloud-Stream/" class="archive-title">Spring Boot 中使用Spring Cloud Stream</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8-WebSocket/" class="archive-title">Spring Boot 中使用 WebSocket</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Spring-Boot-%E4%B8%AD%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/" class="archive-title">Spring Boot 中自定义异常处理</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/09/08/Spring-Boot-%E4%B8%AD%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E6%A0%BC%E5%BC%8F/" class="archive-title">Spring Boot 中自定义接口返回格式</a>
+        <p class="archive-date">09-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/05/27/Ubuntu-Docker-%E6%9B%BF%E6%8D%A2%E8%BD%AF%E4%BB%B6%E6%BA%90/" class="archive-title">Ubuntu/Docker 替换软件源</a>
+        <p class="archive-date">05-27</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/05/15/Google-Cloud-Run-%E9%83%A8%E7%BD%B2-Knative-Serverless-%E5%BA%94%E7%94%A8/" class="archive-title">Google Cloud Run 部署 Knative Serverless 应用 </a>
+        <p class="archive-date">05-15</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/05/06/AWS-Lambda-%E9%83%A8%E7%BD%B2-SpringBoot-%E5%BA%94%E7%94%A8/" class="archive-title">AWS Lambda 部署 SpringBoot 应用</a>
+        <p class="archive-date">05-06</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/03/29/MyBatis-%E6%9F%A5%E8%AF%A2%E9%94%99%E8%AF%AF%EF%BC%9Ajava-lang-IllegalArgumentException-invalid-comparison-java-util-Date-and-java-lang-String/" class="archive-title">MyBatis 查询错误：java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</a>
+        <p class="archive-date">03-29</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/03/24/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3-Traefik-Docker-Swarm-%E4%BD%BF%E7%94%A8/" class="archive-title">微服务网关 Traefik - Docker Swarm 使用</a>
+        <p class="archive-date">03-24</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/01/29/GraphQL-Spring-Boot-%E4%BD%BF%E7%94%A8/" class="archive-title">GraphQL Spring Boot 使用</a>
+        <p class="archive-date">01-29</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2019/01/07/MySQL-%E4%B8%AD%E5%85%B3%E4%BA%8Egap-lock-next-key-lock-%E7%9A%84%E4%B8%80%E4%B8%AA%E9%97%AE%E9%A2%98/" class="archive-title">MySQL 中关于gap lock / next-key lock 的一个问题</a>
+        <p class="archive-date">01-07</p>
+      </div>
+    
+  </div>
+</section>
+  
+    <section class="time-section">
+  <h1 class="section-year">
+    2018
+  </h1>
+  <div class="section-list">
+    
+    
+      <div class="section-list-item">
+        <a href="/2018/12/31/SpringBoot-%E4%BD%BF%E7%94%A8-MySQL%E4%BF%9D%E5%AD%98emoji-%E8%A1%A8%E6%83%85/" class="archive-title">SpringBoot 使用 MySQL保存emoji 表情</a>
+        <p class="archive-date">12-31</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/12/31/Spring-Boot-%E9%85%8D%E7%BD%AE-HTTPS-%E8%AE%BF%E9%97%AE/" class="archive-title">Spring Boot 配置 HTTPS 访问</a>
+        <p class="archive-date">12-31</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/12/24/SpringBoot-%E4%B8%AD-Spring-Security-403-%E8%87%AA%E5%AE%9A%E4%B9%89%E8%BF%94%E5%9B%9E%E6%B6%88%E6%81%AF/" class="archive-title">SpringBoot 中 Spring Security 403 自定义返回消息</a>
+        <p class="archive-date">12-24</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/10/23/Kubernetes-%E9%85%8D%E7%BD%AE-kubeconfig-%E8%AE%BF%E9%97%AE%E5%A4%9A%E4%B8%AA%E9%9B%86%E7%BE%A4/" class="archive-title">Kubernetes 配置 kubeconfig 访问多个集群</a>
+        <p class="archive-date">10-23</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/10/22/Kubernetes-%E4%B8%AD%E9%83%A8%E7%BD%B2-SpringBoot-%E5%BA%94%E7%94%A8/" class="archive-title">Kubernetes 中部署 SpringBoot 应用 </a>
+        <p class="archive-date">10-22</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/10/21/Ubuntu-%E6%90%AD%E5%BB%BA-ShadowSocks-%E6%9C%8D%E5%8A%A1/" class="archive-title">Ubuntu 搭建 ShadowSocks 服务</a>
+        <p class="archive-date">10-21</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/10/13/Mac-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%BF%E9%97%AE-Dropbox/" class="archive-title">Mac 客户端访问 Dropbox</a>
+        <p class="archive-date">10-13</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/08/25/Java-%E4%B8%AD%E8%AE%A1%E7%AE%97%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E5%80%BC/" class="archive-title">Java 中计算字符串表达式的值</a>
+        <p class="archive-date">08-25</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/08/08/Docker-%E5%AE%B9%E5%99%A8%E4%B8%AD%E8%BF%90%E8%A1%8C-Docker-%E5%91%BD%E4%BB%A4/" class="archive-title">Docker 容器中运行 Docker 命令</a>
+        <p class="archive-date">08-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/08/01/%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E5%B7%A5%E5%85%B7-Sonarqube-%E6%90%AD%E5%BB%BA%E4%BD%BF%E7%94%A8/" class="archive-title">代码质量工具 Sonarqube 搭建使用</a>
+        <p class="archive-date">08-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/07/31/%E6%9C%8D%E5%8A%A1%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7-SkyWorking-%E6%90%AD%E5%BB%BA%E4%BD%BF%E7%94%A8/" class="archive-title">服务追踪工具 SkyWorking 搭建使用</a>
+        <p class="archive-date">07-31</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/07/16/%E4%BD%BF%E7%94%A8-Jib-%E7%94%9F%E6%88%90-Java-Docker-%E9%95%9C%E5%83%8F/" class="archive-title">使用 Jib 生成 Java Docker 镜像</a>
+        <p class="archive-date">07-16</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/05/30/JRebel-%E5%AE%89%E8%A3%85%E6%BF%80%E6%B4%BB/" class="archive-title">JRebel 安装激活</a>
+        <p class="archive-date">05-30</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/04/10/SpringBoot-%E4%BD%BF%E7%94%A8-FastJSON-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E-JSON-%E6%A0%BC%E5%BC%8F/" class="archive-title">SpringBoot 使用 FastJSON 自定义接口返回 JSON 格式</a>
+        <p class="archive-date">04-10</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/04/10/Ubuntu-%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E4%BC%A0%E5%92%8C%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6/" class="archive-title">Ubuntu 服务器上传和下载文件</a>
+        <p class="archive-date">04-10</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/04/10/Docker-%E9%85%8D%E7%BD%AE-Nginx-%E8%AE%BF%E9%97%AE%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84%E5%BA%94%E7%94%A8/" class="archive-title">Docker 配置 Nginx 访问宿主机目录下的应用</a>
+        <p class="archive-date">04-10</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/04/08/Docker-%E6%9E%84%E5%BB%BA-SpringBoot-%E5%BA%94%E7%94%A8/" class="archive-title">Docker 构建 SpringBoot 应用</a>
+        <p class="archive-date">04-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/04/08/Docker-%E9%85%8D%E7%BD%AEUbuntu-%E4%B8%8B-Tomcat-%E5%92%8C-Nginx-%E4%BD%BF%E7%94%A8-HTTPS-%E8%AE%BF%E9%97%AE/" class="archive-title">Docker 配置Ubuntu 下 Tomcat 和 Nginx 使用 HTTPS 访问</a>
+        <p class="archive-date">04-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/04/08/Docker-%E4%B8%AD%E4%BD%BF%E7%94%A8-Dockerfile/" class="archive-title">Docker 中使用 Dockerfile</a>
+        <p class="archive-date">04-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/04/08/Docker-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/" class="archive-title">Docker 常用命令</a>
+        <p class="archive-date">04-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/04/08/Docker/" class="archive-title">Docker</a>
+        <p class="archive-date">04-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/04/08/SpringBoot-%E4%BD%BF%E7%94%A8-MyBatis-%E9%80%9A%E7%94%A8-Mapper/" class="archive-title">SpringBoot-使用 MyBatis 通用 Mapper</a>
+        <p class="archive-date">04-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/04/08/SpringBoot-%E4%BD%BF%E7%94%A8-Spring-Session-%E5%AE%9E%E7%8E%B0-Session-%E5%85%B1%E4%BA%AB/" class="archive-title">SpringBoot-使用 Spring Session 实现 Session 共享</a>
+        <p class="archive-date">04-08</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/02/12/SpringBoot-%E4%BD%BF%E7%94%A8QuartzJob%E5%AE%9E%E7%8E%B0%E4%BB%BB%E5%8A%A1%E6%8E%A7%E5%88%B6/" class="archive-title">SpringBoot 使用QuartzJob实现任务控制</a>
+        <p class="archive-date">02-12</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/02/03/SpringBoot-%E4%BD%BF%E7%94%A8-MyBatis-PageHelper-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/" class="archive-title">SpringBoot 使用 MyBatis PageHelper 分页插件</a>
+        <p class="archive-date">02-03</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/21/SpringBoot-%E4%BD%BF%E7%94%A8-ELK-%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/" class="archive-title">SpringBoot 使用 ELK 日志收集系统安装配置</a>
+        <p class="archive-date">01-21</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/19/SpringBoot-logback-%E8%BE%93%E5%87%BA%E6%97%A5%E5%BF%97%E5%88%B0%E6%95%B0%E6%8D%AE%E5%BA%93%E3%80%81Logstash/" class="archive-title">SpringBoot logback 输出日志到数据库、Logstash</a>
+        <p class="archive-date">01-19</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/19/SpringBoot-%E4%B8%AD%E6%97%A5%E5%BF%97%E4%BD%BF%E7%94%A8/" class="archive-title">SpringBoot 中日志使用</a>
+        <p class="archive-date">01-19</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/16/SpringBoot-%E4%BD%BF%E7%94%A8-ElasticSearch/" class="archive-title">SpringBoot 使用 ElasticSearch</a>
+        <p class="archive-date">01-16</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/07/Swagger-%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3%E8%AF%B4%E6%98%8E/" class="archive-title">Swagger 常用注解说明</a>
+        <p class="archive-date">01-07</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/07/SpringBoot-%E9%9B%86%E6%88%90-Swagger-API-%E6%96%87%E6%A1%A3%E5%B7%A5%E5%85%B7/" class="archive-title">SpringBoot 集成 Swagger API 文档工具</a>
+        <p class="archive-date">01-07</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/07/SpringBoot-%E4%BD%BF%E7%94%A8-Flyway/" class="archive-title">Spring Boot 使用 Flyway</a>
+        <p class="archive-date">01-07</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Rocket-MQ-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/" class="archive-title">Rocket MQ 相关知识</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Rocket-MQ-%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF/" class="archive-title">Rocket MQ 发送消息</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Windows-Server%E6%90%AD%E5%BB%BAShadowsocks%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="archive-title">Windows Server搭建Shadowsocks服务器</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Spring-Boot-Admin-%E7%AE%A1%E7%90%86%E5%BA%94%E7%94%A8-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B3%A8%E5%86%8C/" class="archive-title">Spring Boot Admin 管理应用-客户端注册</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Ubuntu%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE-Jenkins/" class="archive-title">Ubuntu安装配置 Jenkins</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Ubuntu%E5%AE%89%E8%A3%85JDK/" class="archive-title">Ubuntu安装JDK</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Ubuntu%E5%AE%89%E8%A3%85-Nginx/" class="archive-title">Ubuntu安装 Nginx</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Ubuntu%E5%AE%89%E8%A3%85-Redis-%E7%BC%96%E8%AF%91%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85/" class="archive-title">Ubuntu安装 Redis -编译方式安装</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Ubuntu%E6%90%AD%E5%BB%BARedis%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="archive-title">Ubuntu搭建Redis服务器</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Redis%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" class="archive-title">Redis基础知识-数据类型</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/AngularJS%E9%85%8D%E7%BD%AERouter-%E8%B7%AF%E7%94%B1-%E6%8F%90%E7%A4%BAController-NaNunction-undefined%E9%94%99%E8%AF%AF/" class="archive-title">AngularJS配置Router(路由)提示Controller NaNunction/undefined错误</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/AngularJS%E9%85%8D%E7%BD%AE%E8%B7%AF%E7%94%B1/" class="archive-title">AngularJS 配置路由</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Nginx-%E9%85%8D%E7%BD%AE/" class="archive-title">Nginx 配置</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Tomcat9-%E9%85%8D%E7%BD%AEHTTPS%E8%BF%9E%E6%8E%A5/" class="archive-title">Tomcat9 配置HTTPS连接</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Windows%E4%B8%8B%E9%85%8D%E7%BD%AEChrome-WebDriver/" class="archive-title">Windows下配置Chrome WebDriver</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/AngularJS%E4%B8%AD%E4%BD%BF%E7%94%A8ngModal%E6%A8%A1%E6%80%81%E6%A1%86/" class="archive-title">AngularJS中使用ngModal模态框</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/AngularJS%E4%B8%ADngTable%E8%87%AA%E5%AE%9A%E4%B9%89-%E9%87%8D%E5%86%99%E8%BF%87%E6%BB%A4%E5%99%A8/" class="archive-title">AngularJS 中ngTable自定义/重写过滤器</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Spring-Controller-%E6%95%B0%E6%8D%AE%E4%BC%A0%E9%80%92%E4%B8%AD%E6%B3%A8%E8%A7%A3%E7%9A%84%E4%BD%BF%E7%94%A8/" class="archive-title">Spring Controller 数据传递中注解的使用</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Spring-Cloud-%E7%9B%91%E6%8E%A7%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8B-IP-URL-%E4%B8%8D%E6%AD%A3%E7%A1%AE%E5%AF%BC%E8%87%B4%E6%97%A0%E6%B3%95%E6%B3%A8%E5%86%8C%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" class="archive-title">Spring Cloud 监控服务器下 IP/URL 不正确导致无法注册的解决方法</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Spring-MVC%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E5%9B%BD%E9%99%85%E5%8C%96-%E5%A4%9A%E8%AF%AD%E8%A8%80/" class="archive-title">Spring MVC简单实现国际化/多语言</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/SpringBoot%E4%B8%ADJunit%E6%B5%8B%E8%AF%95%E6%B3%A8%E5%85%A5Bean%E5%A4%B1%E8%B4%A5%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" class="archive-title">SpringBoot中Junit测试注入Bean失败的解决方法</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/AngularJS%E4%B8%AD%E4%BD%BF%E7%94%A8ngTable/" class="archive-title">AngularJS中使用ngTable</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/AngularJS%E5%8F%91%E9%80%81%E5%BC%82%E6%AD%A5Get-Post%E8%AF%B7%E6%B1%82/" class="archive-title">AngularJS发送异步Get/Post请求</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/HTML%E4%B8%AD%E4%BD%BF%E7%94%A8Ajax%E8%BF%9B%E8%A1%8C%E5%B1%80%E9%83%A8%E5%88%B7%E6%96%B0%E9%A1%B5%E9%9D%A2/" class="archive-title">HTML中使用Ajax进行局部刷新页面</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/%E8%A7%A3%E5%86%B3%E4%BB%8EGitHub%E4%B8%8A%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6%E6%85%A2%E7%9A%84%E9%97%AE%E9%A2%98/" class="archive-title">解决从GitHub上下载文件慢的问题</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B5%8B%E8%AF%95/" class="archive-title">Gauge中执行数据库测试</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8CHttp%E8%AF%B7%E6%B1%82%E6%B5%8B%E8%AF%95/" class="archive-title">Gauge中执行Http请求测试</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/%E4%BD%BF%E7%94%A8Gradle%E7%BC%96%E8%AF%91%E6%89%A7%E8%A1%8CGague%E9%A1%B9%E7%9B%AE/" class="archive-title">使用Gradle编译执行Gague项目</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8C%E9%92%A9%E5%AD%90-Hook/" class="archive-title">Gauge中执行钩子(Hook)</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gauge%E4%B8%AD%E6%89%A7%E8%A1%8C%E6%B5%8B%E8%AF%95%E7%9A%84%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/" class="archive-title">Gauge中执行测试的常用命令</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gauge-%E4%B8%ADStep%E4%BD%BF%E7%94%A8%E5%88%AB%E5%90%8D/" class="archive-title">Gauge 中Step使用别名</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gauge%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="archive-title">Gauge基础知识</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/%E5%9C%A8IDEA%E4%B8%AD%E9%85%8D%E7%BD%AEGauge%E7%8E%AF%E5%A2%83/" class="archive-title">在IDEA中配置Gauge环境</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gauge%E4%B8%ADGradle%E8%87%AA%E5%AE%9A%E4%B9%89Task%E5%A4%B1%E8%B4%A5%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" class="archive-title">Gauge中Gradle自定义Task失败的解决方法</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/IDEA-Maven%E9%A1%B9%E7%9B%AE%E5%AF%BC%E5%85%A5%E5%A4%B1%E8%B4%A5%EF%BC%8C%E6%97%A0%E6%B3%95%E8%AF%86%E5%88%ABpom%E6%96%87%E4%BB%B6/" class="archive-title">IDEA Maven项目导入失败，无法识别pom文件</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Spring-Boot-Actuator-%E6%B7%BB%E5%8A%A0-Git-%E5%92%8C-Build-%E4%BF%A1%E6%81%AF/" class="archive-title">Spring Boot Actuator 添加 Git 和 Build 信息</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Tomcat%E5%90%AF%E5%8A%A8%E6%97%B6%E4%B8%80%E7%9B%B4%E5%81%9C%E7%95%99%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8%E7%9A%84%E5%8F%91%E5%B8%83%E7%9A%84%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="archive-title">Tomcat启动时一直停留在一个应用的发布的解决办法</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/SpringMVC-%E7%94%9F%E6%88%90%E9%AA%8C%E8%AF%81%E7%A0%81/" class="archive-title">SpringMVC 生成验证码</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/IDEA%E5%90%AF%E5%8A%A8Spring-Boot%E9%A1%B9%E7%9B%AE%E6%8F%90%E7%A4%BAUnable-to-start-EmbeddedWebApplicationContext-due-to-missing-EmbeddedServlet/" class="archive-title">IDEA启动Spring Boot项目提示Unable to start EmbeddedWebApplicationContext due to missing EmbeddedServlet...</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/IDEA%E4%B8%ADSpring-Boot%E9%A1%B9%E7%9B%AEMyBaits%E6%8F%90%E7%A4%BAInvalid-bound-statement-not-found-%E9%94%99%E8%AF%AF/" class="archive-title">IDEA中Spring Boot项目MyBaits提示Invalid bound statement (not found)错误</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-%E7%BC%96%E8%AF%91%E6%97%B6%E4%B8%8B%E8%BD%BD%E4%BE%9D%E8%B5%96%E5%A4%B1%E8%B4%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" class="archive-title">Gradle 使用-编译时下载依赖失败解决方法</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Ubuntu%E6%90%AD%E5%BB%BAShadowsocks%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="archive-title">Ubuntu搭建Shadowsocks服务器</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/SpringMVC%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E6%97%B6%E6%89%A7%E8%A1%8C%E6%93%8D%E4%BD%9C/" class="archive-title">SpringMVC应用启动时执行操作</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Spring-Boot-%E5%90%AF%E5%8A%A8%E6%97%B6%E6%89%A7%E8%A1%8C%E5%8A%A0%E8%BD%BD%E8%B5%84%E6%BA%90-%E6%89%A7%E8%A1%8C%E6%93%8D%E4%BD%9C/" class="archive-title">Spring Boot 启动时执行加载资源/执行操作</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/SpringBoot%E5%90%AF%E5%8A%A8%E6%97%B6%E6%8A%A5org-springframework-context-annotation-ConflictingBeanDefinitionException%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" class="archive-title">SpringBoot启动时报org.springframework.context.annotation.ConflictingBeanDefinitionException解决方法</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/SpringBoot%E4%B8%AD%E9%85%8D%E7%BD%AE%E4%BD%BF%E7%94%A8Druid%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/" class="archive-title">SpringBoot中配置使用Druid数据库连接池</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/SpringBoot%E9%A1%B9%E7%9B%AE%E7%94%9F%E6%88%90War%E5%8C%85/" class="archive-title">SpringBoot项目生成War包</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/%E4%BD%BF%E7%94%A8Gradle%E6%95%B4%E5%90%88Flyway%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%81%E7%A7%BB/" class="archive-title">使用Gradle整合Flyway进行数据库迁移</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Association-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/" class="archive-title">MyBatis 中使用 Association 嵌套查询</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Collection-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/" class="archive-title">MyBatis 中使用 Collection 嵌套查询</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Spring-Security-%E7%9A%84-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" class="archive-title">在使用 Spring Security 的 Remember Me 记住密码功能时遇到的问题和解决方法</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Spring-Security-%E4%B8%AD%E5%AE%9E%E7%8E%B0-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD/" class="archive-title">Spring Security 中实现 Remember Me 记住密码功能</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Spring-Boot-%E4%B8%AD%E9%9B%86%E6%88%90-Spring-Security/" class="archive-title">Spring Boot 中集成 Spring Security</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Spring-MVC-%E4%BD%BF%E7%94%A8-Spring-Session-%E5%AE%9E%E7%8E%B0-Session-%E5%85%B1%E4%BA%AB-Redis/" class="archive-title">Spring MVC 使用 Spring Session 实现 Session 共享-Redis</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gradle-%E6%B7%BB%E5%8A%A0%E5%A4%9A%E6%A8%A1%E5%9D%97%EF%BC%8C%E4%BE%9D%E8%B5%96%E5%85%B6%E4%BB%96%E9%A1%B9%E7%9B%AE/" class="archive-title">Gradle 使用-多项目构建</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-%E5%A4%9A%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA/" class="archive-title">Gradle 添加多项，依赖其他项目</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-Jacoco-%E5%88%86%E6%9E%90%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E5%B7%A5%E5%85%B7/" class="archive-title">Gradle 使用-添加 Jacoco 分析单元测试覆盖率工具</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2018/01/01/Java-%E5%B0%86%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E4%B8%8A%E4%BC%A0%E5%88%B0-Codecov/" class="archive-title">Java 将单元测试覆盖率上传到 Codecov</a>
+        <p class="archive-date">01-01</p>
+      </div>
+    
+  </div>
+</section>
+  
+    <section class="time-section">
+  <h1 class="section-year">
+    2017
+  </h1>
+  <div class="section-list">
+    
+    
+      <div class="section-list-item">
+        <a href="/2017/12/31/Spring-Boot-Mail-Could-not-connect-to-SMTP-host/" class="archive-title">Spring Boot Mail Could not connect to SMTP host</a>
+        <p class="archive-date">12-31</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2017/12/31/Spring-Boot-%E5%8F%91%E9%80%81%E9%82%AE%E4%BB%B6/" class="archive-title">Spring Boot 发送邮件</a>
+        <p class="archive-date">12-31</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2017/12/31/Spring-Boot-MyBatis-%E5%8A%A8%E6%80%81%E6%95%B0%E6%8D%AE%E6%BA%90%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" class="archive-title">Spring Boot MyBatis 动态数据源常见问题和解决方法</a>
+        <p class="archive-date">12-31</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2017/12/31/Spring-Boot-MyBatis%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90%E3%80%81%E5%8A%A8%E6%80%81%E6%95%B0%E6%8D%AE%E6%BA%90%E5%88%87%E6%8D%A2/" class="archive-title">Spring Boot MyBatis Druid 多数据源、动态数据源切换</a>
+        <p class="archive-date">12-31</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2017/12/24/helloworld/" class="archive-title">helloworld</a>
+        <p class="archive-date">12-24</p>
+      </div>
+    
+  </div>
+</section>
+  
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/tags/Dropbox/index.html';
+    $('#article-banner').geopattern(url);
+    $('.header').removeClass('fixed-header');
+  })();
+</script>
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

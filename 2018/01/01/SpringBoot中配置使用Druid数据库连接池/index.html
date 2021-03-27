@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      SpringBoot中配置使用Druid数据库连接池 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>SpringBoot中配置使用Druid数据库连接池</h2>
+  <p class="post-date">2018-01-01</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><blockquote>
+<p>Druid 是阿里巴巴开源的Java数据库连接池插件，Druid能够提供强大的监控和扩展功能</p>
+</blockquote>
+<h2 id="配置使用Druid数据库连接池"><a href="#配置使用Druid数据库连接池" class="headerlink" title="配置使用Druid数据库连接池"></a>配置使用Druid数据库连接池</h2><h3 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h3><ul>
+<li>Gradle</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compile(&#39;com.alibaba:druid-spring-boot-starter:$&#123;version&#125;&#39;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Maven</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;groupId&gt;com.alibaba&lt;&#x2F;groupId&gt;</span><br><span class="line">&lt;artifactId&gt;druid&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;version&gt;$&#123;version&#125;&lt;&#x2F;version&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置数据库连接"><a href="#配置数据库连接" class="headerlink" title="配置数据库连接"></a>配置数据库连接</h3><blockquote>
+<p>数据库配置和默认配置基本一样，按照正常配置就可以，具体可以参考<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/blob/master/druid-spring-boot-starter/README.md">https://github.com/alibaba/druid/blob/master/druid-spring-boot-starter/README.md</a></p>
+</blockquote>
+<ul>
+<li>JDBC 配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">spring.datasource.druid.url&#x3D; # 或spring.datasource.url&#x3D; </span><br><span class="line">spring.datasource.druid.username&#x3D; # 或spring.datasource.username&#x3D;</span><br><span class="line">spring.datasource.druid.password&#x3D; # 或spring.datasource.password&#x3D;</span><br><span class="line">spring.datasource.druid.driver-class-name&#x3D; #或 spring.datasource.driver-class-name&#x3D;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>连接池配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">spring.datasource.druid.initial-size&#x3D;</span><br><span class="line">spring.datasource.druid.max-active&#x3D;</span><br><span class="line">spring.datasource.druid.min-idle&#x3D;</span><br><span class="line">spring.datasource.druid.max-wait&#x3D;</span><br><span class="line">spring.datasource.druid.pool-prepared-statements&#x3D;</span><br><span class="line">spring.datasource.druid.max-pool-prepared-statement-per-connection-size&#x3D; </span><br><span class="line">spring.datasource.druid.max-open-prepared-statements&#x3D; #和上面的等价</span><br><span class="line">spring.datasource.druid.validation-query&#x3D;</span><br><span class="line">spring.datasource.druid.validation-query-timeout&#x3D;</span><br><span class="line">spring.datasource.druid.test-on-borrow&#x3D;</span><br><span class="line">spring.datasource.druid.test-on-return&#x3D;</span><br><span class="line">spring.datasource.druid.test-while-idle&#x3D;</span><br><span class="line">spring.datasource.druid.time-between-eviction-runs-millis&#x3D;</span><br><span class="line">spring.datasource.druid.min-evictable-idle-time-millis&#x3D;</span><br><span class="line">spring.datasource.druid.max-evictable-idle-time-millis&#x3D;</span><br><span class="line">spring.datasource.druid.filters&#x3D; #配置多个英文逗号分隔</span><br><span class="line">....&#x2F;&#x2F;more</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>监控配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"># WebStatFilter配置，说明请参考Druid Wiki，配置_配置WebStatFilter</span><br><span class="line">spring.datasource.druid.web-stat-filter.enabled&#x3D; #是否启用StatFilter默认值true</span><br><span class="line">spring.datasource.druid.web-stat-filter.url-pattern&#x3D;</span><br><span class="line">spring.datasource.druid.web-stat-filter.exclusions&#x3D;</span><br><span class="line">spring.datasource.druid.web-stat-filter.session-stat-enable&#x3D;</span><br><span class="line">spring.datasource.druid.web-stat-filter.session-stat-max-count&#x3D;</span><br><span class="line">spring.datasource.druid.web-stat-filter.principal-session-name&#x3D;</span><br><span class="line">spring.datasource.druid.web-stat-filter.principal-cookie-name&#x3D;</span><br><span class="line">spring.datasource.druid.web-stat-filter.profile-enable&#x3D;</span><br><span class="line"></span><br><span class="line"># StatViewServlet配置，说明请参考Druid Wiki，配置_StatViewServlet配置</span><br><span class="line">spring.datasource.druid.stat-view-servlet.enabled&#x3D; #是否启用StatViewServlet默认值true</span><br><span class="line">spring.datasource.druid.stat-view-servlet.url-pattern&#x3D;</span><br><span class="line">spring.datasource.druid.stat-view-servlet.reset-enable&#x3D;</span><br><span class="line">spring.datasource.druid.stat-view-servlet.login-username&#x3D;</span><br><span class="line">spring.datasource.druid.stat-view-servlet.login-password&#x3D;</span><br><span class="line">spring.datasource.druid.stat-view-servlet.allow&#x3D;</span><br><span class="line">spring.datasource.druid.stat-view-servlet.deny&#x3D;</span><br><span class="line"></span><br><span class="line"># Spring监控配置，说明请参考Druid Github Wiki，配置_Druid和Spring关联监控配置</span><br><span class="line">spring.datasource.druid.aop-patterns&#x3D; # Spring监控AOP切入点，如x.y.z.service.*,配置多个英文逗号分隔</span><br><span class="line"># 如果spring.datasource.druid.aop-patterns要代理的类没有定义interface请设置spring.aop.proxy-target-class&#x3D;true</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>配置好了之后启动应用就可以正常使用了，查看统计信息可以访问 <a target="_blank" rel="noopener" href="http://localhost:8080/druid/index.html">http://localhost:8080/druid/index.html</a></p>
+</blockquote>
+<hr>
+<h2 id="参考模板"><a href="#参考模板" class="headerlink" title="参考模板"></a>参考模板</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">spring.datasource.druid.url&#x3D;jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;db?useSSL&#x3D;false</span><br><span class="line">spring.datasource.druid.slave.username&#x3D;root</span><br><span class="line">spring.datasource.druid.slave.password&#x3D;123456</span><br><span class="line"></span><br><span class="line"># Druid dataSource config</span><br><span class="line">spring.datasource.type&#x3D;com.alibaba.druid.pool.DruidDataSource</span><br><span class="line">spring.datasource.druid.initial-size&#x3D;5</span><br><span class="line">spring.datasource.druid.max-active&#x3D;20</span><br><span class="line">spring.datasource.druid.min-idle&#x3D;5</span><br><span class="line">spring.datasource.druid.max-wait&#x3D;60000</span><br><span class="line">spring.datasource.druid.pool-prepared-statements&#x3D;true</span><br><span class="line">spring.datasource.druid.max-pool-prepared-statement-per-connection-size&#x3D;20</span><br><span class="line">spring.datasource.druid.max-open-prepared-statements&#x3D;20</span><br><span class="line">spring.datasource.druid.validation-query&#x3D;SELECT 1</span><br><span class="line">spring.datasource.druid.validation-query-timeout&#x3D;30000</span><br><span class="line">spring.datasource.druid.test-on-borrow&#x3D;true</span><br><span class="line">spring.datasource.druid.test-on-return&#x3D;false</span><br><span class="line">spring.datasource.druid.test-while-idle&#x3D;false</span><br><span class="line">#spring.datasource.druid.time-between-eviction-runs-millis&#x3D;</span><br><span class="line">#spring.datasource.druid.min-evictable-idle-time-millis&#x3D;</span><br><span class="line">#spring.datasource.druid.max-evictable-idle-time-millis&#x3D;10000</span><br><span class="line"></span><br><span class="line"># Druid stat filter config</span><br><span class="line">spring.datasource.druid.filters&#x3D;stat,wall,log4j</span><br><span class="line">spring.datasource.druid.web-stat-filter.enabled&#x3D;true </span><br><span class="line">spring.datasource.druid.web-stat-filter.url-pattern&#x3D;&#x2F;druid&#x2F;*</span><br><span class="line">#spring.datasource.druid.web-stat-filter.exclusions&#x3D;</span><br><span class="line">spring.datasource.druid.web-stat-filter.session-stat-enable&#x3D;true</span><br><span class="line">spring.datasource.druid.web-stat-filter.session-stat-max-count&#x3D;10</span><br><span class="line">#spring.datasource.druid.web-stat-filter.principal-session-name&#x3D;</span><br><span class="line">#spring.datasource.druid.web-stat-filter.principal-cookie-name&#x3D;</span><br><span class="line">spring.datasource.druid.web-stat-filter.profile-enable&#x3D;true</span><br><span class="line">spring.datasource.druid.web-stat-filter.exclusions&#x3D;*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,&#x2F;druid&#x2F;*</span><br><span class="line">spring.datasource.druid.filter.stat.db-type&#x3D;mysql</span><br><span class="line">spring.datasource.druid.filter.stat.log-slow-sql&#x3D;true</span><br><span class="line">spring.datasource.druid.filter.stat.slow-sql-millis&#x3D;1000</span><br><span class="line">spring.datasource.druid.filter.stat.merge-sql&#x3D;true</span><br><span class="line">spring.datasource.druid.filter.wall.enabled&#x3D;true</span><br><span class="line">spring.datasource.druid.filter.wall.db-type&#x3D;mysql</span><br><span class="line">spring.datasource.druid.filter.wall.config.delete-allow&#x3D;true</span><br><span class="line">spring.datasource.druid.filter.wall.config.drop-table-allow&#x3D;false</span><br><span class="line"></span><br><span class="line"># Druid manage page config</span><br><span class="line">spring.datasource.druid.stat-view-servlet.enabled&#x3D;true</span><br><span class="line">spring.datasource.druid.stat-view-servlet.url-pattern&#x3D;&#x2F;druid&#x2F;*</span><br><span class="line">spring.datasource.druid.stat-view-servlet.reset-enable&#x3D;true</span><br><span class="line">spring.datasource.druid.stat-view-servlet.login-username&#x3D;admin</span><br><span class="line">spring.datasource.druid.stat-view-servlet.login-password&#x3D;admin</span><br><span class="line">#spring.datasource.druid.stat-view-servlet.allow&#x3D;</span><br><span class="line">#spring.datasource.druid.stat-view-servlet.deny&#x3D;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Druid" >
+    <span class="tag-code">Druid</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/01/SpringBoot%E9%A1%B9%E7%9B%AE%E7%94%9F%E6%88%90War%E5%8C%85/">
+        <span class="nav-arrow">← </span>
+        
+          SpringBoot项目生成War包
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/01/SpringBoot%E5%90%AF%E5%8A%A8%E6%97%B6%E6%8A%A5org-springframework-context-annotation-ConflictingBeanDefinitionException%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">
+        
+          SpringBoot启动时报org.springframework.context.annotation.ConflictingBeanDefinitionException解决方法
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E4%BD%BF%E7%94%A8Druid%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0"><span class="toc-nav-text">配置使用Druid数据库连接池</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5"><span class="toc-nav-text">配置数据库连接</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%A8%A1%E6%9D%BF"><span class="toc-nav-text">参考模板</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/01/SpringBoot中配置使用Druid数据库连接池/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "SpringBoot中配置使用Druid数据库连接池",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

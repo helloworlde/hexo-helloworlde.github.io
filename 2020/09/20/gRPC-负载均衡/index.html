@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC  负载均衡 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC  负载均衡</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-负载均衡"><a href="#gRPC-负载均衡" class="headerlink" title="gRPC  负载均衡"></a>gRPC  负载均衡</h1><p>gRPC 内定义了  LoadBalancer 接口，用于负载均衡</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-source-code-loadbalancer-methods.png" alt="grpc-source-code-loadbalancer-methods.png"></p>
+<p>LoadBalancer 中的主要方法</p>
+<ul>
+<li><code>handleResolvedAddress</code>：处理  <code>NameResolver</code> 解析的地址，用于创建 <code>Subchannel</code></li>
+<li><code>handleNameResolutionError</code>: 处理命名解析失败，会销毁已经存在的 <code>Suchannel</code></li>
+<li><code>requestConnection</code>: 创建连接，会为 <code>Subchannel</code> 初始化 <code>Transport</code>，并建立连接</li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-source-code-loadbalancer-sub-class.png" alt="grpc-source-code-loadbalancer-sub-class.png"></p>
+<p>LoadBalancer 接口有多个实现类，如用于代理的 <code>ForwardingLoadBalancer</code>；基于策略的 <code>RoundRobinLoadBalancer</code>,<code>PickFirstLoadBalancer</code>, <code>GrpclbLoadBalancer</code>等；支持扩展功能的<code>HealthCheckingLoadBalancer</code>, <code>GracefulSwitchLoadBalancer</code> 等</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-source-code-loadbalancer-class-diagram.png" alt="grpc-source-code-loadbalancer-class-diagram.png"></p>
+<p>LoadBalancer 有多个内部类，用于实现负载均衡</p>
+<ul>
+<li><code>Factory</code>: 用于创建 <code>LoadBalancer</code>，通过  <code>LoadBalancerProvider</code> 实现</li>
+<li><code>Subchannel</code>: 逻辑连接，一个 <code>Subchannel</code> 内可能包含多个 <code>IP:PORT</code></li>
+<li><code>Helper</code>: 用于创建 <code>LoadBalancer</code>、<code>Subchannel</code> 等</li>
+<li><code>SubchannelPicker</code>: <code>Subchannel</code> 选择器，根据不同的策略使用不同的选择方式</li>
+<li><code>SubchannelStateListener</code>: <code>Subchannel</code> 状态监听器，当 <code>Subchannel</code> 状态发生变化时及时更新</li>
+</ul>
+<p>LoadBalancer 的工作流程是：</p>
+<ol>
+<li>使用 <code>LoadBalancerRegistry</code> 或者 SPI 的方式注册 <code>LoadBalancerProvider</code></li>
+<li>调用 Channel Builder 的 <code>defaultLoadBalancingPolicy</code> 设置负载均衡策略</li>
+<li>在 <code>ManagedChannelImpl</code> 的构造方法中，创建 <code>Factory</code></li>
+<li>在 <code>ManagedChannelImpl#exitIdleMode</code> 中创建 <code>LoadBalancer</code> 实例</li>
+<li>将创建的实例作为参数传递给 <code>NameResolverListener</code></li>
+<li>当 <code>NameResolver</code> 解析服务名称后，最终调用 <code>handleResolvedAddresses </code>方法，根据不同的策略进行处理</li>
+<li><code>LoadBalancer</code> 根据解析的地址创建 <code>Subchannel</code></li>
+<li><code>Subchannel</code>调用 <code>requestConnection</code> 方法建立连接</li>
+</ol>
+<h2 id="创建-LoadBalancer"><a href="#创建-LoadBalancer" class="headerlink" title="创建 LoadBalancer"></a>创建 LoadBalancer</h2><ol>
+<li>创建 Channel 前注册 Provider </li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LoadBalancerRegistry.getDefaultRegistry().register(<span class="keyword">new</span> HealthCheckingRoundRobinLoadBalancerProvider());</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>创建 Channel 时设置负载均衡策略</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ManagedChannelBuilder.forTarget(<span class="string">&quot;server&quot;</span>)</span><br><span class="line">                     .defaultLoadBalancingPolicy(<span class="string">&quot;round_robin&quot;</span>)</span><br><span class="line">                     .build();</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>在 <code>io.grpc.internal.ManagedChannelImpl#ManagedChannelImpl</code> 构造方法中初始化 Factory</li>
+</ol>
+<p>Factory 的实现类是 <code>AutoConfiguredLoadBalancerFactory</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.loadBalancerFactory = <span class="keyword">new</span> AutoConfiguredLoadBalancerFactory(builder.defaultLbPolicy);</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>在 <code>io.grpc.internal.ManagedChannelImpl#exitIdleMode</code>时创建 <code>LoadBalancer</code> 实例</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 构建新的 lbHelper</span></span><br><span class="line">LbHelperImpl lbHelper = <span class="keyword">new</span> LbHelperImpl();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自动配置负载均衡</span></span><br><span class="line">lbHelper.lb = loadBalancerFactory.newLoadBalancer(lbHelper);</span><br><span class="line"></span><br><span class="line"><span class="keyword">this</span>.lbHelper = lbHelper;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>创建 <code>LoadBalancer</code> 实例</li>
+</ol>
+<ul>
+<li><code>AutoConfiguredLoadBalancer</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> AutoConfiguredLoadBalancer <span class="title">newLoadBalancer</span><span class="params">(Helper helper)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> AutoConfiguredLoadBalancer(helper);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">AutoConfiguredLoadBalancer(Helper helper) &#123;</span><br><span class="line">  <span class="keyword">this</span>.helper = helper;</span><br><span class="line">  <span class="comment">// 从注册器中获取默认的负载均衡策略提供器</span></span><br><span class="line">  delegateProvider = registry.getProvider(defaultPolicy);</span><br><span class="line">  <span class="keyword">if</span> (delegateProvider == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">&quot;Could not find policy &#x27;&quot;</span> + defaultPolicy</span><br><span class="line">            + <span class="string">&quot;&#x27;. Make sure its implementation is either registered to LoadBalancerRegistry or&quot;</span></span><br><span class="line">            + <span class="string">&quot; included in META-INF/services/io.grpc.LoadBalancerProvider from your jar files.&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 创建新的</span></span><br><span class="line">  delegate = delegateProvider.newLoadBalancer(helper);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>实现类 <code>io.grpc.services.internal.HealthCheckingRoundRobinLoadBalancerProvider#newLoadBalancer</code>  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> LoadBalancer <span class="title">newLoadBalancer</span><span class="params">(Helper helper)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> HealthCheckingLoadBalancerUtil.newHealthCheckingLoadBalancer(rrProvider, helper);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerUtil#newHealthCheckingLoadBalancer</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> LoadBalancer <span class="title">newHealthCheckingLoadBalancer</span><span class="params">(Factory factory, Helper helper)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 创建工厂</span></span><br><span class="line">    HealthCheckingLoadBalancerFactory hcFactory = <span class="keyword">new</span> HealthCheckingLoadBalancerFactory(factory,</span><br><span class="line">            <span class="keyword">new</span> ExponentialBackoffPolicy.Provider(),</span><br><span class="line">            GrpcUtil.STOPWATCH_SUPPLIER);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用工厂创建 LoadBalancer</span></span><br><span class="line">    <span class="keyword">return</span> hcFactory.newLoadBalancer(helper);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerFactory#newLoadBalancer</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> LoadBalancer <span class="title">newLoadBalancer</span><span class="params">(Helper helper)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 代理 Helper</span></span><br><span class="line">    HelperImpl wrappedHelper = <span class="keyword">new</span> HelperImpl(helper);</span><br><span class="line">    <span class="comment">// 创建 LoadBalancer</span></span><br><span class="line">    LoadBalancer delegateBalancer = delegateFactory.newLoadBalancer(wrappedHelper);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> HealthCheckingLoadBalancer(wrappedHelper, delegateBalancer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>将 <code>LoadBalancer</code> 实例作为参数传递给 <code>NameResolverListener</code></li>
+</ol>
+<ul>
+<li><code>io.grpc.internal.ManagedChannelImpl#exitIdleMode</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 服务发现监听器</span></span><br><span class="line">NameResolverListener listener = <span class="keyword">new</span> NameResolverListener(lbHelper, nameResolver);</span><br><span class="line">nameResolver.start(listener);</span><br></pre></td></tr></table></figure>
+
+<h2 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h2><p>根据 <code>NameResolver</code> 解析的地址，创建相应的 <code>Subchannel</code>，在 RPC 请求时根据策略和状态选择其中的一个发起请求</p>
+<h3 id="处理解析的地址"><a href="#处理解析的地址" class="headerlink" title="处理解析的地址"></a>处理解析的地址</h3><ul>
+<li><code>io.grpc.internal.ManagedChannelImpl.NameResolverListener#onResult</code></li>
+</ul>
+<p>根据解析的结果，获取配置，如果有配置健康检查，则添加健康检查的属性，用于 LB 在连接前进行检查</p>
+<p>然后构建参数，调用 <code>io.grpc.internal.AutoConfiguredLoadBalancerFactory.AutoConfiguredLoadBalancer#tryHandleResolvedAddresses</code> 方法处理地址</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  List&lt;EquivalentAddressGroup&gt; servers = resolutionResult.getAddresses();</span><br><span class="line"></span><br><span class="line">  nameResolverBackoffPolicy = <span class="keyword">null</span>;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  ManagedChannelServiceConfig effectiveServiceConfig;</span><br><span class="line">    effectiveServiceConfig = defaultServiceConfig == <span class="keyword">null</span> ? EMPTY_SERVICE_CONFIG : defaultServiceConfig;</span><br><span class="line">        </span><br><span class="line">  <span class="comment">// 获取属性</span></span><br><span class="line">  Attributes effectiveAttrs = resolutionResult.getAttributes();</span><br><span class="line">  <span class="comment">// 如果服务发现没有关闭</span></span><br><span class="line">  <span class="keyword">if</span> (NameResolverListener.<span class="keyword">this</span>.helper == ManagedChannelImpl.<span class="keyword">this</span>.lbHelper) &#123;</span><br><span class="line">    <span class="comment">// 获取健康检查</span></span><br><span class="line">    Map&lt;String, ?&gt; healthCheckingConfig = effectiveServiceConfig.getHealthCheckingConfig();</span><br><span class="line">    <span class="comment">// 构建健康检查配置</span></span><br><span class="line">    <span class="keyword">if</span> (healthCheckingConfig != <span class="keyword">null</span>) &#123;</span><br><span class="line">      effectiveAttrs = effectiveAttrs.toBuilder()</span><br><span class="line">                                     .set(LoadBalancer.ATTR_HEALTH_CHECKING_CONFIG, healthCheckingConfig)</span><br><span class="line">                                     .build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 更新负载均衡算法，处理未处理的请求</span></span><br><span class="line">    Status handleResult = helper.lb.tryHandleResolvedAddresses(</span><br><span class="line">            ResolvedAddresses.newBuilder()</span><br><span class="line">                             .setAddresses(servers)</span><br><span class="line">                             .setAttributes(effectiveAttrs)</span><br><span class="line">                             .setLoadBalancingPolicyConfig(effectiveServiceConfig.getLoadBalancingConfig())</span><br><span class="line">                             .build());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!handleResult.isOk()) &#123;</span><br><span class="line">      handleErrorInSyncContext(handleResult.augmentDescription(resolver + <span class="string">&quot; was used&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="由-LB-处理地址"><a href="#由-LB-处理地址" class="headerlink" title="由 LB 处理地址"></a>由 LB 处理地址</h3><ul>
+<li><code>io.grpc.internal.AutoConfiguredLoadBalancerFactory.AutoConfiguredLoadBalancer#tryHandleResolvedAddresses</code></li>
+</ul>
+<p>先从解析的结果中获取 <code>LoadBalancerProvider</code>，如果不存在，则使用默认的的；<br>然后获取被代理的 <code>LoadBalancer</code>，调用 <code>handleResolvedAddresses</code> 方法，由具体的 LB 进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Status <span class="title">tryHandleResolvedAddresses</span><span class="params">(ResolvedAddresses resolvedAddresses)</span> </span>&#123;</span><br><span class="line">  List&lt;EquivalentAddressGroup&gt; servers = resolvedAddresses.getAddresses();</span><br><span class="line">  Attributes attributes = resolvedAddresses.getAttributes();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 负载均衡选择</span></span><br><span class="line">  PolicySelection policySelection = (PolicySelection) resolvedAddresses.getLoadBalancingPolicyConfig();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (policySelection == <span class="keyword">null</span>) &#123;</span><br><span class="line">    LoadBalancerProvider defaultProvider;</span><br><span class="line">    <span class="comment">// 更新负载均衡提供器</span></span><br><span class="line">    defaultProvider = getProviderOrThrow(defaultPolicy, <span class="string">&quot;using default policy&quot;</span>);</span><br><span class="line">    policySelection = <span class="keyword">new</span> PolicySelection(defaultProvider, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  Object lbConfig = policySelection.config;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 设置负载均衡算法参数</span></span><br><span class="line">  <span class="keyword">if</span> (lbConfig != <span class="keyword">null</span>) &#123;</span><br><span class="line">    attributes = attributes.toBuilder()</span><br><span class="line">                           .set(ATTR_LOAD_BALANCING_CONFIG, policySelection.rawConfig)</span><br><span class="line">                           .build();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 负载均衡器</span></span><br><span class="line">  LoadBalancer delegate = getDelegate();</span><br><span class="line">  <span class="comment">// 如果地址是空的，或者处理失败，则返回错误</span></span><br><span class="line">  <span class="keyword">if</span> (resolvedAddresses.getAddresses().isEmpty() &amp;&amp; !delegate.canHandleEmptyAddressListFromNameResolution()) &#123;</span><br><span class="line">    <span class="keyword">return</span> Status.UNAVAILABLE.withDescription(<span class="string">&quot;NameResolver returned no usable address. addrs=&quot;</span> + servers + <span class="string">&quot;, attrs=&quot;</span> + attributes);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 返回处理成功</span></span><br><span class="line">    delegate.handleResolvedAddresses(</span><br><span class="line">            ResolvedAddresses.newBuilder()</span><br><span class="line">                             .setAddresses(resolvedAddresses.getAddresses())</span><br><span class="line">                             .setAttributes(attributes)</span><br><span class="line">                             .setLoadBalancingPolicyConfig(lbConfig)</span><br><span class="line">                             .build());</span><br><span class="line">    <span class="keyword">return</span> Status.OK;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerFactory.HealthCheckingLoadBalancer#handleResolvedAddresses</code></li>
+</ul>
+<p>根据配置，获取健康检查的服务名称，然后遍历进行检查<br>然后调用 <code>io.grpc.util.RoundRobinLoadBalancer#handleResolvedAddresses</code> 进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleResolvedAddresses</span><span class="params">(ResolvedAddresses resolvedAddresses)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取健康检查配置</span></span><br><span class="line">    Map&lt;String, ?&gt; healthCheckingConfig = resolvedAddresses.getAttributes()</span><br><span class="line">                                                           .get(LoadBalancer.ATTR_HEALTH_CHECKING_CONFIG);</span><br><span class="line">    <span class="comment">// 获取服务的健康检查配置</span></span><br><span class="line">    String serviceName = ServiceConfigUtil.getHealthCheckedServiceName(healthCheckingConfig);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 配置服务健康检查</span></span><br><span class="line">    helper.setHealthCheckedService(serviceName);</span><br><span class="line">    <span class="comment">// 调用被代理的类处理地址</span></span><br><span class="line">    <span class="keyword">super</span>.handleResolvedAddresses(resolvedAddresses);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.util.RoundRobinLoadBalancer#handleResolvedAddresses</code></li>
+</ul>
+<p>在处理地址时，根据现有的地址和新的地址，筛选出需要移除的地址；<br>然后遍历有效的地址，判断是否已经存在，如果存在，则更新地址集合；如果不存，则调用 <code>io.grpc.services.HealthCheckingLoadBalancerFactory.HelperImpl#createSubchannel</code> 创建 Subchannel，启动 <code>SubchannelStateListener</code>，监听 Subchannel 状态变化；并调用 <code>io.grpc.internal.ManagedChannelImpl.SubchannelImpl#requestConnection</code>要求建立连接</p>
+<p>将需要移除的 Subchannel 从集合中移除，更新 LB 状态，并关闭要移除的 Subchannel</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleResolvedAddresses</span><span class="params">(ResolvedAddresses resolvedAddresses)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取地址列表</span></span><br><span class="line">    List&lt;EquivalentAddressGroup&gt; servers = resolvedAddresses.getAddresses();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当前的地址</span></span><br><span class="line">    Set&lt;EquivalentAddressGroup&gt; currentAddrs = subchannels.keySet();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将地址 List 转为 Map</span></span><br><span class="line">    Map&lt;EquivalentAddressGroup, EquivalentAddressGroup&gt; latestAddrs = stripAttrs(servers);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据当前的地址，获取需要移除的地址，返回的地址是现有地址中有，新的地址中没有的</span></span><br><span class="line">    Set&lt;EquivalentAddressGroup&gt; removedAddrs = setsDifference(currentAddrs, latestAddrs.keySet());</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (Map.Entry&lt;EquivalentAddressGroup, EquivalentAddressGroup&gt; latestEntry : latestAddrs.entrySet()) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 不含 Attributes 的 EquivalentAddressGroup</span></span><br><span class="line">        EquivalentAddressGroup strippedAddressGroup = latestEntry.getKey();</span><br><span class="line">        <span class="comment">// 包含 Attributes 的 EquivalentAddressGroup</span></span><br><span class="line">        EquivalentAddressGroup originalAddressGroup = latestEntry.getValue();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 根据地址获取对应的已经存在的 Subchannel</span></span><br><span class="line">        Subchannel existingSubchannel = subchannels.get(strippedAddressGroup);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果存在已有的 Subchannel，则更新地址并跳出</span></span><br><span class="line">        <span class="keyword">if</span> (existingSubchannel != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// EAG&#x27;s Attributes may have changed.</span></span><br><span class="line">            <span class="comment">// 更新地址</span></span><br><span class="line">            existingSubchannel.updateAddresses(Collections.singletonList(originalAddressGroup));</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 根据地址创建新的 Subchannel</span></span><br><span class="line">        <span class="comment">// Create new subchannels for new addresses.</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置新的连接状态是 IDLE</span></span><br><span class="line">        Attributes.Builder subchannelAttrs = Attributes.newBuilder()</span><br><span class="line">                                                       .set(STATE_INFO, <span class="keyword">new</span> Ref&lt;&gt;(ConnectivityStateInfo.forNonError(IDLE)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建新 Subchannel</span></span><br><span class="line">        <span class="keyword">final</span> Subchannel subchannel = checkNotNull(helper.createSubchannel(CreateSubchannelArgs.newBuilder()</span><br><span class="line">                                                                                               .setAddresses(originalAddressGroup)</span><br><span class="line">                                                                                               .setAttributes(subchannelAttrs.build())</span><br><span class="line">                                                                                               .build()),</span><br><span class="line">                <span class="string">&quot;subchannel&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动 Subchannel 状态监听器</span></span><br><span class="line">        subchannel.start(<span class="keyword">new</span> SubchannelStateListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSubchannelState</span><span class="params">(ConnectivityStateInfo state)</span> </span>&#123;</span><br><span class="line">                <span class="comment">// 处理状态变化</span></span><br><span class="line">                processSubchannelState(subchannel, state);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将新创建的 Subchannel 放在 Subchannel 的 Map 中</span></span><br><span class="line">        subchannels.put(strippedAddressGroup, subchannel);</span><br><span class="line">        <span class="comment">// 要求建立连接</span></span><br><span class="line">        subchannel.requestConnection();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 移除不包含的地址</span></span><br><span class="line">    ArrayList&lt;Subchannel&gt; removedSubchannels = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (EquivalentAddressGroup addressGroup : removedAddrs) &#123;</span><br><span class="line">        removedSubchannels.add(subchannels.remove(addressGroup));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在关闭 Subchannel 之前更新 picker，减少关闭期间的风险</span></span><br><span class="line">    updateBalancingState();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 关闭被移除的 Subchannel</span></span><br><span class="line">    <span class="keyword">for</span> (Subchannel removedSubchannel : removedSubchannels) &#123;</span><br><span class="line">        shutdownSubchannel(removedSubchannel);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="在请求时做负载均衡"><a href="#在请求时做负载均衡" class="headerlink" title="在请求时做负载均衡"></a>在请求时做负载均衡</h3><ul>
+<li><code>io.grpc.internal.ClientCallImpl#startInternal</code></li>
+</ul>
+<p>在执行 RPC 请求时，调用 <code>io.grpc.internal.ClientCallImpl#start</code>，在获取 ClientTransport 时，创建 <code>PickSubchannelArgsImpl</code>，通过选择 <code>Subchannel</code> 获取 <code>Transport</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ClientTransport transport = clientTransportProvider.get(<span class="keyword">new</span> PickSubchannelArgsImpl(method, headers, callOptions));</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.internal.ManagedChannelImpl.ChannelTransportProvider#get</code></li>
+</ul>
+<p>这个方法里，根据状态获取 <code>Transport</code>，如果当前的状态是关闭，则直接返回延迟执行的 <code>Transport</code>；<br>如果 Picker 是空的，则说明还没有执行过，则调用 <code>exitIdleMode</code> 退出空闲模式，并返回延迟执行的<code>Transport</code>;<br>如果 Picker 已经初始化了，则调用 <code>io.grpc.util.RoundRobinLoadBalancer.ReadyPicker#pickSubchannel</code>选择 Subchannel</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ClientTransport <span class="title">get</span><span class="params">(PickSubchannelArgs args)</span> </span>&#123;</span><br><span class="line">  SubchannelPicker pickerCopy = subchannelPicker;</span><br><span class="line">  <span class="comment">// 如果是关闭状态，则停止调用</span></span><br><span class="line">  <span class="keyword">if</span> (shutdown.get()) &#123;</span><br><span class="line">    <span class="keyword">return</span> delayedTransport;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 如果是 SubchannelPicker 是空的，则退出 idle 模模式，返回 delayedTransport</span></span><br><span class="line">  <span class="keyword">if</span> (pickerCopy == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ExitIdleModeForTransport</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 退出 idle 模式，将会创建 LoadBalancer,NameResovler</span></span><br><span class="line">        exitIdleMode();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    syncContext.execute(<span class="keyword">new</span> ExitIdleModeForTransport());</span><br><span class="line">    <span class="keyword">return</span> delayedTransport;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 选择某个 SubChannel 发起调用，即选择某个服务端</span></span><br><span class="line">  PickResult pickResult = pickerCopy.pickSubchannel(args);</span><br><span class="line">  ClientTransport transport = GrpcUtil.getTransportFromPickResult(pickResult, args.getCallOptions().isWaitForReady());</span><br><span class="line">  <span class="comment">// 如果有 Transport，则返回</span></span><br><span class="line">  <span class="keyword">if</span> (transport != <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> transport;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> delayedTransport;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.util.RoundRobinLoadBalancer.ReadyPicker#pickSubchannel</code></li>
+</ul>
+<p>获取下一个 Subchannel 并返回</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> PickResult <span class="title">pickSubchannel</span><span class="params">(PickSubchannelArgs args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> PickResult.withSubchannel(nextSubchannel());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.util.RoundRobinLoadBalancer.ReadyPicker#nextSubchannel</code></li>
+</ul>
+<p>通过轮询的算法获取下一个 Subchannel</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Subchannel <span class="title">nextSubchannel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> size = list.size();</span><br><span class="line">    <span class="keyword">int</span> i = indexUpdater.incrementAndGet(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= size) &#123;</span><br><span class="line">        <span class="keyword">int</span> oldi = i;</span><br><span class="line">        i %= size;</span><br><span class="line">        indexUpdater.compareAndSet(<span class="keyword">this</span>, oldi, i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> list.get(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/HPA-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E6%8C%87%E6%A0%87%E8%87%AA%E5%8A%A8%E6%89%A9%E7%BC%A9%E5%AE%B9/">
+        <span class="nav-arrow">← </span>
+        
+          HPA 使用自定义的指标自动扩缩容
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/gRPC-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">
+        
+          gRPC  健康检查
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-nav-text">gRPC  负载均衡</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA-LoadBalancer"><span class="toc-nav-text">创建 LoadBalancer</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-nav-text">负载均衡</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%A4%84%E7%90%86%E8%A7%A3%E6%9E%90%E7%9A%84%E5%9C%B0%E5%9D%80"><span class="toc-nav-text">处理解析的地址</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E7%94%B1-LB-%E5%A4%84%E7%90%86%E5%9C%B0%E5%9D%80"><span class="toc-nav-text">由 LB 处理地址</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%9C%A8%E8%AF%B7%E6%B1%82%E6%97%B6%E5%81%9A%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-nav-text">在请求时做负载均衡</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/gRPC-负载均衡/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC  负载均衡",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

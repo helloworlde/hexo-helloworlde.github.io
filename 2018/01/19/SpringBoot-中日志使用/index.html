@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      SpringBoot 中日志使用 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>SpringBoot 中日志使用</h2>
+  <p class="post-date">2018-01-19</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="SpringBoot-中日志使用"><a href="#SpringBoot-中日志使用" class="headerlink" title="SpringBoot 中日志使用"></a>SpringBoot 中日志使用</h1><h2 id="配置日志输出到文件"><a href="#配置日志输出到文件" class="headerlink" title="配置日志输出到文件"></a>配置日志输出到文件</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 输出到指定文件</span><br><span class="line">logging.file&#x3D;.&#x2F;logs&#x2F;application.log</span><br><span class="line"></span><br><span class="line"># 输出到指定目录下（会写入到 spring.log 中）</span><br><span class="line">logging.path&#x3D;.&#x2F;logs</span><br></pre></td></tr></table></figure>
+
+<p>当同时存在 <code>logging.path</code> 和 <code>logging.file</code> 时 <code>logging.path</code> 无效</p>
+<h2 id="日志中添加信息"><a href="#日志中添加信息" class="headerlink" title="日志中添加信息"></a>日志中添加信息</h2><p>向日志中添加自定义信息可以使用 <code>MDC</code>类来实现</p>
+<ul>
+<li>配置文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logging.pattern.level&#x3D;user:%X&#123;user&#125; %5p</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>类：<ul>
+<li><code>org.apache.log4j.MDC</code></li>
+<li><code>org.jboss.logging.MDC </code></li>
+<li><code>org.slf4j.MDC</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MDC.put(&quot;user&quot;, &quot;Hello&quot;);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>输出结果</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2018-01-18 23:55:10.836 user:Hello  INFO 7011 --- [nio-8080-exec-1] cn.com.hellowood.log.LogController       : log 2</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="logback-配置"><a href="#logback-配置" class="headerlink" title="logback 配置"></a>logback 配置</h2><h3 id="标签属性"><a href="#标签属性" class="headerlink" title="标签属性"></a>标签属性</h3><ul>
+<li><p><code>&lt;configuration&gt;</code></p>
+<ul>
+<li><code>scan</code>: 当属性设置为 <code>true</code> 时， 配置文件如果发生变化会被重新加载，默认为<code>true</code></li>
+<li><code>scanPeriod</code>: 设置监测配置文件是否修改的时间间隔，默认单位是毫秒，默认时间间隔1分钟</li>
+<li><code>debug</code>：当属性设置为<code>true</code>时，将打印<code>logback</code>内部的日志信息，默认为 <code>false</code></li>
+</ul>
+</li>
+<li><p><code>&lt;root&gt;</code>：用来指定最基础的日志输出级别</p>
+<ul>
+<li><code>level</code>：设置日志打印级别，大小写不敏感，可以是<code>TRACE,DEBUG,INFO,ERROR,ALL,OFF</code>，默认<code>DEBUG</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;root level&#x3D;&quot;debug&quot;&gt;</span><br><span class="line">  &lt;appender-ref ref&#x3D;&quot;console&quot; &#x2F;&gt;</span><br><span class="line">  &lt;appender-ref ref&#x3D;&quot;file&quot; &#x2F;&gt;</span><br><span class="line">&lt;&#x2F;root&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>&lt;contextName&gt;</code>：上下文名称，默认为<code>default</code>，用于区分应用程序，一般改为项目名称，可以通过 <code>%contextName</code> 添加到日志中</p>
+</li>
+<li><p><code>&lt;property&gt;</code>：用来定义变量值的标签</p>
+<ul>
+<li><code>name</code>：变量的名称</li>
+<li><code>value</code>：变量的值</li>
+</ul>
+</li>
+</ul>
+<p> 定义的变量可以通过<code>$&#123;&#125;</code>使用</p>
+<ul>
+<li><p><code>&lt;appender&gt;</code>：用来格式化日志输出节点</p>
+<ul>
+<li><p><code>name</code>：<code>appender</code> 的名称</p>
+</li>
+<li><p><code>class</code>：用来指定输出策略，通用的有控制台输出和文件输出</p>
+</li>
+<li><p>子标签 <code>&lt;layout&gt;</code>和<code>&lt;encoder&gt;</code>作用一样，但是<code>&lt;layout&gt;</code>仅仅是将 <code>event</code>事件变成字符串，而 <code>&lt;encoder&gt;</code>将 <code>event</code>事件变成 <code>byte</code>数组并输出到文件中</p>
+</li>
+<li><p><code>&lt;logger&gt;</code>：指定某个包或类的日志属性</p>
+<ul>
+<li><code>name</code>：类或包名</li>
+<li><code>level</code>：日志级别</li>
+<li><code>addtivity</code>：日志是否向上级传递打印，默认是 <code>true</code></li>
+<li>子节点<code>&lt;appender-ref&gt;</code>：用于指定输出到那个 <code>appender</code>，用<code>ref</code>属性指定</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    &lt;!--类名或包名 --&gt;</span><br><span class="line">    &lt;logger name&#x3D;&quot;cn.com.hellowood&quot; level&#x3D;&quot;DEBUG&quot; additivity&#x3D;&quot;false&quot;&gt;</span><br><span class="line">        &lt;appender-ref ref&#x3D;&quot;CONSOLE&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;logger&gt;</span><br><span class="line">&lt;&#x2F;configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<p>此时会打印在 <code>CONSOLE</code>上，如果将<code>additivity</code>改为<code>true</code>，则<code>CONSOLE</code>和<code>root</code>各会打印一次</p>
+<ul>
+<li><code>&lt;springProfile&gt;</code>：设置不同环境下启用不同的规则<ul>
+<li> <code>name</code> ：环境的名称，可以是<code>test</code>, <code>dev</code>, <code>prod</code>, <code>staging</code>等；和 <code>application-$&#123;env&#125;.properties</code>一直即可</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 环境用逗号隔开 --&gt;</span><br><span class="line">&lt;springProfile name&#x3D;&quot;test,dev&quot;&gt;</span><br><span class="line">    &lt;logger name&#x3D;&quot;cn.com.hellowood&quot; level&#x3D;&quot;DEBUG&quot; additivity&#x3D;&quot;false&quot;&gt;</span><br><span class="line">        &lt;appender-ref ref&#x3D;&quot;CONSOLE&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;logger&gt;</span><br><span class="line">&lt;&#x2F;springProfile&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>&lt;springProperty&gt;</code> ：通过 Spring 的 <code>Enviroment</code>获取属性，用于从<code>application.properties</code>读取参数，作用和 <code>&lt;property&gt;</code>一样<ul>
+<li><code>scope</code>：读取属性的范围，一般为<code>context</code></li>
+<li><code>name</code>：属性名称</li>
+<li><code>source</code>：<code>application.properties</code>文件里的配置名称，必须是串的形式（<code>app.property</code>）</li>
+<li><code>defaultValue</code>：默认值</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><ul>
+<li>常用配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;configuration scan&#x3D;&quot;true&quot; scanPeriod&#x3D;&quot;60 seconds&quot; debug&#x3D;&quot;false&quot;&gt;</span><br><span class="line">    </span><br><span class="line">    &lt;springProperty name&#x3D;&quot;LOG_PATH&quot; value&#x3D;&quot;SpringBoot-Log&#x2F;out&#x2F;logs&quot;&#x2F;&gt;</span><br><span class="line">    &lt;contextName&gt;SpringBootLog&lt;&#x2F;contextName&gt;</span><br><span class="line">    &lt;conversionRule conversionWord&#x3D;&quot;clr&quot; converterClass&#x3D;&quot;org.springframework.boot.logging.logback.ColorConverter&quot; &#x2F;&gt;</span><br><span class="line">    &lt;conversionRule conversionWord&#x3D;&quot;wex&quot; converterClass&#x3D;&quot;org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter&quot; &#x2F;&gt;</span><br><span class="line">    &lt;conversionRule conversionWord&#x3D;&quot;wEx&quot; converterClass&#x3D;&quot;org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter&quot; &#x2F;&gt;</span><br><span class="line">    &lt;property name&#x3D;&quot;CONSOLE_LOG_PATTERN&quot; value&#x3D;&quot;$&#123;CONSOLE_LOG_PATTERN:-%clr(%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;)&#123;faint&#125; %clr($&#123;LOG_LEVEL_PATTERN:-%5p&#125;) %clr($&#123;PID:- &#125;)&#123;magenta&#125; %clr(---)&#123;faint&#125; %clr([%21.21t])&#123;faint&#125; %clr(%-40.40logger&#123;39&#125;)&#123;cyan&#125; %clr(:)&#123;faint&#125; %m%n$&#123;LOG_EXCEPTION_CONVERSION_WORD:-%wEx&#125;&#125;&quot;&#x2F;&gt;</span><br><span class="line">    &lt;property name&#x3D;&quot;FILE_LOG_PATTERN&quot; value&#x3D;&quot;$&#123;FILE_LOG_PATTERN:-%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; $&#123;LOG_LEVEL_PATTERN:-%5p&#125; $&#123;PID:- &#125; --- [%21.21t] %-40.40logger&#123;39&#125; : %m%n$&#123;LOG_EXCEPTION_CONVERSION_WORD:-%wEx&#125;&#125;&quot;&#x2F;&gt;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    &lt;!--输出到控制台 ConsoleAppender--&gt;</span><br><span class="line">    &lt;appender name&#x3D;&quot;CONSOLE&quot; class&#x3D;&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;</span><br><span class="line">        &lt;encoder&gt;</span><br><span class="line">            &lt;pattern&gt;%d&#123;HH:mm:ss.SSS&#125; %contextName [%thread] %-5level %logger&#123;36&#125; - %msg%n&lt;&#x2F;pattern&gt;</span><br><span class="line">        &lt;&#x2F;encoder&gt;</span><br><span class="line">    &lt;&#x2F;appender&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 输出到文件 --&gt;</span><br><span class="line">    &lt;appender name&#x3D;&quot;FILE&quot; class&#x3D;&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;&gt;</span><br><span class="line">        &lt;!-- 正在记录的日志文件的路径及文件名 --&gt;</span><br><span class="line">        &lt;file&gt;$&#123;LOG_PATH&#125;&#x2F;SpringBootLog.log&lt;&#x2F;file&gt;</span><br><span class="line">        &lt;!-- 日志记录器的滚动策略，按日期，按大小记录 --&gt;</span><br><span class="line">        &lt;rollingPolicy class&#x3D;&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;&gt;</span><br><span class="line">             &lt;!--归档的日志文件的路径，%d&#123;yyyy-MM-dd&#125;指定日期格式，%i指定索引 --&gt;</span><br><span class="line">            &lt;fileNamePattern&gt;$&#123;LOG_PATH&#125;&#x2F;SpringBootLog-%d&#123;yyyy-MM-dd&#125;.%i.log&lt;&#x2F;fileNamePattern&gt;</span><br><span class="line">            &lt;!-- 若超过10M，日志文件会以索引0开始 --&gt;</span><br><span class="line">            &lt;timeBasedFileNamingAndTriggeringPolicy class&#x3D;&quot;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&quot;&gt;</span><br><span class="line">                &lt;maxFileSize&gt;10MB&lt;&#x2F;maxFileSize&gt;</span><br><span class="line">            &lt;&#x2F;timeBasedFileNamingAndTriggeringPolicy&gt;</span><br><span class="line">            &lt;!--日志文件保留天数--&gt;</span><br><span class="line">            &lt;MaxHistory&gt;30&lt;&#x2F;MaxHistory&gt;</span><br><span class="line">        &lt;&#x2F;rollingPolicy&gt;</span><br><span class="line">        &lt;!-- 追加方式记录日志 --&gt;</span><br><span class="line">        &lt;append&gt;true&lt;&#x2F;append&gt;</span><br><span class="line">        &lt;!-- 日志文件的格式 --&gt;</span><br><span class="line">        &lt;encoder class&#x3D;&quot;ch.qos.logback.classic.encoder.PatternLayoutEncoder&quot;&gt;</span><br><span class="line">            &lt;pattern&gt;$&#123;FILE_LOG_PATTERN&#125;&lt;&#x2F;pattern&gt;</span><br><span class="line">            &lt;charset&gt;utf-8&lt;&#x2F;charset&gt;</span><br><span class="line">        &lt;&#x2F;encoder&gt;</span><br><span class="line">        &lt;!--设置日志输出级别--&gt;</span><br><span class="line">        &lt;filter class&#x3D;&quot;ch.qos.logback.classic.filter.LevelFilter&quot;&gt;</span><br><span class="line">            &lt;level&gt;ERROR&lt;&#x2F;level&gt;</span><br><span class="line">            &lt;onMatch&gt;ACCEPT&lt;&#x2F;onMatch&gt;</span><br><span class="line">            &lt;onMismatch&gt;DENY&lt;&#x2F;onMismatch&gt;</span><br><span class="line">        &lt;&#x2F;filter&gt;</span><br><span class="line">    &lt;&#x2F;appender&gt;</span><br><span class="line">    &lt;!-- 指定包的日志级别 --&gt;</span><br><span class="line">    &lt;logger name&#x3D;&quot;org.springframework&quot; level&#x3D;&quot;WARN&quot; &#x2F;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!--指定最基础的日志输出级别--&gt;</span><br><span class="line">    &lt;root level&#x3D;&quot;INFO&quot;&gt;</span><br><span class="line">        &lt;!--appender将会添加到这个logger--&gt;</span><br><span class="line">        &lt;appender-ref ref&#x3D;&quot;CONSOLE&quot;&#x2F;&gt;</span><br><span class="line">        &lt;appender-ref ref&#x3D;&quot;FILE&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;root&gt;</span><br><span class="line"></span><br><span class="line">&lt;&#x2F;configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Pattern-属性"><a href="#Pattern-属性" class="headerlink" title="Pattern 属性"></a>Pattern 属性</h2><ul>
+<li><p><code>%p</code>: 输出日志信息优先级，即<code>DEBUG</code>，<code>INFO</code>，<code>WARN</code>，<code>ERROR</code>，<code>FATAL</code>,</p>
+</li>
+<li><p><code>%d</code>: 输出日志时间点的日期或时间，默认格式为<code>ISO8601</code>，也可以在其后指定格式，比如：<code>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;</code>，输出类似：<code>2018-01-19 14:47:03.735</code></p>
+</li>
+<li><p><code>%r</code>: 输出自应用启动到输出该log信息耗费的毫秒数</p>
+</li>
+<li><p><code>%c</code>: 输出日志信息所属的类目，通常就是所在类的全名</p>
+</li>
+<li><p><code>%t</code>: 输出产生该日志事件的线程名</p>
+</li>
+<li><p><code>%l</code>: 输出日志事件的发生位置，相当于<code>%C.%M(%F:%L)</code>的组合,包括类目名、发生的线程，以及在代码中的行数</p>
+</li>
+<li><p><code>%x</code>: 输出和当前线程相关联的NDC(嵌套诊断环境),尤其用到像java servlets这样的多客户多线程的应用中</p>
+</li>
+<li><p><code>%%</code>: 输出一个<code>%</code>字符, <code>%F</code>: 输出日志消息产生时所在的文件名称；<code>%L</code>: 输出代码中的行号；<code>%m</code>: 输出代码中指定的消息,产生的日志具体信息</p>
+</li>
+<li><p><code>%n</code>: 输出一个回车换行符，Windows平台为<code>\r\n</code>，Unix平台为<code>\n</code>输出日志信息换行</p>
+</li>
+<li><p>可以在<code>%</code>与模式字符之间加上修饰符来控制其最小宽度、最大宽度、和文本的对齐方式。如：</p>
+<ul>
+<li><p><code>%20c</code>：指定输出<code>category</code>的名称，最小的宽度是20，如果category的名称小于20的话，默认的情况下右对齐。</p>
+</li>
+<li><p><code>%-20c</code>:指定输出<code>category</code>的名称，最小的宽度是20，如果category的名称小于20的话，<code>-</code>号指定左对齐。</p>
+</li>
+<li><p><code>%.30c</code>:指定输出<code>category</code>的名称，最大的宽度是30，如果<code>category</code>的名称大于30的话，就会将左边多出的字符截掉，但小于30的话也不会有空格。</p>
+</li>
+<li><p><code>%20.30c</code>:如果<code>category</code>的名称小于20就补空格，并且右对齐，如果其名称长于30字符，就从左边交远销出的字符截掉。</p>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Log" >
+    <span class="tag-code">Log</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/16/SpringBoot-%E4%BD%BF%E7%94%A8-ElasticSearch/">
+        <span class="nav-arrow">← </span>
+        
+          SpringBoot 使用 ElasticSearch
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/19/SpringBoot-logback-%E8%BE%93%E5%87%BA%E6%97%A5%E5%BF%97%E5%88%B0%E6%95%B0%E6%8D%AE%E5%BA%93%E3%80%81Logstash/">
+        
+          SpringBoot logback 输出日志到数据库、Logstash
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#SpringBoot-%E4%B8%AD%E6%97%A5%E5%BF%97%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">SpringBoot 中日志使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E6%97%A5%E5%BF%97%E8%BE%93%E5%87%BA%E5%88%B0%E6%96%87%E4%BB%B6"><span class="toc-nav-text">配置日志输出到文件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%97%A5%E5%BF%97%E4%B8%AD%E6%B7%BB%E5%8A%A0%E4%BF%A1%E6%81%AF"><span class="toc-nav-text">日志中添加信息</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#logback-%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">logback 配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%A0%87%E7%AD%BE%E5%B1%9E%E6%80%A7"><span class="toc-nav-text">标签属性</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-nav-text">配置文件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Pattern-%E5%B1%9E%E6%80%A7"><span class="toc-nav-text">Pattern 属性</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/19/SpringBoot-中日志使用/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "SpringBoot 中日志使用",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

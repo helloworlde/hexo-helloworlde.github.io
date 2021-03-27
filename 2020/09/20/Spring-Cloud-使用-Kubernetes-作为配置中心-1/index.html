@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Cloud 使用 Kubernetes 作为配置中心 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Cloud 使用 Kubernetes 作为配置中心</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Spring-Cloud-使用-Kubernetes-作为配置中心"><a href="#Spring-Cloud-使用-Kubernetes-作为配置中心" class="headerlink" title="Spring Cloud 使用 Kubernetes 作为配置中心"></a>Spring Cloud 使用 Kubernetes 作为配置中心</h1><p>Spring Cloud 支持使用 Kubernetes 作为配置中心，通过 ConfigMap 或 Secret，将配置添加到应用中</p>
+<h2 id="加载配置"><a href="#加载配置" class="headerlink" title="加载配置"></a>加载配置</h2><p>加载配置是通过 PropertySourceLocator 来实现的，ConfigMap 使用 <code>ConfigMapPropertySourceLocator</code> 加载，Secret 使用 <code>SecretsPropertySourceLocator</code>加载</p>
+<h3 id="Bean-初始化"><a href="#Bean-初始化" class="headerlink" title="Bean 初始化"></a>Bean 初始化</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(name = &quot;spring.cloud.kubernetes.config.enabled&quot;, matchIfMissing = true)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ConfigMapPropertySourceLocator <span class="title">configMapPropertySourceLocator</span><span class="params">(ConfigMapConfigProperties properties)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> ConfigMapPropertySourceLocator(<span class="keyword">this</span>.client, properties);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(name = &quot;spring.cloud.kubernetes.secrets.enabled&quot;, matchIfMissing = true)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SecretsPropertySourceLocator <span class="title">secretsPropertySourceLocator</span><span class="params">(SecretsConfigProperties properties)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> SecretsPropertySourceLocator(<span class="keyword">this</span>.client, properties);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取配置"><a href="#获取配置" class="headerlink" title="获取配置"></a>获取配置</h3><p>获取配置是通过 PropertySourceLocator#locate 方法实现的，最终将获取到属性添加到环境中</p>
+<h4 id="ConfigMap"><a href="#ConfigMap" class="headerlink" title="ConfigMap"></a>ConfigMap</h4><ul>
+<li>ConfigMapPropertySourceLocator#locate</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> PropertySource <span class="title">locate</span><span class="params">(Environment environment)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (environment <span class="keyword">instanceof</span> ConfigurableEnvironment) &#123;</span><br><span class="line">		ConfigurableEnvironment env = (ConfigurableEnvironment) environment;</span><br><span class="line"></span><br><span class="line">		List&lt;ConfigMapConfigProperties.NormalizedSource&gt; sources = <span class="keyword">this</span>.properties.determineSources();</span><br><span class="line">		CompositePropertySource composite = <span class="keyword">new</span> CompositePropertySource(<span class="string">&quot;composite-configmap&quot;</span>);</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">this</span>.properties.isEnableApi()) &#123;</span><br><span class="line">			sources.forEach(s -&gt; composite.addFirstPropertySource(</span><br><span class="line">				getMapPropertySourceForSingleConfigMap(env, s)));</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 将配置添加的容器环境中</span></span><br><span class="line">		addPropertySourcesFromPaths(environment, composite);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> composite;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>真正向 Kubernetes 发起请求的是通过调用 <code>getMapPropertySourceForSingleConfigMap</code> 方法，创建<code>ConfigMapPropertySource</code>实例的时候，会根据 <code>getData</code> 方法，从 ConfigMap 获取属性解析并添加到环境中</p>
+<ul>
+<li>ConfigMapPropertySourceLocator#getMapPropertySourceForSingleConfigMap</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> MapPropertySource <span class="title">getMapPropertySourceForSingleConfigMap</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">	ConfigurableEnvironment environment, NormalizedSource normalizedSource)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	String configurationTarget = <span class="keyword">this</span>.properties.getConfigurationTarget();</span><br><span class="line">	<span class="comment">// 创建新的属性</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> ConfigMapPropertySource(<span class="keyword">this</span>.client,</span><br><span class="line">		getApplicationName(environment, normalizedSource.getName(), configurationTarget),</span><br><span class="line">		getApplicationNamespace(<span class="keyword">this</span>.client, normalizedSource.getNamespace(), configurationTarget),</span><br><span class="line">		environment);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ConfigMapPropertySource</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ConfigMapPropertySource</span><span class="params">(KubernetesClient client, </span></span></span><br><span class="line"><span class="function"><span class="params">                               String name, </span></span></span><br><span class="line"><span class="function"><span class="params">                               String namespace,</span></span></span><br><span class="line"><span class="function"><span class="params">                               Environment environment)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">super</span>(getName(client, name, namespace),</span><br><span class="line">		asObjectMap(getData(client, name, namespace, environment)));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ConfigMapPropertySource#getData</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, Object&gt; <span class="title">getData</span><span class="params">(KubernetesClient client, String name,</span></span></span><br><span class="line"><span class="function"><span class="params">                                           String namespace, Environment environment)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		Map&lt;String, Object&gt; result = <span class="keyword">new</span> LinkedHashMap&lt;&gt;();</span><br><span class="line">		<span class="comment">// 获取 ConfigMap</span></span><br><span class="line">		ConfigMap map = StringUtils.isEmpty(namespace)</span><br><span class="line">			? client.configMaps().withName(name).get()</span><br><span class="line">			: client.configMaps().inNamespace(namespace).withName(name).get();</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 添加到map 中</span></span><br><span class="line">		<span class="keyword">if</span> (map != <span class="keyword">null</span>) &#123;</span><br><span class="line">			result.putAll(processAllEntries(map.getData(), environment));</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (environment != <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="comment">// 根据 Profile 加载 ConfigMap</span></span><br><span class="line">			<span class="keyword">for</span> (String activeProfile : environment.getActiveProfiles()) &#123;</span><br><span class="line"></span><br><span class="line">				String mapNameWithProfile = name + <span class="string">&quot;-&quot;</span> + activeProfile;</span><br><span class="line"></span><br><span class="line">				ConfigMap mapWithProfile = StringUtils.isEmpty(namespace)</span><br><span class="line">					? client.configMaps().withName(mapNameWithProfile).get()</span><br><span class="line">					: client.configMaps().inNamespace(namespace)</span><br><span class="line">					        .withName(mapNameWithProfile).get();</span><br><span class="line"></span><br><span class="line">				<span class="keyword">if</span> (mapWithProfile != <span class="keyword">null</span>) &#123;</span><br><span class="line">					result.putAll(</span><br><span class="line">						processAllEntries(mapWithProfile.getData(), environment));</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> result;</span><br><span class="line"></span><br><span class="line">	&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">		LOG.warn(<span class="string">&quot;Can&#x27;t read configMap with name: [&quot;</span> + name + <span class="string">&quot;] in namespace:[&quot;</span></span><br><span class="line">			+ namespace + <span class="string">&quot;]. Ignoring.&quot;</span>, e);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> LinkedHashMap&lt;&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h4><ul>
+<li>SecretsPropertySourceLocator#locate</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> PropertySource <span class="title">locate</span><span class="params">(Environment environment)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (environment <span class="keyword">instanceof</span> ConfigurableEnvironment) &#123;</span><br><span class="line">		ConfigurableEnvironment env = (ConfigurableEnvironment) environment;</span><br><span class="line"></span><br><span class="line">		List&lt;SecretsConfigProperties.NormalizedSource&gt; sources = <span class="keyword">this</span>.properties.determineSources();</span><br><span class="line">		CompositePropertySource composite = <span class="keyword">new</span> CompositePropertySource(<span class="string">&quot;composite-secrets&quot;</span>);</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">this</span>.properties.isEnableApi()) &#123;</span><br><span class="line">			<span class="comment">// 获取Secret</span></span><br><span class="line">			sources.forEach(s -&gt; composite.addFirstPropertySource(</span><br><span class="line">				getKubernetesPropertySourceForSingleSecret(env, s)));</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// read for secrets mount</span></span><br><span class="line">		<span class="comment">// 读取并加入到容器中</span></span><br><span class="line">		putPathConfig(composite);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> composite;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>SecretsPropertySourceLocator#getKubernetesPropertySourceForSingleSecret</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> MapPropertySource <span class="title">getKubernetesPropertySourceForSingleSecret</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">	ConfigurableEnvironment environment,</span></span></span><br><span class="line"><span class="function"><span class="params">	SecretsConfigProperties.NormalizedSource normalizedSource)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	String configurationTarget = <span class="keyword">this</span>.properties.getConfigurationTarget();</span><br><span class="line">	<span class="comment">// 加载 Secret 属性 source</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> SecretsPropertySource(<span class="keyword">this</span>.client,</span><br><span class="line">		environment,</span><br><span class="line">		getApplicationName(environment, normalizedSource.getName(), configurationTarget),</span><br><span class="line">		getApplicationNamespace(<span class="keyword">this</span>.client, normalizedSource.getNamespace(), configurationTarget),</span><br><span class="line">		normalizedSource.getLabels());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>SecretsPropertySource</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">SecretsPropertySource</span><span class="params">(KubernetesClient client, Environment env, String name,</span></span></span><br><span class="line"><span class="function"><span class="params">                             String namespace, Map&lt;String, String&gt; labels)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">super</span>(getSourceName(client, env, name, namespace),</span><br><span class="line">		getSourceData(client, env, name, namespace, labels));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>SecretsPropertySource#getSourceData</li>
+</ul>
+<p>获取 Secret 的流程和获取 ConfigMap 一样，不同的是 Secret 在放入环境中之前，需要先通过 Base64 解码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, Object&gt; <span class="title">getSourceData</span><span class="params">(KubernetesClient client,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                 Environment env, String name, String namespace, Map&lt;String, String&gt; labels)</span> </span>&#123;</span><br><span class="line">	Map&lt;String, Object&gt; result = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		<span class="comment">// Read for secrets api (named)</span></span><br><span class="line">		<span class="comment">// 根据名称和命名空间获取 secret</span></span><br><span class="line">		Secret secret;</span><br><span class="line">		<span class="keyword">if</span> (StringUtils.isEmpty(namespace)) &#123;</span><br><span class="line">			secret = client.secrets()</span><br><span class="line">			               .withName(name)</span><br><span class="line">			               .get();</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			secret = client.secrets()</span><br><span class="line">			               .inNamespace(namespace)</span><br><span class="line">			               .withName(name)</span><br><span class="line">			               .get();</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 解码</span></span><br><span class="line">		putAll(secret, result);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Read for secrets api (label)</span></span><br><span class="line">		<span class="comment">// 根据 label 读取 Secret</span></span><br><span class="line">		<span class="keyword">if</span> (!labels.isEmpty()) &#123;</span><br><span class="line">			<span class="keyword">if</span> (StringUtils.isEmpty(namespace)) &#123;</span><br><span class="line">				client.secrets()</span><br><span class="line">				      .withLabels(labels)</span><br><span class="line">				      .list()</span><br><span class="line">				      .getItems()</span><br><span class="line">				      .forEach(s -&gt; putAll(s, result));</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				client.secrets()</span><br><span class="line">				      .inNamespace(namespace)</span><br><span class="line">				      .withLabels(labels)</span><br><span class="line">				      .list()</span><br><span class="line">				      .getItems()</span><br><span class="line">				      .forEach(s -&gt; putAll(s, result));</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">		LOG.warn(<span class="string">&quot;Can&#x27;t read secret with name: [&quot;</span> + name + <span class="string">&quot;] or labels [&quot;</span> + labels</span><br><span class="line">			+ <span class="string">&quot;] in namespace:[&quot;</span> + namespace + <span class="string">&quot;] (cause: &quot;</span> + e.getMessage()</span><br><span class="line">			+ <span class="string">&quot;). Ignoring&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="监听配置"><a href="#监听配置" class="headerlink" title="监听配置"></a>监听配置</h2><p>支持两种方式的监听配置，一种是通过和 Kubernetes 建立长连接，当配置发生变化时可以立即推送，另一种是通过长轮询的方式，通过定时任务来实现</p>
+<p>配置的监听必须显式开启</p>
+<h3 id="Bean-初始化-1"><a href="#Bean-初始化-1" class="headerlink" title="Bean 初始化"></a>Bean 初始化</h3><p>Bean 的初始化是在 <code>org.springframework.cloud.kubernetes.config.reload.ConfigReloadAutoConfiguration.ConfigReloadAutoConfigurationBeans</code> 中实现的</p>
+<ul>
+<li>监听配置变化</li>
+</ul>
+<p>根据配置选择是通过轮询还是监听事件方式实现，默认是监听事件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ConfigurationChangeDetector <span class="title">propertyChangeWatcher</span><span class="params">(ConfigReloadProperties properties, ConfigurationUpdateStrategy strategy)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">switch</span> (properties.getMode()) &#123;</span><br><span class="line">		<span class="keyword">case</span> POLLING:</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> PollingConfigurationChangeDetector(<span class="keyword">this</span>.environment,</span><br><span class="line">				properties,</span><br><span class="line">				<span class="keyword">this</span>.kubernetesClient,</span><br><span class="line">				strategy,</span><br><span class="line">				<span class="keyword">this</span>.configMapPropertySourceLocator,</span><br><span class="line">				<span class="keyword">this</span>.secretsPropertySourceLocator);</span><br><span class="line">		<span class="keyword">case</span> EVENT:</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> EventBasedConfigurationChangeDetector(<span class="keyword">this</span>.environment,</span><br><span class="line">				properties,</span><br><span class="line">				<span class="keyword">this</span>.kubernetesClient,</span><br><span class="line">				strategy,</span><br><span class="line">				<span class="keyword">this</span>.configMapPropertySourceLocator,</span><br><span class="line">				<span class="keyword">this</span>.secretsPropertySourceLocator);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">&quot;Unsupported configuration reload mode: &quot;</span> + properties.getMode());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>配置更新策略</li>
+</ul>
+<p>配置更新支持三种策略，分别是重启，刷新，和关闭，关闭应用依赖于健康检查，当发现应用被关闭后需要通过 Kubernetes 主动拉起</p>
+<p>默认策略是刷新上下文</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ConfigurationUpdateStrategy <span class="title">configurationUpdateStrategy</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">	ConfigReloadProperties properties,</span></span></span><br><span class="line"><span class="function"><span class="params">	ConfigurableApplicationContext ctx,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="meta">@Autowired(required = false)</span> RestartEndpoint restarter,</span></span></span><br><span class="line"><span class="function"><span class="params">	ContextRefresher refresher)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">switch</span> (properties.getStrategy()) &#123;</span><br><span class="line">		<span class="comment">// 重启</span></span><br><span class="line">		<span class="keyword">case</span> RESTART_CONTEXT:</span><br><span class="line">			Assert.notNull(restarter, <span class="string">&quot;Restart endpoint is not enabled&quot;</span>);</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> ConfigurationUpdateStrategy(properties.getStrategy().name(),</span><br><span class="line">				() -&gt; &#123;</span><br><span class="line">					wait(properties);</span><br><span class="line">					restarter.restart();</span><br><span class="line">				&#125;);</span><br><span class="line">		<span class="comment">//	刷新</span></span><br><span class="line">		<span class="keyword">case</span> REFRESH:</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> ConfigurationUpdateStrategy(properties.getStrategy().name(),</span><br><span class="line">				refresher::refresh);</span><br><span class="line">		<span class="comment">//	关闭</span></span><br><span class="line">		<span class="keyword">case</span> SHUTDOWN:</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> ConfigurationUpdateStrategy(properties.getStrategy().name(),</span><br><span class="line">				() -&gt; &#123;</span><br><span class="line">					wait(properties);</span><br><span class="line">					ctx.close();</span><br><span class="line">				&#125;);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">&quot;Unsupported configuration update strategy: &quot;</span></span><br><span class="line">		+ properties.getStrategy());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="监听实现"><a href="#监听实现" class="headerlink" title="监听实现"></a>监听实现</h3><p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/spring-cloud-kubernetes-configuration-change-detector.png" alt="spring-cloud-kubernetes-configuration-change-detector.png"></p>
+<p><code>PollingConfigurationChangeDetector</code> 和 <code>EventBasedConfigurationChangeDetector</code> 都是 <code>ConfigurationChangeDetector</code>的子类</p>
+<h4 id="polling"><a href="#polling" class="headerlink" title="polling"></a>polling</h4><p>默认 15s 拉取一次配置</p>
+<ul>
+<li>PollingConfigurationChangeDetector#executeCycle</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Scheduled(initialDelayString = &quot;$&#123;spring.cloud.kubernetes.reload.period:15000&#125;&quot;,</span></span><br><span class="line"><span class="meta">	fixedDelayString = &quot;$&#123;spring.cloud.kubernetes.reload.period:15000&#125;&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">executeCycle</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">boolean</span> changedConfigMap = <span class="keyword">false</span>;</span><br><span class="line">	<span class="comment">// 监控 ConfigMap</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">this</span>.properties.isMonitoringConfigMaps()) &#123;</span><br><span class="line">		List&lt;? extends MapPropertySource&gt; currentConfigMapSources = findPropertySources(ConfigMapPropertySource.class);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (!currentConfigMapSources.isEmpty()) &#123;</span><br><span class="line">			changedConfigMap = changed(</span><br><span class="line">				locateMapPropertySources(<span class="keyword">this</span>.configMapPropertySourceLocator, <span class="keyword">this</span>.environment),</span><br><span class="line">				currentConfigMapSources);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">boolean</span> changedSecrets = <span class="keyword">false</span>;</span><br><span class="line">	<span class="comment">//  监控 Secret</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">this</span>.properties.isMonitoringSecrets()) &#123;</span><br><span class="line">		List&lt;MapPropertySource&gt; currentSecretSources = locateMapPropertySources(<span class="keyword">this</span>.secretsPropertySourceLocator, <span class="keyword">this</span>.environment);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (currentSecretSources != <span class="keyword">null</span> &amp;&amp; !currentSecretSources.isEmpty()) &#123;</span><br><span class="line">			List&lt;SecretsPropertySource&gt; propertySources = findPropertySources(SecretsPropertySource.class);</span><br><span class="line">			changedSecrets = changed(currentSecretSources, propertySources);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 当发生变化时，更新属性</span></span><br><span class="line">	<span class="keyword">if</span> (changedConfigMap || changedSecrets) &#123;</span><br><span class="line">		reloadProperties();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>拉取配置，通过调用<code>change</code>方法进行比较，判断是否发生变化，如果发生变化，则调用 <code>reloadProperties</code> 方法刷新</p>
+<ul>
+<li>ConfigurationChangeDetector#reloadProperties</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reloadProperties</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.log.info(<span class="string">&quot;Reloading using strategy: &quot;</span> + <span class="keyword">this</span>.strategy.getName());</span><br><span class="line">	<span class="keyword">this</span>.strategy.reload();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终调用配置策略的 reload 方法，重新加载配置，需要注意的是，要被刷新的属性类应当通过 <code>@RefreshScope</code>或 <code>@ConfigurationProperties</code>注解修饰，这样才能监听到上下文的变化</p>
+<h4 id="Event"><a href="#Event" class="headerlink" title="Event"></a>Event</h4><ul>
+<li>EventBasedConfigurationChangeDetector#watch </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostConstruct</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">watch</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">boolean</span> activated = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 如果监控 ConfigMap</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">this</span>.properties.isMonitoringConfigMaps()) &#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			String name = <span class="string">&quot;config-maps-watch&quot;</span>;</span><br><span class="line">			<span class="comment">// Watch 是通过 WebSocket 实现的</span></span><br><span class="line">			<span class="keyword">this</span>.watches.put(name, <span class="keyword">this</span>.kubernetesClient.configMaps()</span><br><span class="line">			                                            .watch(<span class="keyword">new</span> Watcher&lt;ConfigMap&gt;() &#123;</span><br><span class="line">				                                            <span class="meta">@Override</span></span><br><span class="line">				                                            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eventReceived</span><span class="params">(Action action,</span></span></span><br><span class="line"><span class="function"><span class="params">				                                                                      ConfigMap configMap)</span> </span>&#123;</span><br><span class="line">					                                            onEvent(configMap);</span><br><span class="line">				                                            &#125;</span><br><span class="line"></span><br><span class="line">				                                            <span class="meta">@Override</span></span><br><span class="line">				                                            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClose</span><span class="params">(KubernetesClientException e)</span> </span>&#123;</span><br><span class="line">				                                            &#125;</span><br><span class="line">			                                            &#125;));</span><br><span class="line">			activated = <span class="keyword">true</span>;</span><br><span class="line">			<span class="keyword">this</span>.log.info(<span class="string">&quot;Added new Kubernetes watch: &quot;</span> + name);</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			<span class="keyword">this</span>.log.error(</span><br><span class="line">				<span class="string">&quot;Error while establishing a connection to watch config maps: configuration may remain stale&quot;</span>,</span><br><span class="line">				e);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 如果监控 Secret</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">this</span>.properties.isMonitoringSecrets()) &#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			activated = <span class="keyword">false</span>;</span><br><span class="line">			String name = <span class="string">&quot;secrets-watch&quot;</span>;</span><br><span class="line">			<span class="keyword">this</span>.watches.put(name,</span><br><span class="line">				<span class="keyword">this</span>.kubernetesClient.secrets().watch(<span class="keyword">new</span> Watcher&lt;Secret&gt;() &#123;</span><br><span class="line">					<span class="meta">@Override</span></span><br><span class="line">					<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eventReceived</span><span class="params">(Action action, Secret secret)</span> </span>&#123;</span><br><span class="line">						onEvent(secret);</span><br><span class="line">					&#125;</span><br><span class="line"></span><br><span class="line">					<span class="meta">@Override</span></span><br><span class="line">					<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClose</span><span class="params">(KubernetesClientException e)</span> </span>&#123;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;));</span><br><span class="line">			activated = <span class="keyword">true</span>;</span><br><span class="line">			<span class="keyword">this</span>.log.info(<span class="string">&quot;Added new Kubernetes watch: &quot;</span> + name);</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			<span class="keyword">this</span>.log.error(</span><br><span class="line">				<span class="string">&quot;Error while establishing a connection to watch secrets: configuration may remain stale&quot;</span>,</span><br><span class="line">				e);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (activated) &#123;</span><br><span class="line">		<span class="keyword">this</span>.log.info(</span><br><span class="line">			<span class="string">&quot;Kubernetes event-based configuration change detector activated&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>当收到消息时，将会调用 <code>onEvent</code>方法处理事件</p>
+<ul>
+<li>EventBasedConfigurationChangeDetector#onEvent</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(ConfigMap configMap)</span> </span>&#123;</span><br><span class="line">	<span class="comment">// 加载配置，检测是否变化</span></span><br><span class="line">	<span class="keyword">boolean</span> changed = changed(</span><br><span class="line">		locateMapPropertySources(<span class="keyword">this</span>.configMapPropertySourceLocator, <span class="keyword">this</span>.environment),</span><br><span class="line">		findPropertySources(ConfigMapPropertySource.class)</span><br><span class="line">	);</span><br><span class="line">	<span class="comment">// 如果变化了，则重新加载属性</span></span><br><span class="line">	<span class="keyword">if</span> (changed) &#123;</span><br><span class="line">		<span class="keyword">this</span>.log.info(<span class="string">&quot;Detected change in config maps&quot;</span>);</span><br><span class="line">		reloadProperties();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(Secret secret)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">boolean</span> changed = changed(</span><br><span class="line">		locateMapPropertySources(<span class="keyword">this</span>.secretsPropertySourceLocator, <span class="keyword">this</span>.environment),</span><br><span class="line">		findPropertySources(SecretsPropertySource.class));</span><br><span class="line">	<span class="keyword">if</span> (changed) &#123;</span><br><span class="line">		<span class="keyword">this</span>.log.info(<span class="string">&quot;Detected change in secrets&quot;</span>);</span><br><span class="line">		reloadProperties();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>重新加载配置，当发现配置发生变化时会调用 <code>reloadProperties</code>方法更新配置</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/Spring-Cloud-Consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Cloud Consul 服务注册和发现
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Consul-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">
+        
+          Spring Cloud 使用 Consul 作为配置中心
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="toc-nav-text">Spring Cloud 使用 Kubernetes 作为配置中心</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">加载配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Bean-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-nav-text">Bean 初始化</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%8E%B7%E5%8F%96%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">获取配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#ConfigMap"><span class="toc-nav-text">ConfigMap</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#Secret"><span class="toc-nav-text">Secret</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%9B%91%E5%90%AC%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">监听配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Bean-%E5%88%9D%E5%A7%8B%E5%8C%96-1"><span class="toc-nav-text">Bean 初始化</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E7%9B%91%E5%90%AC%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">监听实现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#polling"><span class="toc-nav-text">polling</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#Event"><span class="toc-nav-text">Event</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/Spring-Cloud-使用-Kubernetes-作为配置中心-1/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Cloud 使用 Kubernetes 作为配置中心",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

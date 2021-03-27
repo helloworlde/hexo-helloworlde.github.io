@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      HPA 使用自定义的指标自动扩缩容 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>HPA 使用自定义的指标自动扩缩容</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="HPA-使用自定义的指标自动扩缩容"><a href="#HPA-使用自定义的指标自动扩缩容" class="headerlink" title="HPA 使用自定义的指标自动扩缩容"></a>HPA 使用自定义的指标自动扩缩容</h1><p>Kubernetes 支持使用自定义的指标作为 HPA 的依据；</p>
+<p>KEDA 是基于事件驱动的自动扩缩容组件；主要有两部分：</p>
+<ol>
+<li>Agent: 用于触发和停用扩缩容，通过 keda-operator 实现</li>
+<li>Metrics: 用于收集指标，提供给 Agent，通过 keda-operator-metrics-apiserver 实现</li>
+</ol>
+<p>KEDA 适配了多个组件，支持从 Prometheus、MySQL、MQ、Redis、自定义的组件等获取指标</p>
+<h2 id="前提"><a href="#前提" class="headerlink" title="前提"></a>前提</h2><p>环境中安装了 metrics-server</p>
+<h2 id="安装-KEDA-组件"><a href="#安装-KEDA-组件" class="headerlink" title="安装 KEDA 组件"></a>安装 KEDA 组件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">helm repo add kedacore https://kedacore.github.io/charts</span><br><span class="line"></span><br><span class="line">helm repo update​</span><br><span class="line"></span><br><span class="line">kubectl create namespace keda</span><br><span class="line">helm install keda kedacore/keda --namespace keda</span><br></pre></td></tr></table></figure>
+
+<p>安装完成后会看到相关的组件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">kubectl get all -n keda</span><br><span class="line">​</span><br><span class="line">NAME                                                   READY   STATUS    RESTARTS   AGE</span><br><span class="line">pod/keda-operator-6b7f8d7b46-tb69x                     1/1     Running   0          160m</span><br><span class="line">pod/keda-operator-metrics-apiserver-58657d68db-bs94r   1/1     Running   0          160m</span><br><span class="line">​</span><br><span class="line">NAME                                      TYPE        CLUSTER-IP        EXTERNAL-IP   PORT(S)             AGE</span><br><span class="line">service/keda-operator-metrics             ClusterIP   192.168.68.139    &lt;none&gt;        8383/TCP,8686/TCP   159m</span><br><span class="line">service/keda-operator-metrics-apiserver   ClusterIP   192.168.106.114   &lt;none&gt;        443/TCP,80/TCP      160m</span><br><span class="line">​</span><br><span class="line">NAME                                              READY   UP-TO-DATE   AVAILABLE   AGE</span><br><span class="line">deployment.apps/keda-operator                     1/1     1            1           160m</span><br><span class="line">deployment.apps/keda-operator-metrics-apiserver   1/1     1            1           160m</span><br><span class="line">​</span><br><span class="line">NAME                                                         DESIRED   CURRENT   READY   AGE</span><br><span class="line">replicaset.apps/keda-operator-6b7f8d7b46                     1         1         1       160m</span><br><span class="line">replicaset.apps/keda-operator-metrics-apiserver-58657d68db   1         1         1       160m</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><ol>
+<li>创建 HPA</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f demo-api-hpa.yaml</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>为 demo 配置 Service，用于访问请求</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">demo</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">develop</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">nodePort:</span> <span class="number">30088</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">      <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">8080</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">demo</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">NodePort</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>配置 KEDA 对象</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">keda.k8s.io/v1alpha1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ScaledObject</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">develop</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">scaleTargetRef:</span></span><br><span class="line">    <span class="attr">deploymentName:</span> <span class="string">demo</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">develop</span></span><br><span class="line">  <span class="attr">pollingInterval:</span> <span class="number">15</span></span><br><span class="line">  <span class="attr">cooldownPeriod:</span> <span class="number">60</span></span><br><span class="line">  <span class="attr">minReplicaCount:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">maxReplicaCount:</span> <span class="number">10</span></span><br><span class="line">  <span class="attr">triggers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">type:</span> <span class="string">prometheus</span></span><br><span class="line">      <span class="attr">metadata:</span></span><br><span class="line">        <span class="attr">serverAddress:</span> <span class="string">http://prometheus.local</span></span><br><span class="line">        <span class="attr">metricName:</span> <span class="string">http_requests_per_min</span></span><br><span class="line">        <span class="attr">threshold:</span> <span class="string">&#x27;10&#x27;</span></span><br><span class="line">        <span class="attr">query:</span> <span class="string">sum(rate(http_server_requests_seconds_count&#123;application=&quot;demo&quot;&#125;[1m]))</span></span><br></pre></td></tr></table></figure>
+
+<p><code>poolingInterval</code>: 从 triggers 拉取的周期<br><code>colldownPeriod</code>: 缩容的等待时间，从最后一次超过阈值的 tirgger<br><code>minReplicaCount</code>: 扩缩容最小的 Pod 数量<br><code>maxReplicaCount</code>: 扩缩容最大的 Pod 数量<br><code>triggers</code>: 触发器，定义指标<br><code>type</code>: 数据来源，支持 Prometheus、MySQL、MQ、Redis、自定义扩展等<br><code>metricName</code>: 定义当前指标的名称<br><code>threshold</code>: 扩缩容的阈值<br><code>query</code>: 从 Prometheus 查询指标的语句</p>
+<p>详细参考 <a target="_blank" rel="noopener" href="https://keda.sh/docs/2.0/concepts/scaling-deployments/">Scaling Deployments, StatefulSets &amp; Custom Resources</a></p>
+<ol start="4">
+<li>查看 HPA 当前状态</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubectl get hpa -n develop</span><br><span class="line">​</span><br><span class="line">NAME                REFERENCE             TARGETS      MINPODS   MAXPODS   REPLICAS   AGE</span><br><span class="line">keda-hpa-demo       Deployment&#x2F;demo       2&#x2F;10 (avg)   1         10        1          77m</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>发起高于 10 qps 的请求</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ab -c 100 -n 100000 <span class="string">&#x27;10.48.37.36:30088/test&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>查看扩容状态</li>
+</ol>
+<p>当请求 QPS 大于 10 之后，HPA 开始扩容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kubectl get hpa -n develop</span><br><span class="line">​</span><br><span class="line">NAME                REFERENCE             TARGETS       MINPODS   MAXPODS   REPLICAS   AGE</span><br><span class="line">keda-hpa-demo       Deployment/demo       59/10 (avg)   1         10        1          79m</span><br><span class="line">​</span><br><span class="line">kubectl get hpa -n develop</span><br><span class="line">​</span><br><span class="line">NAME                REFERENCE             TARGETS           MINPODS   MAXPODS   REPLICAS   AGE</span><br><span class="line">keda-hpa-demo       Deployment/demo       33750m/10 (avg)   1         10        4          79m</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>缩容</li>
+</ol>
+<p>当请求 QPS 持续低于 10，时间大于 cooldownPeriod 后，HPA 开始缩容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kubectl get hpa -n develop</span><br><span class="line">​</span><br><span class="line">NAME                REFERENCE             TARGETS         MINPODS   MAXPODS   REPLICAS   AGE</span><br><span class="line">keda-hpa-demo       Deployment/demo       800m/10 (avg)   1         10        10         87m</span><br><span class="line">​</span><br><span class="line">kubectl get hpa -n develop</span><br><span class="line">​</span><br><span class="line">NAME                REFERENCE             TARGETS      MINPODS   MAXPODS   REPLICAS   AGE</span><br><span class="line">keda-hpa-demo       Deployment/demo       7/10 (avg)   1         10        1          88m</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置多个指标"><a href="#配置多个指标" class="headerlink" title="配置多个指标"></a>配置多个指标</h2><p>使用 QPS 和统计的 CPU 使用率作为指标进行扩缩容</p>
+<p>KEDA 2.0 支持直接从 Pod 获取 CPU 和内存作为指标，当前 2.0 版本未发布，可以参考：<a target="_blank" rel="noopener" href="https://github.com/kedacore/keda/issues/852">Support adding HPA Standard Metrics to Scaled Object Spec</a></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">keda.k8s.io/v1alpha1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ScaledObject</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">develop</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">scaleTargetRef:</span></span><br><span class="line">    <span class="attr">deploymentName:</span> <span class="string">demo</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">develop</span></span><br><span class="line">  <span class="attr">pollingInterval:</span> <span class="number">15</span></span><br><span class="line">  <span class="attr">cooldownPeriod:</span> <span class="number">60</span></span><br><span class="line">  <span class="attr">minReplicaCount:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">maxReplicaCount:</span> <span class="number">10</span></span><br><span class="line">  <span class="attr">triggers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">type:</span> <span class="string">prometheus</span></span><br><span class="line">      <span class="attr">metadata:</span></span><br><span class="line">        <span class="attr">serverAddress:</span> <span class="string">http://prometheus.local</span></span><br><span class="line">        <span class="attr">metricName:</span> <span class="string">http_requests_per_min</span></span><br><span class="line">        <span class="attr">threshold:</span> <span class="string">&#x27;1000&#x27;</span></span><br><span class="line">        <span class="attr">query:</span> <span class="string">sum(rate(http_server_requests_seconds_count&#123;application=&quot;demo&quot;&#125;[1m]))</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">type:</span> <span class="string">prometheus</span></span><br><span class="line">      <span class="attr">metadata:</span></span><br><span class="line">        <span class="attr">serverAddress:</span> <span class="string">http://prometheus.local</span></span><br><span class="line">        <span class="attr">metricName:</span> <span class="string">cpu</span></span><br><span class="line">        <span class="attr">threshold:</span> <span class="string">&#x27;50&#x27;</span></span><br><span class="line">        <span class="attr">query:</span> <span class="string">(sum(process_cpu_usage&#123;application=&quot;demo&quot;&#125;</span> <span class="string">*</span> <span class="number">32</span><span class="string">)</span> <span class="string">by</span> <span class="string">(application)</span> <span class="string">/</span> <span class="string">sum(system_cpu_count&#123;application=&quot;demo&quot;&#125;)</span> <span class="string">by</span> <span class="string">(application)</span>  <span class="string">*</span> <span class="number">100</span><span class="string">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics">https://kubernetes.io/zh/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics</a></li>
+<li><a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis">https://kubernetes.io/zh/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis</a></li>
+<li><a target="_blank" rel="noopener" href="https://keda.sh/">https://keda.sh/</a></li>
+<li><a target="_blank" rel="noopener" href="https://keda.sh/docs/1.5/scalers/prometheus/">https://keda.sh/docs/1.5/scalers/prometheus/</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kedacore/keda">https://github.com/kedacore/keda</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/gRPC-%E5%91%BD%E5%90%8D%E8%A7%A3%E6%9E%90/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC 命名解析
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/gRPC-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">
+        
+          gRPC  负载均衡
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#HPA-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E6%8C%87%E6%A0%87%E8%87%AA%E5%8A%A8%E6%89%A9%E7%BC%A9%E5%AE%B9"><span class="toc-nav-text">HPA 使用自定义的指标自动扩缩容</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%89%8D%E6%8F%90"><span class="toc-nav-text">前提</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85-KEDA-%E7%BB%84%E4%BB%B6"><span class="toc-nav-text">安装 KEDA 组件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AA%E6%8C%87%E6%A0%87"><span class="toc-nav-text">配置多个指标</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-nav-text">参考文档</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/HPA-使用自定义的指标自动扩缩容/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "HPA 使用自定义的指标自动扩缩容",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

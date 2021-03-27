@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      MyBatis 中使用 Association 嵌套查询 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>MyBatis 中使用 Association 嵌套查询</h2>
+  <p class="post-date">2018-01-01</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><blockquote>
+<p>当使用 MyBatis 进行查询的时候如果一个 JavaBean 中包含另一个 JavaBean 或者 Collection 时，可以通过 MyBatis 的嵌套查询来获取需要的结果;<br>以下以用户登录时的用户、角色和菜单直接的关系为例使用嵌套查询</p>
+</blockquote>
+<hr>
+<h2 id="JavaBean"><a href="#JavaBean" class="headerlink" title="JavaBean"></a>JavaBean</h2><ul>
+<li>UserModel<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class UserModel &#123;</span><br><span class="line">    private Integer id;</span><br><span class="line">    private String username;</span><br><span class="line">    private String password;</span><br><span class="line">    private Boolean enabled;</span><br><span class="line">    private Boolean locked;</span><br><span class="line">    private Boolean expired;</span><br><span class="line">    private RoleModel role;</span><br><span class="line">    private List&lt;MenuModel&gt; menus;</span><br><span class="line"></span><br><span class="line">    ···</span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure></li>
+<li>RoleModel<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public class RoleModel &#123;</span><br><span class="line">    private Integer id;</span><br><span class="line">    private String name;</span><br><span class="line">    private Boolean isActive;</span><br><span class="line">    private String description;</span><br><span class="line">    private Date lastUpdateTime;</span><br><span class="line"></span><br><span class="line">    ···</span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="表"><a href="#表" class="headerlink" title="表"></a>表</h2><ul>
+<li><p>User </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE user (</span><br><span class="line">  id               INT                  AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">  username         VARCHAR(45) NOT NULL,</span><br><span class="line">  password         VARCHAR(45) NOT NULL,</span><br><span class="line">  enabled          BOOLEAN     NOT NULL DEFAULT TRUE,</span><br><span class="line">  expired          BOOLEAN     NOT NULL DEFAULT TRUE,</span><br><span class="line">  locked           BOOLEAN     NOT NULL DEFAULT TRUE,</span><br><span class="line">  last_update_time TIMESTAMP   NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,</span><br><span class="line">  comment          VARCHAR(100)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">INSERT INTO user (username, password, enabled, expired, locked, last_update_time)</span><br><span class="line">VALUES (&#39;admin&#39;, &#39;admin&#39;, TRUE, FALSE, FALSE, current_timestamp);</span><br><span class="line">INSERT INTO user (username, password, enabled, expired, locked, last_update_time)</span><br><span class="line">VALUES (&#39;user&#39;, &#39;password&#39;, TRUE, FALSE, FALSE, current_timestamp);</span><br></pre></td></tr></table></figure></li>
+<li><p>Role</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE role (</span><br><span class="line">  id               INT         NOT NULL AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">  name             VARCHAR(50) NOT NULL UNIQUE,</span><br><span class="line">  description      VARCHAR(100),</span><br><span class="line">  is_active        BOOLEAN     NOT NULL DEFAULT TRUE,</span><br><span class="line">  last_update_time TIMESTAMP            DEFAULT current_timestamp ON UPDATE current_timestamp</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">INSERT INTO role (name, description, is_active, last_update_time)</span><br><span class="line">VALUES (&#39;ROLE_ADMIN&#39;, &#39;Administrator&#39;, TRUE, current_timestamp);</span><br><span class="line">INSERT INTO role (name, description, is_active, last_update_time)</span><br><span class="line">VALUES (&#39;ROLE_USER&#39;, &#39;User&#39;, TRUE, current_timestamp);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>UserRoleXref<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE user_role_xref (</span><br><span class="line">  id               INT       NOT NULL AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">  user_id          INT       NOT NULL,</span><br><span class="line">  role_id          INT       NOT NULL,</span><br><span class="line">  last_update_time TIMESTAMP NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,</span><br><span class="line">  CONSTRAINT FOREIGN KEY fK_user_role_xref_user_id_user_id (user_id) REFERENCES user (id),</span><br><span class="line">  CONSTRAINT FOREIGN KEY fk_user_role_xref_role_id_role_id (role_id) REFERENCES role (id)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">INSERT INTO user_role_xref (user_id, role_id, last_update_time) VALUES (1, 1, CURRENT_TIMESTAMP);</span><br><span class="line">INSERT INTO user_role_xref (user_id, role_id, last_update_time) VALUES (2, 2, CURRENT_TIMESTAMP);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h2 id="一个查询调用另一个查询实现的嵌套"><a href="#一个查询调用另一个查询实现的嵌套" class="headerlink" title="一个查询调用另一个查询实现的嵌套"></a>一个查询调用另一个查询实现的嵌套</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">&lt;resultMap id&#x3D;&quot;BaseUserModelResultMap&quot; type&#x3D;&quot;cn.com.hellowood.springsecurity.model.UserModel&quot;&gt;</span><br><span class="line">    &lt;id column&#x3D;&quot;id&quot; property&#x3D;&quot;id&quot; javaType&#x3D;&quot;java.lang.Integer&quot; jdbcType&#x3D;&quot;INTEGER&quot;&gt;&lt;&#x2F;id&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;username&quot; property&#x3D;&quot;username&quot; javaType&#x3D;&quot;java.lang.String&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;password&quot; property&#x3D;&quot;password&quot; javaType&#x3D;&quot;java.lang.String&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;enabled&quot; property&#x3D;&quot;enabled&quot; javaType&#x3D;&quot;java.lang.Boolean&quot; jdbcType&#x3D;&quot;BOOLEAN&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;expired&quot; property&#x3D;&quot;expired&quot; javaType&#x3D;&quot;java.lang.Boolean&quot; jdbcType&#x3D;&quot;BOOLEAN&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;locked&quot; property&#x3D;&quot;locked&quot; javaType&#x3D;&quot;java.lang.Boolean&quot; jdbcType&#x3D;&quot;BOOLEAN&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;association property&#x3D;&quot;role&quot; javaType&#x3D;&quot;cn.com.hellowood.springsecurity.model.RoleModel&quot;</span><br><span class="line">                 column&#x3D;&quot;id&quot; select&#x3D;&quot;getRoleByUserId&quot;&gt;</span><br><span class="line">    &lt;&#x2F;association&gt;</span><br><span class="line">&lt;&#x2F;resultMap&gt;</span><br><span class="line"></span><br><span class="line">&lt;resultMap id&#x3D;&quot;BaseRoleResultMap&quot; type&#x3D;&quot;cn.com.hellowood.springsecurity.model.RoleModel&quot;&gt;</span><br><span class="line">    &lt;id column&#x3D;&quot;id&quot; property&#x3D;&quot;id&quot; jdbcType&#x3D;&quot;INTEGER&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;name&quot; property&#x3D;&quot;name&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;is_active&quot; property&#x3D;&quot;isActive&quot; jdbcType&#x3D;&quot;BOOLEAN&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;description&quot; property&#x3D;&quot;description&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;last_update_time&quot; property&#x3D;&quot;lastUpdateTime&quot; jdbcType&#x3D;&quot;TIMESTAMP&quot;&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;resultMap&gt;</span><br><span class="line"></span><br><span class="line">&lt;select id&#x3D;&quot;getAllUsers&quot; resultMap&#x3D;&quot;BaseUserModelResultMap&quot;&gt;</span><br><span class="line">    SELECT</span><br><span class="line">        id,</span><br><span class="line">        username,</span><br><span class="line">        password,</span><br><span class="line">        enabled,</span><br><span class="line">        expired,</span><br><span class="line">        locked</span><br><span class="line">    FROM user</span><br><span class="line">&lt;&#x2F;select&gt;</span><br><span class="line"></span><br><span class="line">&lt;select id&#x3D;&quot;getRoleByUserId&quot; parameterType&#x3D;&quot;java.lang.Integer&quot;</span><br><span class="line">        resultType&#x3D;&quot;cn.com.hellowood.springsecurity.model.RoleModel&quot;&gt;</span><br><span class="line">    SELECT</span><br><span class="line">        r.id,</span><br><span class="line">        r.name,</span><br><span class="line">        r.is_active,</span><br><span class="line">        r.description,</span><br><span class="line">        r.last_update_time</span><br><span class="line">    FROM role r</span><br><span class="line">        LEFT JOIN user_role_xref urx</span><br><span class="line">            ON r.id &#x3D; urx.role_id</span><br><span class="line">    WHERE user_id &#x3D; #&#123;userId, jdbcType&#x3D;INTEGER&#125;</span><br><span class="line">&lt;&#x2F;select&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>此时，调用 <code>getAllUsers()</code> 方法就可以通过嵌套查询同时查找 Role 属性了</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;association property&#x3D;&quot;role&quot; javaType&#x3D;&quot;cn.com.hellowood.springsecurity.model.RoleModel&quot;</span><br><span class="line">             column&#x3D;&quot;id&quot; select&#x3D;&quot;getRoleByUserId&quot;&gt;</span><br><span class="line">&lt;&#x2F;association&gt;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li>association : 一个复杂的类型关联，许多结果将映射为这种类型</li>
+<li>property : 这是关联的 JavaBean 中的属性名， 在 UserModel 中对应 <code>private RoleModel role;</code></li>
+<li>column : UserModel 的 id ，作为参数传入被调用的 Select 语句</li>
+<li>select : 另外一个映射语句的 ID</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="同一个查询映射到属性的嵌套"><a href="#同一个查询映射到属性的嵌套" class="headerlink" title="同一个查询映射到属性的嵌套"></a>同一个查询映射到属性的嵌套</h2><blockquote>
+<p>如果再一个查询中可以直接查询到所需要的数据，但是需要映射到该对象的属性上，则可以使用该方式</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">&lt;resultMap id&#x3D;&quot;BaseUserModelResultMap&quot; type&#x3D;&quot;cn.com.hellowood.springsecurity.model.UserModel&quot;&gt;</span><br><span class="line">    &lt;id column&#x3D;&quot;id&quot; property&#x3D;&quot;id&quot; javaType&#x3D;&quot;java.lang.Integer&quot; jdbcType&#x3D;&quot;INTEGER&quot;&gt;&lt;&#x2F;id&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;username&quot; property&#x3D;&quot;username&quot; javaType&#x3D;&quot;java.lang.String&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;password&quot; property&#x3D;&quot;password&quot; javaType&#x3D;&quot;java.lang.String&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;enabled&quot; property&#x3D;&quot;enabled&quot; javaType&#x3D;&quot;java.lang.Boolean&quot; jdbcType&#x3D;&quot;BOOLEAN&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;expired&quot; property&#x3D;&quot;expired&quot; javaType&#x3D;&quot;java.lang.Boolean&quot; jdbcType&#x3D;&quot;BOOLEAN&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;locked&quot; property&#x3D;&quot;locked&quot; javaType&#x3D;&quot;java.lang.Boolean&quot; jdbcType&#x3D;&quot;BOOLEAN&quot;&gt;&lt;&#x2F;result&gt;</span><br><span class="line">    &lt;association property&#x3D;&quot;role&quot; javaType&#x3D;&quot;cn.com.hellowood.springsecurity.model.RoleModel&quot;&gt;</span><br><span class="line">        &lt;id column&#x3D;&quot;id&quot; property&#x3D;&quot;id&quot; jdbcType&#x3D;&quot;INTEGER&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;name&quot; property&#x3D;&quot;name&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;is_active&quot; property&#x3D;&quot;isActive&quot; jdbcType&#x3D;&quot;BOOLEAN&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;description&quot; property&#x3D;&quot;description&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;last_update_time&quot; property&#x3D;&quot;lastUpdateTime&quot; jdbcType&#x3D;&quot;TIMESTAMP&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;association&gt;</span><br><span class="line">&lt;&#x2F;resultMap&gt;</span><br><span class="line"></span><br><span class="line">&lt;select id&#x3D;&quot;getAllUsers&quot; resultMap&#x3D;&quot;BaseUserModelResultMap&quot;&gt;</span><br><span class="line">    SELECT</span><br><span class="line">        u.id,</span><br><span class="line">        u.username,</span><br><span class="line">        u.password,</span><br><span class="line">        u.enabled,</span><br><span class="line">        u.expired,</span><br><span class="line">        u.locked,</span><br><span class="line">        r.id,</span><br><span class="line">        r.name,</span><br><span class="line">        r.is_active,</span><br><span class="line">        r.description,</span><br><span class="line">        r.last_update_time</span><br><span class="line">    FROM user u</span><br><span class="line">        LEFT JOIN user_role_xref ur</span><br><span class="line">            ON u.id &#x3D; ur.user_id</span><br><span class="line">        LEFT JOIN role r</span><br><span class="line">            ON ur.role_id &#x3D; r.id</span><br><span class="line">&lt;&#x2F;select&gt;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#MyBatis" >
+    <span class="tag-code">MyBatis</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Collection-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/">
+        <span class="nav-arrow">← </span>
+        
+          MyBatis 中使用 Collection 嵌套查询
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/01/%E4%BD%BF%E7%94%A8Gradle%E6%95%B4%E5%90%88Flyway%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%81%E7%A7%BB/">
+        
+          使用Gradle整合Flyway进行数据库迁移
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#JavaBean"><span class="toc-nav-text">JavaBean</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%A1%A8"><span class="toc-nav-text">表</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%80%E4%B8%AA%E6%9F%A5%E8%AF%A2%E8%B0%83%E7%94%A8%E5%8F%A6%E4%B8%80%E4%B8%AA%E6%9F%A5%E8%AF%A2%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%B5%8C%E5%A5%97"><span class="toc-nav-text">一个查询调用另一个查询实现的嵌套</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%90%8C%E4%B8%80%E4%B8%AA%E6%9F%A5%E8%AF%A2%E6%98%A0%E5%B0%84%E5%88%B0%E5%B1%9E%E6%80%A7%E7%9A%84%E5%B5%8C%E5%A5%97"><span class="toc-nav-text">同一个查询映射到属性的嵌套</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/01/MyBatis-中使用-Association-嵌套查询/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "MyBatis 中使用 Association 嵌套查询",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

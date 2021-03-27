@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Cloud 使用 Consul 作为配置中心 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Cloud 使用 Consul 作为配置中心</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Spring-Cloud-使用-Consul-作为配置中心"><a href="#Spring-Cloud-使用-Consul-作为配置中心" class="headerlink" title="Spring Cloud 使用 Consul 作为配置中心"></a>Spring Cloud 使用 Consul 作为配置中心</h1><h2 id="加载配置"><a href="#加载配置" class="headerlink" title="加载配置"></a>加载配置</h2><p>加载配置是通过 <code>ConsulPropertySourceLocator</code> 来实现的，该类是 <code>PropertySourceLocator</code>接口的实现类</p>
+<h3 id="Bean-初始化"><a href="#Bean-初始化" class="headerlink" title="Bean 初始化"></a>Bean 初始化</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ConsulPropertySourceLocator <span class="title">consulPropertySourceLocator</span><span class="params">(ConsulConfigProperties consulConfigProperties)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> ConsulPropertySourceLocator(<span class="keyword">this</span>.consul, consulConfigProperties);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取配置"><a href="#获取配置" class="headerlink" title="获取配置"></a>获取配置</h3><p>获取配置是通过 PropertySourceLocator#locate 方法实现的，最终将获取到属性添加到环境中</p>
+<ul>
+<li>ConsulPropertySourceLocator#locate</li>
+</ul>
+<p>获取配置时，根据应用名称，路径，环境及配置类型拼接相应的路径，然后调用 Consul 获取 KV 值的接口，获取相应的配置，根据类型解析后放入环境中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Retryable(interceptor = &quot;consulRetryInterceptor&quot;)</span></span><br><span class="line"><span class="keyword">public</span> PropertySource&lt;?&gt; locate(Environment environment) &#123;</span><br><span class="line">	<span class="keyword">if</span> (environment <span class="keyword">instanceof</span> ConfigurableEnvironment) &#123;</span><br><span class="line">		ConfigurableEnvironment env = (ConfigurableEnvironment) environment;</span><br><span class="line"></span><br><span class="line">		String appName = <span class="keyword">this</span>.properties.getName();</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (appName == <span class="keyword">null</span>) &#123;</span><br><span class="line">			appName = env.getProperty(<span class="string">&quot;spring.application.name&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		List&lt;String&gt; profiles = Arrays.asList(env.getActiveProfiles());</span><br><span class="line"></span><br><span class="line">		String prefix = <span class="keyword">this</span>.properties.getPrefix();</span><br><span class="line"></span><br><span class="line">		List&lt;String&gt; suffixes = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">		<span class="comment">// 不是文件类型的时候，后缀为 /，否则就是配置文件的后缀</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">this</span>.properties.getFormat() != FILES) &#123;</span><br><span class="line">			suffixes.add(<span class="string">&quot;/&quot;</span>);</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			suffixes.add(<span class="string">&quot;.yml&quot;</span>);</span><br><span class="line">			suffixes.add(<span class="string">&quot;.yaml&quot;</span>);</span><br><span class="line">			suffixes.add(<span class="string">&quot;.properties&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 路径</span></span><br><span class="line">		String defaultContext = getContext(prefix, <span class="keyword">this</span>.properties.getDefaultContext());</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (String suffix : suffixes) &#123;</span><br><span class="line">			<span class="keyword">this</span>.contexts.add(defaultContext + suffix);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 追加环境及文件类型</span></span><br><span class="line">		<span class="keyword">for</span> (String suffix : suffixes) &#123;</span><br><span class="line">			addProfiles(<span class="keyword">this</span>.contexts, defaultContext, profiles, suffix);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		String baseContext = getContext(prefix, appName);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 应用名称前缀</span></span><br><span class="line">		<span class="keyword">for</span> (String suffix : suffixes) &#123;</span><br><span class="line">			<span class="keyword">this</span>.contexts.add(baseContext + suffix);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">for</span> (String suffix : suffixes) &#123;</span><br><span class="line">			addProfiles(<span class="keyword">this</span>.contexts, baseContext, profiles, suffix);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		Collections.reverse(<span class="keyword">this</span>.contexts);</span><br><span class="line"></span><br><span class="line">		CompositePropertySource composite = <span class="keyword">new</span> CompositePropertySource(<span class="string">&quot;consul&quot;</span>);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (String propertySourceContext : <span class="keyword">this</span>.contexts) &#123;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				ConsulPropertySource propertySource = <span class="keyword">null</span>;</span><br><span class="line">				<span class="keyword">if</span> (<span class="keyword">this</span>.properties.getFormat() == FILES) &#123;</span><br><span class="line">					<span class="comment">// 获取值</span></span><br><span class="line">					Response&lt;GetValue&gt; response = <span class="keyword">this</span>.consul.getKVValue(propertySourceContext, <span class="keyword">this</span>.properties.getAclToken());</span><br><span class="line">					<span class="comment">// 添加当前索引</span></span><br><span class="line">					addIndex(propertySourceContext, response.getConsulIndex());</span><br><span class="line">					<span class="comment">// 如果值不为空，则更新值并初始化</span></span><br><span class="line">					<span class="keyword">if</span> (response.getValue() != <span class="keyword">null</span>) &#123;</span><br><span class="line">						ConsulFilesPropertySource filesPropertySource = <span class="keyword">new</span> ConsulFilesPropertySource(propertySourceContext, <span class="keyword">this</span>.consul, <span class="keyword">this</span>.properties);</span><br><span class="line">						<span class="comment">// 解析配置内容</span></span><br><span class="line">						filesPropertySource.init(response.getValue());</span><br><span class="line">						propertySource = filesPropertySource;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					propertySource = create(propertySourceContext, <span class="keyword">this</span>.contextIndex);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span> (propertySource != <span class="keyword">null</span>) &#123;</span><br><span class="line">					composite.addPropertySource(propertySource);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">				<span class="keyword">if</span> (<span class="keyword">this</span>.properties.isFailFast()) &#123;</span><br><span class="line">					log.error(<span class="string">&quot;Fail fast is set and there was an error reading configuration from consul.&quot;</span>);</span><br><span class="line">					ReflectionUtils.rethrowRuntimeException(e);</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					log.warn(<span class="string">&quot;Unable to load consul config from &quot;</span> + propertySourceContext, e);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> composite;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="监听配置"><a href="#监听配置" class="headerlink" title="监听配置"></a>监听配置</h2><p>Consul 监听配置是通过定时任务实现的，</p>
+<h3 id="Bean-初始化-1"><a href="#Bean-初始化-1" class="headerlink" title="Bean 初始化"></a>Bean 初始化</h3><p>Bean 的初始化是在 <code>org.springframework.cloud.consul.config.ConsulConfigAutoConfiguration</code> 中实现的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(name = &quot;spring.cloud.consul.config.watch.enabled&quot;, matchIfMissing = true)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ConfigWatch <span class="title">configWatch</span><span class="params">(ConsulConfigProperties properties,</span></span></span><br><span class="line"><span class="function"><span class="params">                               ConsulPropertySourceLocator locator,</span></span></span><br><span class="line"><span class="function"><span class="params">                               ConsulClient consul,</span></span></span><br><span class="line"><span class="function"><span class="params">                               <span class="meta">@Qualifier(CONFIG_WATCH_TASK_SCHEDULER_NAME)</span> TaskScheduler taskScheduler)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> ConfigWatch(properties, consul, locator.getContextIndexes(), taskScheduler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="监听实现"><a href="#监听实现" class="headerlink" title="监听实现"></a>监听实现</h3><p>ConfigWatch 类实现了 <code>ApplicationEventPublisherAware</code> 和 <code>SmartLifecycle</code> 接口，</p>
+<ul>
+<li>启动</li>
+</ul>
+<p>当应用启动后，会调用 SmartLifecycle 的 start 方法，然后初始化配置监听，通过向线程池添加一个定时任务，实现配置的定时拉取，定时任务默认周期是 1s</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">this</span>.running.compareAndSet(<span class="keyword">false</span>, <span class="keyword">true</span>)) &#123;</span><br><span class="line">		<span class="keyword">this</span>.watchFuture = <span class="keyword">this</span>.taskScheduler.scheduleWithFixedDelay(</span><br><span class="line">			<span class="keyword">this</span>::watchConfigKeyValues, <span class="keyword">this</span>.properties.getWatch().getDelay());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>监听</li>
+</ul>
+<p>监听时会遍历所有的key，根据 key 从 Consul 获取相应的数据，判断 Index 是否发生变化，如果发生变化，则发送 <code>RefreshEvent</code> 事件，需要手动实现事件监听以响应配置bai</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Timed 是 Prometheus 的监控</span></span><br><span class="line"><span class="meta">@Timed(&quot;consul.watch-config-keys&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">watchConfigKeyValues</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">this</span>.running.get()) &#123;</span><br><span class="line">		<span class="comment">// 遍历所有的配置的 key</span></span><br><span class="line">		<span class="keyword">for</span> (String context : <span class="keyword">this</span>.consulIndexes.keySet()) &#123;</span><br><span class="line"></span><br><span class="line">			<span class="comment">// turn the context into a Consul folder path (unless our config format</span></span><br><span class="line">			<span class="comment">// are FILES)</span></span><br><span class="line">			<span class="keyword">if</span> (<span class="keyword">this</span>.properties.getFormat() != FILES &amp;&amp; !context.endsWith(<span class="string">&quot;/&quot;</span>)) &#123;</span><br><span class="line">				context = context + <span class="string">&quot;/&quot;</span>;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 根据配置返回的 index 判断是否发生变化</span></span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				Long currentIndex = <span class="keyword">this</span>.consulIndexes.get(context);</span><br><span class="line">				<span class="keyword">if</span> (currentIndex == <span class="keyword">null</span>) &#123;</span><br><span class="line">					currentIndex = -<span class="number">1L</span>;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				log.trace(<span class="string">&quot;watching consul for context &#x27;&quot;</span> + context + <span class="string">&quot;&#x27; with index &quot;</span> + currentIndex);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// use the consul ACL token if found</span></span><br><span class="line">				String aclToken = <span class="keyword">this</span>.properties.getAclToken();</span><br><span class="line">				<span class="keyword">if</span> (StringUtils.isEmpty(aclToken)) &#123;</span><br><span class="line">					aclToken = <span class="keyword">null</span>;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 获取指定的 key</span></span><br><span class="line">				Response&lt;List&lt;GetValue&gt;&gt; response = <span class="keyword">this</span>.consul.getKVValues(context, aclToken, <span class="keyword">new</span> QueryParams(<span class="keyword">this</span>.properties.getWatch().getWaitTime(), currentIndex));</span><br><span class="line"></span><br><span class="line">				<span class="comment">// if response.value == null, response was a 404, otherwise it was a</span></span><br><span class="line">				<span class="comment">// 200</span></span><br><span class="line">				<span class="comment">// reducing churn if there wasn&#x27;t anything</span></span><br><span class="line">				<span class="keyword">if</span> (response.getValue() != <span class="keyword">null</span> &amp;&amp; !response.getValue().isEmpty()) &#123;</span><br><span class="line">					Long newIndex = response.getConsulIndex();</span><br><span class="line"></span><br><span class="line">					<span class="comment">// 判断 key 的 index 是否相等，如果发生变化，则发出 RefreshEvent 事件</span></span><br><span class="line">					<span class="keyword">if</span> (newIndex != <span class="keyword">null</span> &amp;&amp; !newIndex.equals(currentIndex)) &#123;</span><br><span class="line">						<span class="comment">// don&#x27;t publish the same index again, don&#x27;t publish the first</span></span><br><span class="line">						<span class="comment">// time (-1) so index can be primed</span></span><br><span class="line">						<span class="comment">// 没有发布过这个 index 的事件，且不是第一次发布</span></span><br><span class="line">						<span class="keyword">if</span> (!<span class="keyword">this</span>.consulIndexes.containsValue(newIndex) &amp;&amp; !currentIndex.equals(-<span class="number">1L</span>)) &#123;</span><br><span class="line">							log.trace(<span class="string">&quot;Context &quot;</span> + context + <span class="string">&quot; has new index &quot;</span> + newIndex);</span><br><span class="line">							<span class="comment">// 发送事件</span></span><br><span class="line">							RefreshEventData data = <span class="keyword">new</span> RefreshEventData(context, currentIndex, newIndex);</span><br><span class="line">							<span class="keyword">this</span>.publisher.publishEvent(<span class="keyword">new</span> RefreshEvent(<span class="keyword">this</span>, data, data.toString()));</span><br><span class="line">						&#125; <span class="keyword">else</span> <span class="keyword">if</span> (log.isTraceEnabled()) &#123;</span><br><span class="line">							log.trace(<span class="string">&quot;Event for index already published for context &quot;</span> + context);</span><br><span class="line">						&#125;</span><br><span class="line">						<span class="keyword">this</span>.consulIndexes.put(context, newIndex);</span><br><span class="line">					&#125; <span class="keyword">else</span> <span class="keyword">if</span> (log.isTraceEnabled()) &#123;</span><br><span class="line">						log.trace(<span class="string">&quot;Same index for context &quot;</span> + context);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> (log.isTraceEnabled()) &#123;</span><br><span class="line">					log.trace(<span class="string">&quot;No value for context &quot;</span> + context);</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">			&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">				<span class="comment">// only fail fast on the initial query, otherwise just log the error</span></span><br><span class="line">				<span class="keyword">if</span> (<span class="keyword">this</span>.firstTime &amp;&amp; <span class="keyword">this</span>.properties.isFailFast()) &#123;</span><br><span class="line">					log.error(<span class="string">&quot;Fail fast is set and there was an error reading configuration from consul.&quot;</span>);</span><br><span class="line">					ReflectionUtils.rethrowRuntimeException(e);</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> (log.isTraceEnabled()) &#123;</span><br><span class="line">					log.trace(<span class="string">&quot;Error querying consul Key/Values for context &#x27;&quot;</span> + context + <span class="string">&quot;&#x27;&quot;</span>, e);</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> (log.isWarnEnabled()) &#123;</span><br><span class="line">					<span class="comment">// simplified one line log message in the event of an agent</span></span><br><span class="line">					<span class="comment">// failure</span></span><br><span class="line">					log.warn(<span class="string">&quot;Error querying consul Key/Values for context &#x27;&quot;</span> + context + <span class="string">&quot;&#x27;. Message: &quot;</span> + e.getMessage());</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">this</span>.firstTime = <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-1/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Cloud 使用 Kubernetes 作为配置中心
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/Raspberry-Pi-4-%E4%BD%BF%E7%94%A8-USB-%E4%BB%8E-SSD-%E5%90%AF%E5%8A%A8/">
+        
+          Raspberry Pi 4 使用 USB 从 SSD 启动
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Spring-Cloud-%E4%BD%BF%E7%94%A8-Consul-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="toc-nav-text">Spring Cloud 使用 Consul 作为配置中心</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">加载配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Bean-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-nav-text">Bean 初始化</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%8E%B7%E5%8F%96%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">获取配置</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%9B%91%E5%90%AC%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">监听配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Bean-%E5%88%9D%E5%A7%8B%E5%8C%96-1"><span class="toc-nav-text">Bean 初始化</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E7%9B%91%E5%90%AC%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">监听实现</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/Spring-Cloud-使用-Consul-作为配置中心/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Cloud 使用 Consul 作为配置中心",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

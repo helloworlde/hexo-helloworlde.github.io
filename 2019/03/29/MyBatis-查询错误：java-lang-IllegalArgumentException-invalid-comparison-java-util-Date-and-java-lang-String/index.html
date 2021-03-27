@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      MyBatis 查询错误：java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>MyBatis 查询错误：java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</h2>
+  <p class="post-date">2019-03-29</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="MyBatis-查询错误：java-lang-IllegalArgumentException-invalid-comparison-java-util-Date-and-java-lang-String"><a href="#MyBatis-查询错误：java-lang-IllegalArgumentException-invalid-comparison-java-util-Date-and-java-lang-String" class="headerlink" title="MyBatis 查询错误：java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String"></a>MyBatis 查询错误：java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</h1><p>项目中用 MyBatis Plus 替换了 MyBatis，原来的 MyBatis版本是 <code>3.2.8</code>, MyBatis Plus 的版本是 <code>3.1.0</code>，是基于 MyBatis <code>3.5.0</code>开发的，测试没啥问题，上线之后有一些功能不能使用，排查日志发现错误<code>Error querying database.  Cause: java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</code></p>
+<p>很快就定位到问题，是因为传入的 Date 在 XML 中使用了 <code>date != null and date != &#39;&#39;</code>这样的判断引起的，删除<code>date != &#39;&#39;</code>这个判断就好了</p>
+<ul>
+<li>异常信息</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Caused by: org.apache.ibatis.exceptions.PersistenceException: </span><br><span class="line">### Error querying database.  Cause: java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</span><br><span class="line">### Cause: java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</span><br><span class="line">    at org.apache.ibatis.exceptions.ExceptionFactory.wrapException(ExceptionFactory.java:<span class="number">30</span>)</span><br><span class="line">    at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:<span class="number">150</span>)</span><br><span class="line">    at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:<span class="number">141</span>)</span><br><span class="line">    at org.apache.ibatis.session.defaults.DefaultSqlSession.selectOne(DefaultSqlSession.java:<span class="number">77</span>)</span><br><span class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</span><br><span class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:<span class="number">62</span>)</span><br><span class="line">    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:<span class="number">43</span>)</span><br><span class="line">    at java.lang.reflect.Method.invoke(Method.java:<span class="number">498</span>)</span><br><span class="line">    at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:<span class="number">433</span>)</span><br><span class="line">    ... <span class="number">98</span> more</span><br></pre></td></tr></table></figure>
+
+<h3 id="问题复现"><a href="#问题复现" class="headerlink" title="问题复现"></a>问题复现</h3><ul>
+<li>ServiceImpl</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">testDao.getDate(<span class="keyword">new</span> Date());</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Dao</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Date <span class="title">test</span><span class="params">(<span class="meta">@Param(&quot;date&quot;)</span> Date date)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>XML</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;test&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;java.util.Date&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;date != null and date !=&#x27;&#x27;&quot;</span> &gt;</span></span><br><span class="line">        SELECT</span><br><span class="line">        #&#123;date&#125; AS now</span><br><span class="line">        FROM dual</span><br><span class="line">    <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot; date== null&quot;</span>&gt;</span></span><br><span class="line">        SELECT</span><br><span class="line">        date_add(now(), INTERVAL 1 DAY_HOUR) AS now</span><br><span class="line">        FROM dual</span><br><span class="line">    <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>经过debug，发现 MyBatis 3.3之前和3.3之后的判断逻辑不一样</p>
+<p>在3.3之前，判断逻辑是：非基本类型的包装类型，在 <code>compareWithConversion</code>方法里传入的 equals 这个参数为 true，发现比较对象的class不一样时，不抛出异常，返回值为1，即：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!equals) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;invalid comparison: &quot;</span> + v1.getClass().getName() + <span class="string">&quot; and &quot;</span> + v2.getClass().getName());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">result = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>通过<code>compareWithConversion(object1, object2, true) == 0 || object1.equals(object2);</code> 得出的结果是false，即判断条件不成立；</p>
+<p>在3.3之后，在 <code>compareWithConversion</code>方法中移除了 equals 这个参数，判断的逻辑改成了 <code>result = object1 != null &amp;&amp; object2 != null &amp;&amp; (object1.equals(object2) || compareWithConversion(object1, object2) == 0);</code>，<code>compareWithConversion</code>方法里当比较的对象 class 不同的时候，会抛出 <code>IllegalArgumentException</code></p>
+<p>以下是两个版本的比较部分的逻辑代码：</p>
+<h5 id="MyBatis-3-2-8-相关代码"><a href="#MyBatis-3-2-8-相关代码" class="headerlink" title="MyBatis 3.2.8 相关代码"></a>MyBatis 3.2.8 相关代码</h5><ul>
+<li>org.apache.ibatis.ognl.OgnlOps#isEqual:76 </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isEqual</span><span class="params">(Object object1, Object object2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">boolean</span> result = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">if</span> (object1 == object2) &#123;</span><br><span class="line">            result = <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (object1 != <span class="keyword">null</span> &amp;&amp; object2 != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (object1.getClass().isArray() &amp;&amp; object2.getClass().isArray() &amp;&amp; object2.getClass() == object1.getClass()) &#123;</span><br><span class="line">                result = Array.getLength(object1) == Array.getLength(object2);</span><br><span class="line">                <span class="keyword">if</span> (result) &#123;</span><br><span class="line">                    <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">for</span>(<span class="keyword">int</span> icount = Array.getLength(object1); result &amp;&amp; i &lt; icount; ++i) &#123;</span><br><span class="line">                        result = isEqual(Array.get(object1, i), Array.get(object2, i));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (object1 != <span class="keyword">null</span> &amp;&amp; object2 != <span class="keyword">null</span>) &#123;</span><br><span class="line">                result = compareWithConversion(object1, object2, <span class="keyword">true</span>) == <span class="number">0</span> || object1.equals(object2);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+<ul>
+<li>org.apache.ibatis.ognl.OgnlOps#compareWithConversion:21</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="number">10</span>:</span><br><span class="line">    <span class="keyword">if</span> (t1 == <span class="number">10</span> &amp;&amp; t2 == <span class="number">10</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (v1 != <span class="keyword">null</span> &amp;&amp; v2 != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (v1.getClass().isAssignableFrom(v2.getClass()) || v2.getClass().isAssignableFrom(v1.getClass())) &#123;</span><br><span class="line">                <span class="keyword">if</span> (v1 <span class="keyword">instanceof</span> Comparable) &#123;</span><br><span class="line">                    result = ((Comparable)v1).compareTo(v2);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (equals) &#123;</span><br><span class="line">                    result = v1.equals(v2) ? <span class="number">0</span> : <span class="number">1</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!equals) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;invalid comparison: &quot;</span> + v1.getClass().getName() + <span class="string">&quot; and &quot;</span> + v2.getClass().getName());</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            result = <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">boolean</span> var10000 = v1 != v2;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="MyBatis-3-5-0-相关代码"><a href="#MyBatis-3-5-0-相关代码" class="headerlink" title="MyBatis 3.5.0 相关代码"></a>MyBatis 3.5.0 相关代码</h5><ul>
+<li>org.apache.ibatis.ognl.OgnlOps#isEqual:58</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isEqual</span><span class="params">(Object object1, Object object2)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> result = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (object1 == object2) &#123;</span><br><span class="line">        result = <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (object1 != <span class="keyword">null</span> &amp;&amp; object1.getClass().isArray()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (object2 != <span class="keyword">null</span> &amp;&amp; object2.getClass().isArray() &amp;&amp; object2.getClass() == object1.getClass()) &#123;</span><br><span class="line">            result = Array.getLength(object1) == Array.getLength(object2);</span><br><span class="line">            <span class="keyword">if</span> (result) &#123;</span><br><span class="line">                <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> icount = Array.getLength(object1); result &amp;&amp; i &lt; icount; ++i) &#123;</span><br><span class="line">                    result = isEqual(Array.get(object1, i), Array.get(object2, i));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        result = object1 != <span class="keyword">null</span> &amp;&amp; object2 != <span class="keyword">null</span> &amp;&amp; (object1.equals(object2) || compareWithConversion(object1, object2) == <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>org.apache.ibatis.ognl.OgnlOps#compareWithConversion:19</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="number">10</span>:</span><br><span class="line"><span class="keyword">if</span> (t1 == <span class="number">10</span> &amp;&amp; t2 == <span class="number">10</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (v1 <span class="keyword">instanceof</span> Comparable &amp;&amp; v1.getClass().isAssignableFrom(v2.getClass())) &#123;</span><br><span class="line">            result = ((Comparable)v1).compareTo(v2);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;invalid comparison: &quot;</span> + v1.getClass().getName() + <span class="string">&quot; and &quot;</span> + v2.getClass().getName());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这个问题来自两方面：</p>
+<ol>
+<li>开发不规范，使用 Date 和 String 做比较，这个本身就是有问题的， 类似的还有用 String 比较集合或者对象；</li>
+<li>MyBatis 3.3 之前的 bug 导致在比较不同类型的时候，本来应该抛出的异常没有被抛出，导致这个问题被隐藏</li>
+</ol>
+<p>总结下来就是还是因为开发不规范导致的问题，因为本身判断 <code>!= null</code> 就不应该再判断 <code>!=&#39;&#39;</code>，因为<code>&quot;&quot;</code>本身是有值的，应该存到数据库中，除非是特殊要求；在这个项目中是因为前台提交的表单中没有值的字段被参数接收后变成了 <code>&quot;&quot;</code>而不是 <code>null</code>，但是这个问题应该是通过在 Controller 相关类中修改 <code>WebDataBinder</code>解决的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@InitBinder</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initBinder</span><span class="params">(WebDataBinder binder)</span> </span>&#123;</span><br><span class="line">    binder.registerCustomEditor(String.class, <span class="keyword">new</span> StringTrimmerEditor(<span class="keyword">true</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="相关-ISSUE"><a href="#相关-ISSUE" class="headerlink" title="相关 ISSUE"></a>相关 ISSUE</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/mybatis/mybatis-3/issues/445">java.util.RandomAccessSubList and java.lang.String</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/mybatis/mybatis-3/issues/1340">3.3.1 java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</a> </li>
+</ul>
+<hr>
+<h4 id="调用栈"><a href="#调用栈" class="headerlink" title="调用栈"></a>调用栈</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line">compareWithConversion:<span class="number">130</span>, OgnlOps (org.apache.ibatis.ognl)</span><br><span class="line">isEqual:<span class="number">186</span>, OgnlOps (org.apache.ibatis.ognl)</span><br><span class="line">equal:<span class="number">578</span>, OgnlOps (org.apache.ibatis.ognl)</span><br><span class="line">getValueBody:<span class="number">51</span>, ASTNotEq (org.apache.ibatis.ognl)</span><br><span class="line">evaluateGetValueBody:<span class="number">170</span>, SimpleNode (org.apache.ibatis.ognl)</span><br><span class="line">getValue:<span class="number">210</span>, SimpleNode (org.apache.ibatis.ognl)</span><br><span class="line">getValueBody:<span class="number">56</span>, ASTAnd (org.apache.ibatis.ognl)</span><br><span class="line">evaluateGetValueBody:<span class="number">170</span>, SimpleNode (org.apache.ibatis.ognl)</span><br><span class="line">getValue:<span class="number">210</span>, SimpleNode (org.apache.ibatis.ognl)</span><br><span class="line">getValue:<span class="number">333</span>, Ognl (org.apache.ibatis.ognl)</span><br><span class="line">getValue:<span class="number">310</span>, Ognl (org.apache.ibatis.ognl)</span><br><span class="line">getValue:<span class="number">45</span>, OgnlCache (org.apache.ibatis.scripting.xmltags)</span><br><span class="line">evaluateBoolean:<span class="number">32</span>, ExpressionEvaluator (org.apache.ibatis.scripting.xmltags)</span><br><span class="line">apply:<span class="number">33</span>, IfSqlNode (org.apache.ibatis.scripting.xmltags)</span><br><span class="line">apply:<span class="number">32</span>, MixedSqlNode (org.apache.ibatis.scripting.xmltags)</span><br><span class="line">getBoundSql:<span class="number">40</span>, DynamicSqlSource (org.apache.ibatis.scripting.xmltags)</span><br><span class="line">getBoundSql:<span class="number">278</span>, MappedStatement (org.apache.ibatis.mapping)</span><br><span class="line">query:<span class="number">75</span>, CachingExecutor (org.apache.ibatis.executor)</span><br><span class="line">invoke:-<span class="number">1</span>, GeneratedMethodAccessor338 (sun.reflect)</span><br><span class="line">invoke:<span class="number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:<span class="number">498</span>, Method (java.lang.reflect)</span><br><span class="line">proceed:<span class="number">49</span>, Invocation (org.apache.ibatis.plugin)</span><br><span class="line">invoke:<span class="number">60</span>, Plugin (org.apache.ibatis.plugin)</span><br><span class="line">query:-<span class="number">1</span>, $Proxy470 (com.sun.proxy)</span><br><span class="line">invoke:-<span class="number">1</span>, GeneratedMethodAccessor338 (sun.reflect)</span><br><span class="line">invoke:<span class="number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:<span class="number">498</span>, Method (java.lang.reflect)</span><br><span class="line">proceed:<span class="number">49</span>, Invocation (org.apache.ibatis.plugin)</span><br><span class="line">invoke:<span class="number">60</span>, Plugin (org.apache.ibatis.plugin)</span><br><span class="line">query:-<span class="number">1</span>, $Proxy470 (com.sun.proxy)</span><br><span class="line">selectList:<span class="number">108</span>, DefaultSqlSession (org.apache.ibatis.session.defaults)</span><br><span class="line">selectList:<span class="number">102</span>, DefaultSqlSession (org.apache.ibatis.session.defaults)</span><br><span class="line">selectOne:<span class="number">66</span>, DefaultSqlSession (org.apache.ibatis.session.defaults)</span><br><span class="line">invoke:-<span class="number">1</span>, GeneratedMethodAccessor340 (sun.reflect)</span><br><span class="line">invoke:<span class="number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:<span class="number">498</span>, Method (java.lang.reflect)</span><br><span class="line">invoke:<span class="number">358</span>, SqlSessionTemplate$SqlSessionInterceptor (org.mybatis.spring)</span><br><span class="line">selectOne:-<span class="number">1</span>, $Proxy280 (com.sun.proxy)</span><br><span class="line">selectOne:<span class="number">163</span>, SqlSessionTemplate (org.mybatis.spring)</span><br><span class="line">execute:<span class="number">68</span>, MapperMethod (org.apache.ibatis.binding)</span><br><span class="line">invoke:<span class="number">52</span>, MapperProxy (org.apache.ibatis.binding)</span><br><span class="line">test:-<span class="number">1</span>, $Proxy288 (com.sun.proxy)</span><br><span class="line">invoke0:-<span class="number">1</span>, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:<span class="number">62</span>, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:<span class="number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:<span class="number">498</span>, Method (java.lang.reflect)</span><br><span class="line">invokeJoinpointUsingReflection:<span class="number">333</span>, AopUtils (org.springframework.aop.support)</span><br><span class="line">invokeJoinpoint:<span class="number">190</span>, ReflectiveMethodInvocation (org.springframework.aop.framework)</span><br><span class="line">proceed:<span class="number">157</span>, ReflectiveMethodInvocation (org.springframework.aop.framework)</span><br><span class="line">proceed:<span class="number">85</span>, MethodInvocationProceedingJoinPoint (org.springframework.aop.aspectj)</span><br><span class="line">invoke:-<span class="number">1</span>, GeneratedMethodAccessor339 (sun.reflect)</span><br><span class="line">invoke:<span class="number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:<span class="number">498</span>, Method (java.lang.reflect)</span><br><span class="line">invokeAdviceMethodWithGivenArgs:<span class="number">629</span>, AbstractAspectJAdvice (org.springframework.aop.aspectj)</span><br><span class="line">invokeAdviceMethod:<span class="number">618</span>, AbstractAspectJAdvice (org.springframework.aop.aspectj)</span><br><span class="line">invoke:<span class="number">70</span>, AspectJAroundAdvice (org.springframework.aop.aspectj)</span><br><span class="line">proceed:<span class="number">179</span>, ReflectiveMethodInvocation (org.springframework.aop.framework)</span><br><span class="line">invoke:<span class="number">92</span>, ExposeInvocationInterceptor (org.springframework.aop.interceptor)</span><br><span class="line">proceed:<span class="number">179</span>, ReflectiveMethodInvocation (org.springframework.aop.framework)</span><br><span class="line">invoke:<span class="number">213</span>, JdkDynamicAopProxy (org.springframework.aop.framework)</span><br><span class="line">test:-<span class="number">1</span>, $Proxy289 (com.sun.proxy)</span><br><span class="line">test:<span class="number">453</span>, SystemServiceImpl (io.helloworlde.github.service)</span><br><span class="line">invoke:-<span class="number">1</span>, SystemServiceImpl$$FastClassBySpringCGLIB$$ccedf5b2 (io.helloworlde.github.service)</span><br><span class="line">invoke:<span class="number">204</span>, MethodProxy (org.springframework.cglib.proxy)</span><br><span class="line">intercept:<span class="number">652</span>, CglibAopProxy$DynamicAdvisedInterceptor (org.springframework.aop.framework)</span><br><span class="line">test:-<span class="number">1</span>, SystemServiceImpl$$EnhancerBySpringCGLIB$$c36d45a6 (io.helloworlde.github.service)</span><br><span class="line">test:<span class="number">155</span>, PersonalCenterController (io.helloworlde.github.controller)</span><br><span class="line">invoke0:-<span class="number">1</span>, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:<span class="number">62</span>, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:<span class="number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:<span class="number">498</span>, Method (java.lang.reflect)</span><br><span class="line">doInvoke:<span class="number">205</span>, InvocableHandlerMethod (org.springframework.web.method.support)</span><br><span class="line">invokeForRequest:<span class="number">133</span>, InvocableHandlerMethod (org.springframework.web.method.support)</span><br><span class="line">invokeAndHandle:<span class="number">116</span>, ServletInvocableHandlerMethod (org.springframework.web.servlet.mvc.method.annotation)</span><br><span class="line">invokeHandlerMethod:<span class="number">827</span>, RequestMappingHandlerAdapter (org.springframework.web.servlet.mvc.method.annotation)</span><br><span class="line">handleInternal:<span class="number">738</span>, RequestMappingHandlerAdapter (org.springframework.web.servlet.mvc.method.annotation)</span><br><span class="line">handle:<span class="number">85</span>, AbstractHandlerMethodAdapter (org.springframework.web.servlet.mvc.method)</span><br><span class="line">doDispatch:<span class="number">963</span>, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">doService:<span class="number">897</span>, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">processRequest:<span class="number">970</span>, FrameworkServlet (org.springframework.web.servlet)</span><br><span class="line">doGet:<span class="number">861</span>, FrameworkServlet (org.springframework.web.servlet)</span><br><span class="line">service:<span class="number">634</span>, HttpServlet (javax.servlet.http)</span><br><span class="line">service:<span class="number">846</span>, FrameworkServlet (org.springframework.web.servlet)</span><br><span class="line">service:<span class="number">741</span>, HttpServlet (javax.servlet.http)</span><br><span class="line">internalDoFilter:<span class="number">231</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilter:<span class="number">166</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilter:<span class="number">53</span>, WsFilter (org.apache.tomcat.websocket.server)</span><br><span class="line">internalDoFilter:<span class="number">193</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilter:<span class="number">166</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilter:<span class="number">123</span>, WebStatFilter (com.alibaba.druid.support.http)</span><br><span class="line">internalDoFilter:<span class="number">193</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilter:<span class="number">166</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilterInternal:<span class="number">105</span>, HttpPutFormContentFilter (org.springframework.web.filter)</span><br><span class="line">doFilter:<span class="number">107</span>, OncePerRequestFilter (org.springframework.web.filter)</span><br><span class="line">internalDoFilter:<span class="number">193</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilter:<span class="number">166</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">executeChain:<span class="number">449</span>, AbstractShiroFilter (org.apache.shiro.web.servlet)</span><br><span class="line">call:<span class="number">365</span>, AbstractShiroFilter$<span class="number">1</span> (org.apache.shiro.web.servlet)</span><br><span class="line">doCall:<span class="number">90</span>, SubjectCallable (org.apache.shiro.subject.support)</span><br><span class="line">call:<span class="number">83</span>, SubjectCallable (org.apache.shiro.subject.support)</span><br><span class="line">execute:<span class="number">383</span>, DelegatingSubject (org.apache.shiro.subject.support)</span><br><span class="line">doFilterInternal:<span class="number">362</span>, AbstractShiroFilter (org.apache.shiro.web.servlet)</span><br><span class="line">doFilter:<span class="number">125</span>, OncePerRequestFilter (org.apache.shiro.web.servlet)</span><br><span class="line">invokeDelegate:<span class="number">346</span>, DelegatingFilterProxy (org.springframework.web.filter)</span><br><span class="line">doFilter:<span class="number">262</span>, DelegatingFilterProxy (org.springframework.web.filter)</span><br><span class="line">internalDoFilter:<span class="number">193</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilter:<span class="number">166</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilterInternal:<span class="number">164</span>, SessionRepositoryFilter (org.springframework.session.web.http)</span><br><span class="line">doFilter:<span class="number">80</span>, OncePerRequestFilter (org.springframework.session.web.http)</span><br><span class="line">invokeDelegate:<span class="number">346</span>, DelegatingFilterProxy (org.springframework.web.filter)</span><br><span class="line">doFilter:<span class="number">262</span>, DelegatingFilterProxy (org.springframework.web.filter)</span><br><span class="line">internalDoFilter:<span class="number">193</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilter:<span class="number">166</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilterInternal:<span class="number">197</span>, CharacterEncodingFilter (org.springframework.web.filter)</span><br><span class="line">doFilter:<span class="number">107</span>, OncePerRequestFilter (org.springframework.web.filter)</span><br><span class="line">internalDoFilter:<span class="number">193</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">doFilter:<span class="number">166</span>, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">invoke:<span class="number">199</span>, StandardWrapperValve (org.apache.catalina.core)</span><br><span class="line">invoke:<span class="number">96</span>, StandardContextValve (org.apache.catalina.core)</span><br><span class="line">invoke:<span class="number">475</span>, AuthenticatorBase (org.apache.catalina.authenticator)</span><br><span class="line">invoke:<span class="number">140</span>, StandardHostValve (org.apache.catalina.core)</span><br><span class="line">invoke:<span class="number">80</span>, ErrorReportValve (org.apache.catalina.valves)</span><br><span class="line">invoke:<span class="number">625</span>, AbstractAccessLogValve (org.apache.catalina.valves)</span><br><span class="line">invoke:<span class="number">87</span>, StandardEngineValve (org.apache.catalina.core)</span><br><span class="line">service:<span class="number">342</span>, CoyoteAdapter (org.apache.catalina.connector)</span><br><span class="line">service:<span class="number">498</span>, Http11Processor (org.apache.coyote.http11)</span><br><span class="line">process:<span class="number">66</span>, AbstractProcessorLight (org.apache.coyote)</span><br><span class="line">process:<span class="number">796</span>, AbstractProtocol$ConnectionHandler (org.apache.coyote)</span><br><span class="line">doRun:<span class="number">1372</span>, NioEndpoint$SocketProcessor (org.apache.tomcat.util.net)</span><br><span class="line">run:<span class="number">49</span>, SocketProcessorBase (org.apache.tomcat.util.net)</span><br><span class="line">runWorker:<span class="number">1149</span>, ThreadPoolExecutor (java.util.concurrent)</span><br><span class="line">run:<span class="number">624</span>, ThreadPoolExecutor$Worker (java.util.concurrent)</span><br><span class="line">run:<span class="number">61</span>, TaskThread$WrappingRunnable (org.apache.tomcat.util.threads)</span><br><span class="line">run:<span class="number">748</span>, Thread (java.lang)</span><br></pre></td></tr></table></figure>
+
+<h4 id="异常堆栈"><a href="#异常堆栈" class="headerlink" title="异常堆栈"></a>异常堆栈</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line">### Error querying database.  Cause: java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</span><br><span class="line">### Cause: java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</span><br><span class="line">    at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:<span class="number">77</span>)</span><br><span class="line">    at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:<span class="number">446</span>)</span><br><span class="line">    at com.sun.proxy.$Proxy51.selectOne(Unknown Source)</span><br><span class="line">    at org.mybatis.spring.SqlSessionTemplate.selectOne(SqlSessionTemplate.java:<span class="number">166</span>)</span><br><span class="line">    at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.execute(MybatisMapperMethod.java:<span class="number">99</span>)</span><br><span class="line">    at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:<span class="number">61</span>)</span><br><span class="line">    at com.sun.proxy.$Proxy61.test(Unknown Source)</span><br><span class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</span><br><span class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:<span class="number">62</span>)</span><br><span class="line">    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:<span class="number">43</span>)</span><br><span class="line">    at java.lang.reflect.Method.invoke(Method.java:<span class="number">498</span>)</span><br><span class="line">    at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:<span class="number">333</span>)</span><br><span class="line">    at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:<span class="number">190</span>)</span><br><span class="line">    at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:<span class="number">157</span>)</span><br><span class="line">    at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed(MethodInvocationProceedingJoinPoint.java:<span class="number">85</span>)</span><br><span class="line">    at sun.reflect.GeneratedMethodAccessor193.invoke(Unknown Source)</span><br><span class="line">    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:<span class="number">43</span>)</span><br><span class="line">    at java.lang.reflect.Method.invoke(Method.java:<span class="number">498</span>)</span><br><span class="line">    at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs(AbstractAspectJAdvice.java:<span class="number">629</span>)</span><br><span class="line">    at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod(AbstractAspectJAdvice.java:<span class="number">618</span>)</span><br><span class="line">    at org.springframework.aop.aspectj.AspectJAroundAdvice.invoke(AspectJAroundAdvice.java:<span class="number">70</span>)</span><br><span class="line">    at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:<span class="number">179</span>)</span><br><span class="line">    at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:<span class="number">92</span>)</span><br><span class="line">    at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:<span class="number">179</span>)</span><br><span class="line">    at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:<span class="number">213</span>)</span><br><span class="line">    at com.sun.proxy.$Proxy62.test(Unknown Source)</span><br><span class="line">    at io.helloworlde.github.service.SystemServiceImpl.test(SystemServiceImpl.java:<span class="number">453</span>)</span><br><span class="line">    at io.helloworlde.github.service.SystemServiceImpl$$FastClassBySpringCGLIB$$ccedf5b2.invoke(&lt;generated&gt;)</span><br><span class="line">    at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:<span class="number">204</span>)</span><br><span class="line">    at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:<span class="number">652</span>)</span><br><span class="line">    at io.helloworlde.github.service.SystemServiceImpl$$EnhancerBySpringCGLIB$$f63e5835.getSystemConfiguration(&lt;generated&gt;)</span><br><span class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</span><br><span class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:<span class="number">62</span>)</span><br><span class="line">    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:<span class="number">43</span>)</span><br><span class="line">    at java.lang.reflect.Method.invoke(Method.java:<span class="number">498</span>)</span><br><span class="line">    at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:<span class="number">205</span>)</span><br><span class="line">    at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:<span class="number">133</span>)</span><br><span class="line">    at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:<span class="number">116</span>)</span><br><span class="line">    at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:<span class="number">827</span>)</span><br><span class="line">    at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:<span class="number">738</span>)</span><br><span class="line">    at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:<span class="number">85</span>)</span><br><span class="line">    at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:<span class="number">963</span>)</span><br><span class="line">    at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:<span class="number">897</span>)</span><br><span class="line">    at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:<span class="number">970</span>)</span><br><span class="line">    at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:<span class="number">861</span>)</span><br><span class="line">    at javax.servlet.http.HttpServlet.service(HttpServlet.java:<span class="number">634</span>)</span><br><span class="line">    at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:<span class="number">846</span>)</span><br><span class="line">    at javax.servlet.http.HttpServlet.service(HttpServlet.java:<span class="number">741</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:<span class="number">231</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:<span class="number">166</span>)</span><br><span class="line">    at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:<span class="number">53</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:<span class="number">193</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:<span class="number">166</span>)</span><br><span class="line">    at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:<span class="number">123</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:<span class="number">193</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:<span class="number">166</span>)</span><br><span class="line">    at org.springframework.web.filter.HttpPutFormContentFilter.doFilterInternal(HttpPutFormContentFilter.java:<span class="number">105</span>)</span><br><span class="line">    at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:<span class="number">107</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:<span class="number">193</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:<span class="number">166</span>)</span><br><span class="line">    at org.apache.shiro.web.servlet.AbstractShiroFilter.executeChain(AbstractShiroFilter.java:<span class="number">449</span>)</span><br><span class="line">    at org.apache.shiro.web.servlet.AbstractShiroFilter$<span class="number">1.</span>call(AbstractShiroFilter.java:<span class="number">365</span>)</span><br><span class="line">    at org.apache.shiro.subject.support.SubjectCallable.doCall(SubjectCallable.java:<span class="number">90</span>)</span><br><span class="line">    at org.apache.shiro.subject.support.SubjectCallable.call(SubjectCallable.java:<span class="number">83</span>)</span><br><span class="line">    at org.apache.shiro.subject.support.DelegatingSubject.execute(DelegatingSubject.java:<span class="number">383</span>)</span><br><span class="line">    at org.apache.shiro.web.servlet.AbstractShiroFilter.doFilterInternal(AbstractShiroFilter.java:<span class="number">362</span>)</span><br><span class="line">    at org.apache.shiro.web.servlet.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:<span class="number">125</span>)</span><br><span class="line">    at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:<span class="number">346</span>)</span><br><span class="line">    at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:<span class="number">262</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:<span class="number">193</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:<span class="number">166</span>)</span><br><span class="line">    at org.springframework.session.web.http.SessionRepositoryFilter.doFilterInternal(SessionRepositoryFilter.java:<span class="number">164</span>)</span><br><span class="line">    at org.springframework.session.web.http.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:<span class="number">80</span>)</span><br><span class="line">    at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:<span class="number">346</span>)</span><br><span class="line">    at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:<span class="number">262</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:<span class="number">193</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:<span class="number">166</span>)</span><br><span class="line">    at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:<span class="number">197</span>)</span><br><span class="line">    at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:<span class="number">107</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:<span class="number">193</span>)</span><br><span class="line">    at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:<span class="number">166</span>)</span><br><span class="line">    at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:<span class="number">199</span>)</span><br><span class="line">    at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:<span class="number">96</span>)</span><br><span class="line">    at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:<span class="number">475</span>)</span><br><span class="line">    at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:<span class="number">140</span>)</span><br><span class="line">    at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:<span class="number">80</span>)</span><br><span class="line">    at org.apache.catalina.valves.AbstractAccessLogValve.invoke(AbstractAccessLogValve.java:<span class="number">625</span>)</span><br><span class="line">    at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:<span class="number">87</span>)</span><br><span class="line">    at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:<span class="number">342</span>)</span><br><span class="line">    at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:<span class="number">498</span>)</span><br><span class="line">    at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:<span class="number">66</span>)</span><br><span class="line">    at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:<span class="number">796</span>)</span><br><span class="line">    at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:<span class="number">1372</span>)</span><br><span class="line">    at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:<span class="number">49</span>)</span><br><span class="line">    at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:<span class="number">1149</span>)</span><br><span class="line">    at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:<span class="number">624</span>)</span><br><span class="line">    at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:<span class="number">61</span>)</span><br><span class="line">    at java.lang.Thread.run(Thread.java:<span class="number">748</span>)</span><br><span class="line">Caused by: org.apache.ibatis.exceptions.PersistenceException: </span><br><span class="line">### Error querying database.  Cause: java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</span><br><span class="line">### Cause: java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</span><br><span class="line">    at org.apache.ibatis.exceptions.ExceptionFactory.wrapException(ExceptionFactory.java:<span class="number">30</span>)</span><br><span class="line">    at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:<span class="number">150</span>)</span><br><span class="line">    at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:<span class="number">141</span>)</span><br><span class="line">    at org.apache.ibatis.session.defaults.DefaultSqlSession.selectOne(DefaultSqlSession.java:<span class="number">77</span>)</span><br><span class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</span><br><span class="line">    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:<span class="number">62</span>)</span><br><span class="line">    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:<span class="number">43</span>)</span><br><span class="line">    at java.lang.reflect.Method.invoke(Method.java:<span class="number">498</span>)</span><br><span class="line">    at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:<span class="number">433</span>)</span><br><span class="line">    ... <span class="number">98</span> more</span><br><span class="line">Caused by: java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</span><br><span class="line">    at org.apache.ibatis.ognl.OgnlOps.compareWithConversion(OgnlOps.java:<span class="number">93</span>)</span><br><span class="line">    at org.apache.ibatis.ognl.OgnlOps.isEqual(OgnlOps.java:<span class="number">143</span>)</span><br><span class="line">    at org.apache.ibatis.ognl.OgnlOps.equal(OgnlOps.java:<span class="number">802</span>)</span><br><span class="line">    at org.apache.ibatis.ognl.ASTNotEq.getValueBody(ASTNotEq.java:<span class="number">53</span>)</span><br><span class="line">    at org.apache.ibatis.ognl.SimpleNode.evaluateGetValueBody(SimpleNode.java:<span class="number">212</span>)</span><br><span class="line">    at org.apache.ibatis.ognl.SimpleNode.getValue(SimpleNode.java:<span class="number">258</span>)</span><br><span class="line">    at org.apache.ibatis.ognl.ASTAnd.getValueBody(ASTAnd.java:<span class="number">61</span>)</span><br><span class="line">    at org.apache.ibatis.ognl.SimpleNode.evaluateGetValueBody(SimpleNode.java:<span class="number">212</span>)</span><br><span class="line">    at org.apache.ibatis.ognl.SimpleNode.getValue(SimpleNode.java:<span class="number">258</span>)</span><br><span class="line">    at org.apache.ibatis.ognl.Ognl.getValue(Ognl.java:<span class="number">493</span>)</span><br><span class="line">    at org.apache.ibatis.ognl.Ognl.getValue(Ognl.java:<span class="number">457</span>)</span><br><span class="line">    at org.apache.ibatis.scripting.xmltags.OgnlCache.getValue(OgnlCache.java:<span class="number">46</span>)</span><br><span class="line">    at org.apache.ibatis.scripting.xmltags.ExpressionEvaluator.evaluateBoolean(ExpressionEvaluator.java:<span class="number">32</span>)</span><br><span class="line">    at org.apache.ibatis.scripting.xmltags.IfSqlNode.apply(IfSqlNode.java:<span class="number">34</span>)</span><br><span class="line">    at org.apache.ibatis.scripting.xmltags.MixedSqlNode.apply(MixedSqlNode.java:<span class="number">33</span>)</span><br><span class="line">    at org.apache.ibatis.scripting.xmltags.DynamicSqlSource.getBoundSql(DynamicSqlSource.java:<span class="number">41</span>)</span><br><span class="line">    at org.apache.ibatis.mapping.MappedStatement.getBoundSql(MappedStatement.java:<span class="number">293</span>)</span><br><span class="line">    at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:<span class="number">61</span>)</span><br><span class="line">    at com.sun.proxy.$Proxy248.query(Unknown Source)</span><br><span class="line">    at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:<span class="number">148</span>)</span><br><span class="line">    ... <span class="number">105</span> more</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#MyBatis" >
+    <span class="tag-code">MyBatis</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/03/24/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3-Traefik-Docker-Swarm-%E4%BD%BF%E7%94%A8/">
+        <span class="nav-arrow">← </span>
+        
+          微服务网关 Traefik - Docker Swarm 使用
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/05/06/AWS-Lambda-%E9%83%A8%E7%BD%B2-SpringBoot-%E5%BA%94%E7%94%A8/">
+        
+          AWS Lambda 部署 SpringBoot 应用
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#MyBatis-%E6%9F%A5%E8%AF%A2%E9%94%99%E8%AF%AF%EF%BC%9Ajava-lang-IllegalArgumentException-invalid-comparison-java-util-Date-and-java-lang-String"><span class="toc-nav-text">MyBatis 查询错误：java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98%E5%A4%8D%E7%8E%B0"><span class="toc-nav-text">问题复现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#MyBatis-3-2-8-%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81"><span class="toc-nav-text">MyBatis 3.2.8 相关代码</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#MyBatis-3-5-0-%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81"><span class="toc-nav-text">MyBatis 3.5.0 相关代码</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-nav-text">总结</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E7%9B%B8%E5%85%B3-ISSUE"><span class="toc-nav-text">相关 ISSUE</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E8%B0%83%E7%94%A8%E6%A0%88"><span class="toc-nav-text">调用栈</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%BC%82%E5%B8%B8%E5%A0%86%E6%A0%88"><span class="toc-nav-text">异常堆栈</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2019/03/29/MyBatis-查询错误：java-lang-IllegalArgumentException-invalid-comparison-java-util-Date-and-java-lang-String/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "MyBatis 查询错误：java.lang.IllegalArgumentException: invalid comparison: java.util.Date and java.lang.String",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

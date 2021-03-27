@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link active">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link mobile-active">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <main class="app-body">
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/15/Go-%E8%B0%83%E7%94%A8-Windows-%E7%9A%84%E7%B3%BB%E7%BB%9F-API%EF%BC%8C%E6%A3%80%E6%B5%8B%E6%98%AF%E5%90%A6%E9%94%81%E5%B1%8F/">Go 调用 Windows 的系统 API，检测是否锁屏</a>
+      </h2>
+      <p class="article-date">September 15, 2019</p>
+      
+        
+  <a href="/tags#Go" >
+    <span class="tag-code">Go</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Go 调用 Windows 的系统 API，检测是否锁屏
+因为应用需要根据当前电脑是否处于活跃状态来执行不同的动作，所以需要获取电脑当前活跃的窗口判断是否处于锁屏可以通过调用Windows 的库来执行相应的API
+
+12345678910111213141516171819import (  ...
+        
+      </div>
+      <a class="more" href="/2019/09/15/Go-%E8%B0%83%E7%94%A8-Windows-%E7%9A%84%E7%B3%BB%E7%BB%9F-API%EF%BC%8C%E6%A3%80%E6%B5%8B%E6%98%AF%E5%90%A6%E9%94%81%E5%B1%8F/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Kubenetes-%E9%83%A8%E7%BD%B2-Dashboard/">Kubenetes 部署 Dashboard</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Kubenetes 部署 Dashboard
+Kubenestes Dashboard 是提供 Kubernetes信息可视化的 Web 插件
+
+部署1kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboar ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Kubenetes-%E9%83%A8%E7%BD%B2-Dashboard/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-%E4%BD%BF%E7%94%A8%E5%8A%A0%E5%AF%86%E9%85%8D%E7%BD%AE/">Spring Cloud 使用 Kubernetes 作为配置中心 - 使用加密配置</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Cloud 使用 Kubernetes 作为配置中心 - 使用加密配置
+Spring Cloud 可以通过使用 Kubernetes 的 Secrets 作为加密配置
+
+创建应用添加依赖
+build.gradle
+
+123dependencies &#123;	implemen ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-%E4%BD%BF%E7%94%A8%E5%8A%A0%E5%AF%86%E9%85%8D%E7%BD%AE/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">Spring Cloud 使用 Kubernetes 作为配置中心</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Cloud 使用 Kubernetes 作为配置中心
+Spring Cloud 可以通过使用 Kubernetes 的 ConfigMap 作为配置中心，实现配置的拉取和刷新
+
+创建应用添加依赖
+build.gradle 
+
+123dependencies &#123;	imp ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">Spring Cloud 使用 Kubernetes 作为注册中心</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Cloud 使用 Kubernetes 作为注册中心
+Spring Cloud 可以使用 Kubernetes 作为注册中心，实现服务注册和发现
+
+创建两个应用，Consumer 和 Provider，Provider 提供一个 REST 接口供 Consumer 调用
+Pro ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Spring-Cloud-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Kubenetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Traefik-%E4%BD%9C%E4%B8%BA-Ingress-%E8%BD%AC%E5%8F%91%E6%B5%81%E9%87%8F/">Kubenetes 中使用 Traefik 作为 Ingress 转发流量</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#Helm" >
+    <span class="tag-code">Helm</span>
+  </a>
+
+  <a href="/tags#Traefik" >
+    <span class="tag-code">Traefik</span>
+  </a>
+
+  <a href="/tags#Ingress" >
+    <span class="tag-code">Ingress</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Kubenetes 中使用 Traefik 作为 Ingress 转发流量Ingress 就是 Kubernetes 机器外访问集群的入口，将请求的 URL 转发到不同的 Service 上，相当于 Nginx 等代理服务器路由信息由 Ingress Controller 提供，Ingres ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Kubenetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Traefik-%E4%BD%9C%E4%B8%BA-Ingress-%E8%BD%AC%E5%8F%91%E6%B5%81%E9%87%8F/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/">Kubernetes 中使用 Helm 部署应用</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#Helm" >
+    <span class="tag-code">Helm</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Kubernetes 中使用 Helm 部署应用创建应用创建一个简单的应用，提供一个 REST 接口；使用 Golang 编写，然后将镜像 push 到 Docker Hub
+
+go.mod
+
+123module github.com/helloworlde/restgo 1.12
+
+
+ma ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Kubernetes-%E4%B8%AD%E5%AE%89%E8%A3%85-Helm/">Kubernetes 中安装 Helm</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#Helm" >
+    <span class="tag-code">Helm</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Kubernetes 中安装 Helm
+Helm 是构建于 Kubernetes 之上的包管理器，可以理解为 yum，homebrew 或者 pip，用于简化包分发，安装，版本管理等操作流程
+
+基本概念
+Chart
+
+chart 就是 Helm 所管理的包，包含着一个应用要部署至 Kuber ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Kubernetes-%E4%B8%AD%E5%AE%89%E8%A3%85-Helm/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Go-%E5%BC%80%E5%8F%91%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7-OSS%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">Go 开发命令行工具-OSS文件上传</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#Go" >
+    <span class="tag-code">Go</span>
+  </a>
+
+  <a href="/tags#Cobra" >
+    <span class="tag-code">Cobra</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          使用 Go 开发命令行工具-OSS 文件上
+使用 Go 语言开发一个命令行工具，用于向 OSS 文件上传文件命令行工具有很多框架，选择使用 Cobra
+
+准备
+安装 Cobra
+
+1go get -u github.com/spf13/cobra/cobra
+
+初始化项目
+创建项目
+
+123 ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Go-%E5%BC%80%E5%8F%91%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7-OSS%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8Spring-Cloud-Stream/">Spring Boot 中使用Spring Cloud Stream</a>
+      </h2>
+      <p class="article-date">September 8, 2019</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Stream" >
+    <span class="tag-code">Stream</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Boot 中使用Spring Cloud Stream
+Spring Cloud Stream 用于构建高可扩展的使用消息系统连接的事件驱动服务的框架
+
+
+Binder: 负责提供与外部消息系统集成的组件
+Binding: 提供外部消息系统与应用之间桥接的生产者和消费者
+Mes ...
+        
+      </div>
+      <a class="more" href="/2019/09/08/Spring-Boot-%E4%B8%AD%E4%BD%BF%E7%94%A8Spring-Cloud-Stream/">Read more</a>
+    </article>
+  
+
+  
+    <div class="guide-pager">
+  
+    <a href="/page/3/"><span class="page-arrow">← </span>Prev</a>
+  
+  
+    <a href="/page/5/">Next<span class="page-arrow"> →</span></a>
+  
+</div>
+  
+</main>
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Java 将单元测试覆盖率上传到 Codecov | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Java 将单元测试覆盖率上传到 Codecov</h2>
+  <p class="post-date">2018-01-01</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="将单元测试覆盖率上传到-Codecov"><a href="#将单元测试覆盖率上传到-Codecov" class="headerlink" title="将单元测试覆盖率上传到 Codecov"></a>将单元测试覆盖率上传到 Codecov</h1><blockquote>
+<p>通过使用 <a target="_blank" rel="noopener" href="http://www.eclemma.org/jacoco/">Jacoco</a> 生成单元测试覆盖率报告，并将该报告上传到 <a target="_blank" rel="noopener" href="https://codecov.io/">Codecov</a></p>
+</blockquote>
+<h2 id="配置-Jacoco"><a href="#配置-Jacoco" class="headerlink" title="配置 Jacoco"></a>配置 Jacoco</h2><ul>
+<li>配置 build.gradle 文件(以 SpringBoot 应用为例)</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line">buildscript &#123;</span><br><span class="line">    ext &#123;</span><br><span class="line">        springBootVersion = <span class="string">&#x27;1.5.8.RELEASE&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">    repositories &#123;</span><br><span class="line">        mavenCentral()</span><br><span class="line">        maven &#123; url <span class="string">&quot;https://plugins.gradle.org/m2/&quot;</span> &#125;</span><br><span class="line">        maven &#123; url <span class="string">&#x27;http://maven.aliyun.com/nexus/content/groups/public/&#x27;</span> &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    dependencies &#123;</span><br><span class="line">        classpath(<span class="string">&quot;org.springframework.boot:spring-boot-gradle-plugin:$&#123;springBootVersion&#125;&quot;</span>)</span><br><span class="line">        classpath(<span class="string">&quot;gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.17&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">apply <span class="attr">plugin:</span> <span class="string">&#x27;java&#x27;</span></span><br><span class="line">apply <span class="attr">plugin:</span> <span class="string">&#x27;eclipse-wtp&#x27;</span></span><br><span class="line">apply <span class="attr">plugin:</span> <span class="string">&#x27;org.springframework.boot&#x27;</span></span><br><span class="line">apply <span class="attr">plugin:</span> <span class="string">&#x27;war&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用 Jacoco 插件</span></span><br><span class="line">apply <span class="attr">plugin:</span> <span class="string">&#x27;jacoco&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">group = <span class="string">&#x27;cn.com.hellowood&#x27;</span></span><br><span class="line">version = <span class="string">&#x27;0.0.1-SNAPSHOT&#x27;</span></span><br><span class="line">sourceCompatibility = <span class="number">1.8</span></span><br><span class="line"></span><br><span class="line">repositories &#123;</span><br><span class="line">    mavenCentral()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">war &#123;</span><br><span class="line">    baseName = <span class="string">&#x27;Security&#x27;</span></span><br><span class="line">    version = <span class="string">&#x27;&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    compile(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-security&#x27;</span>)</span><br><span class="line">    compile(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-web&#x27;</span>)</span><br><span class="line">    compile(<span class="string">&quot;org.springframework.boot:spring-boot-devtools&quot;</span>)</span><br><span class="line">    compile(<span class="string">&#x27;org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.0&#x27;</span>)</span><br><span class="line">    compile(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-thymeleaf&#x27;</span>)</span><br><span class="line">    compile(<span class="string">&#x27;org.webjars:jquery:3.2.1&#x27;</span>)</span><br><span class="line">    compile(<span class="string">&#x27;org.webjars:bootstrap:4.0.0-beta.2&#x27;</span>)</span><br><span class="line">    compile(<span class="string">&#x27;org.webjars:font-awesome:4.7.0&#x27;</span>)</span><br><span class="line">    compile(<span class="string">&#x27;org.webjars:bootstrap-glyphicons:bdd2cbfba0&#x27;</span>)</span><br><span class="line">    runtime(<span class="string">&#x27;mysql:mysql-connector-java&#x27;</span>)</span><br><span class="line">    runtime(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-tomcat&#x27;</span>)</span><br><span class="line">    testCompile(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-test&#x27;</span>)</span><br><span class="line">    testCompile(<span class="string">&#x27;org.springframework.security:spring-security-test&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 添加 task 用于生成 Jacoco 测试结果</span></span><br><span class="line">task codeCoverageReport(<span class="attr">type:</span> JacocoReport) &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 需指定生成的类文件位置和源文件位置</span></span><br><span class="line">    classDirectories = files(<span class="string">&#x27;build/classes&#x27;</span>)</span><br><span class="line">    sourceDirectories = files(<span class="string">&#x27;src/main/java&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    executionData fileTree(project.rootDir.absolutePath).include(<span class="string">&quot;**/build/jacoco/*.exec&quot;</span>)</span><br><span class="line"></span><br><span class="line">    subprojects.each &#123;</span><br><span class="line">        sourceSets it.sourceSets.main</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成的报告类型包括 xml/html/csv</span></span><br><span class="line">    reports &#123;</span><br><span class="line">        xml.enabled <span class="literal">true</span></span><br><span class="line">        xml.destination <span class="string">&quot;$&#123;buildDir&#125;/reports/jacoco/report.xml&quot;</span></span><br><span class="line">        html.enabled <span class="literal">false</span></span><br><span class="line">        csv.enabled <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">codeCoverageReport.dependsOn &#123;</span><br><span class="line">    subprojects*.test</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">check.dependsOn codeCoverageReport</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="生成测试报告"><a href="#生成测试报告" class="headerlink" title="生成测试报告"></a>生成测试报告</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gradle check</span><br><span class="line">gradle codeCoverageReport</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>此时在 <code>build/reports/jacoco</code> 下生成 Jacoco 的测试报告</p>
+</blockquote>
+<h2 id="上传测试结果"><a href="#上传测试结果" class="headerlink" title="上传测试结果"></a>上传测试结果</h2><ul>
+<li>通过命令直接上传(TOKEN 在 Codecov 项目中可以找到)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash &lt;(curl -s https:&#x2F;&#x2F;codecov.io&#x2F;bash) -t YOUR_PROJECT_TOKEN</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 Travis CI 上传(在 Travis 配置文件中添加以下内容)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">script:</span><br><span class="line">  - .&#x2F;gradlew check</span><br><span class="line">  - .&#x2F;gradlew codeCoverageReport</span><br><span class="line">after_success:</span><br><span class="line">  - codecov</span><br><span class="line">  - bash &lt;(curl -s https:&#x2F;&#x2F;codecov.io&#x2F;bash) -t YOUR_PROJECT_TOKEN</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 Circle CI 上传(在 Circle 配置文件中添加以下内容)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">jobs:</span><br><span class="line">  build:</span><br><span class="line">    steps:</span><br><span class="line">      - run: gradle check</span><br><span class="line">      - run: gradle codeCoverageReport</span><br><span class="line">      - run: bash &lt;(curl -s https:&#x2F;&#x2F;codecov.io&#x2F;bash) -t 92b3ad6b-92f7-49bb-94e7-ea233b860e47</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<blockquote>
+<p>需要注意的是只有 xml 格式的测试报告才会被上传</p>
+</blockquote>
+<p><img src="http://img.blog.csdn.net/20171208203442891?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMzM2MDg1MA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="分析结果"></p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Gradle" >
+    <span class="tag-code">Gradle</span>
+  </a>
+
+  <a href="/tags#Test" >
+    <span class="tag-code">Test</span>
+  </a>
+
+  <a href="/tags#Junit" >
+    <span class="tag-code">Junit</span>
+  </a>
+
+  <a href="/tags#Codecov" >
+    <span class="tag-code">Codecov</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2017/12/31/Spring-Boot-Mail-Could-not-connect-to-SMTP-host/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Boot Mail Could not connect to SMTP host
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/01/Gradle%20%E4%BD%BF%E7%94%A8-Jacoco-%E5%88%86%E6%9E%90%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E5%B7%A5%E5%85%B7/">
+        
+          Gradle 使用-添加 Jacoco 分析单元测试覆盖率工具
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E5%B0%86%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E8%A6%86%E7%9B%96%E7%8E%87%E4%B8%8A%E4%BC%A0%E5%88%B0-Codecov"><span class="toc-nav-text">将单元测试覆盖率上传到 Codecov</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-Jacoco"><span class="toc-nav-text">配置 Jacoco</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%94%9F%E6%88%90%E6%B5%8B%E8%AF%95%E6%8A%A5%E5%91%8A"><span class="toc-nav-text">生成测试报告</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%8A%E4%BC%A0%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C"><span class="toc-nav-text">上传测试结果</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/01/Java-将单元测试覆盖率上传到-Codecov/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Java 将单元测试覆盖率上传到 Codecov",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Seata 高可用部署实践 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Seata 高可用部署实践</h2>
+  <p class="post-date">2020-04-10</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Seata-高可用部署实践"><a href="#Seata-高可用部署实践" class="headerlink" title="Seata 高可用部署实践"></a>Seata 高可用部署实践</h1><p>使用配置中心和数据库来实现 Seata 的高可用，以 Nacos 和 MySQL 为例，将<a target="_blank" rel="noopener" href="https://github.com/helloworlde/spring-cloud-alibaba-component/blob/master/cloud-seata-nacos/">cloud-seata-nacos</a>应用部署到 Kubernetes 集群中</p>
+<p>该应用使用 Nacos 作为配置和注册中心，总共有三个服务: order-service, pay-service, storage-service, 其中 order-service 对外提供下单接口，当余额和库存充足时，下单成功，会提交事务，当不足时会抛出异常，下单失败，回滚事务</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>需要准备可用的注册中心、配置中心 Nacos 和 MySQL，通常情况下，注册中心、配置中心和数据库都是已有的，不需要特别配置，在这个实践中，为了简单，只部署单机的注册中心、配置中心和数据库，假设他们是可靠的</p>
+<ul>
+<li>部署 Nacos </li>
+</ul>
+<p>在服务器部署 Nacos，开放 8848 端口，用于 seata-server 注册，服务器地址为 <code>192.168.199.2</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --name nacos -p 8848:8848 -e MODE=standalone nacos/nacos-server</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>部署 MySQL </li>
+</ul>
+<p>部署一台MySQL 数据库，用于保存事务数据，服务器地址为 <code>192.168.199.2</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --name mysql -p 30060:3306-e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7.17</span><br></pre></td></tr></table></figure>
+
+<h2 id="部署-seata-server"><a href="#部署-seata-server" class="headerlink" title="部署 seata-server"></a>部署 seata-server</h2><ul>
+<li>创建seata-server需要的表</li>
+</ul>
+<p>具体的 SQL 参考 <a target="_blank" rel="noopener" href="https://github.com/seata/seata/tree/develop/script/server/db">script/server/db</a>，这里使用的是 MySQL 的脚本，数据库名称为 <code>seata</code></p>
+<p>同时，也需要创建 undo_log 表， 可以参考 <a target="_blank" rel="noopener" href="https://github.com/seata/seata/blob/develop/script/client/at/db/">script/client/at/db/</a></p>
+<ul>
+<li>修改seata-server配置</li>
+</ul>
+<p>将以下配置添加到 Nacos 配置中心，具体添加方法可以参考 <a target="_blank" rel="noopener" href="https://github.com/seata/seata/tree/develop/script/config-center">script/config-center</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">service.vgroupMapping.my_test_tx_group&#x3D;default</span><br><span class="line">store.mode&#x3D;db</span><br><span class="line">store.db.datasource&#x3D;druid</span><br><span class="line">store.db.dbType&#x3D;mysql</span><br><span class="line">store.db.driverClassName&#x3D;com.mysql.jdbc.Driver</span><br><span class="line">store.db.url&#x3D;jdbc:mysql:&#x2F;&#x2F;192.168.199.2:30060&#x2F;seata?useUnicode&#x3D;true</span><br><span class="line">store.db.user&#x3D;root</span><br><span class="line">store.db.password&#x3D;123456</span><br></pre></td></tr></table></figure>
+
+<h3 id="部署-seata-server-到-Kubernetes"><a href="#部署-seata-server-到-Kubernetes" class="headerlink" title="部署 seata-server 到 Kubernetes"></a>部署 seata-server 到 Kubernetes</h3><ul>
+<li>seata-server.yaml</li>
+</ul>
+<p>需要将 ConfigMap 的注册中心和配置中心地址改成相应的地址</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">seata-ha-server</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app.kubernetes.io/name:</span> <span class="string">seata-ha-server</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">port:</span> <span class="number">8091</span></span><br><span class="line">      <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app.kubernetes.io/name:</span> <span class="string">seata-ha-server</span></span><br><span class="line"></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">StatefulSet</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">seata-ha-server</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app.kubernetes.io/name:</span> <span class="string">seata-ha-server</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">serviceName:</span> <span class="string">seata-ha-server</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app.kubernetes.io/name:</span> <span class="string">seata-ha-server</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app.kubernetes.io/name:</span> <span class="string">seata-ha-server</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">seata-ha-server</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">docker.io/seataio/seata-server:latest</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">          <span class="attr">env:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">SEATA_CONFIG_NAME</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">file:/root/seata-config/registry</span></span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">              <span class="attr">containerPort:</span> <span class="number">8091</span></span><br><span class="line">              <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">          <span class="attr">volumeMounts:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">seata-config</span></span><br><span class="line">              <span class="attr">mountPath:</span> <span class="string">/root/seata-config</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">seata-config</span></span><br><span class="line">          <span class="attr">configMap:</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">seata-ha-server-config</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">seata-ha-server-config</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">registry.conf:</span> <span class="string">|</span></span><br><span class="line">    <span class="string">registry</span> &#123;</span><br><span class="line">        <span class="string">type</span> <span class="string">=</span> <span class="string">&quot;nacos&quot;</span></span><br><span class="line">        <span class="string">nacos</span> &#123;</span><br><span class="line">          <span class="string">application</span> <span class="string">=</span> <span class="string">&quot;seata-server&quot;</span></span><br><span class="line">          <span class="string">serverAddr</span> <span class="string">=</span> <span class="string">&quot;192.168.199.2&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="string">config</span> &#123;</span><br><span class="line">      <span class="string">type</span> <span class="string">=</span> <span class="string">&quot;nacos&quot;</span></span><br><span class="line">      <span class="string">nacos</span> &#123;</span><br><span class="line">        <span class="string">serverAddr</span> <span class="string">=</span> <span class="string">&quot;192.168.199.2&quot;</span></span><br><span class="line">        <span class="string">group</span> <span class="string">=</span> <span class="string">&quot;SEATA_GROUP&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>部署</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f seata-server.yaml</span><br></pre></td></tr></table></figure>
+
+<p>部署完成后，会有三个 pod</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pod | grep seata-ha-server</span><br><span class="line"></span><br><span class="line">seata-ha-server-645844b8b6-9qh5j    1/1     Running   0          3m14s</span><br><span class="line">seata-ha-server-645844b8b6-pzczs    1/1     Running   0          3m14s</span><br><span class="line">seata-ha-server-645844b8b6-wkpw8    1/1     Running   0          3m14s</span><br></pre></td></tr></table></figure>
+
+<p>待启动完成后，可以在 Nacos 的服务列表中发现三个 seata-server 的实例，至此，已经完成 seata-server 的高可用部署</p>
+<ul>
+<li>查看服务日志 </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubelet logs -f seata-ha-server-645844b8b6-9qh5j</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">0.</span>012s][info   ][gc] Using Serial</span><br><span class="line"><span class="number">2020</span>-<span class="number">04</span>-<span class="number">15</span> <span class="number">00</span>:<span class="number">55</span>:<span class="number">09.880</span> INFO [main]io.seata.server.ParameterParser.init:<span class="number">90</span> -The server is running in container.</span><br><span class="line"><span class="number">2020</span>-<span class="number">04</span>-<span class="number">15</span> <span class="number">00</span>:<span class="number">55</span>:<span class="number">10.013</span> INFO [main]io.seata.config.FileConfiguration.&lt;init&gt;:<span class="number">110</span> -The configuration file used is file:/root/seata-config/registry.conf</span><br><span class="line"><span class="number">2020</span>-<span class="number">04</span>-<span class="number">15</span> <span class="number">00</span>:<span class="number">55</span>:<span class="number">12.426</span> INFO [main]com.alibaba.druid.pool.DruidDataSource.init:<span class="number">947</span> -&#123;dataSource-<span class="number">1</span>&#125; inited</span><br><span class="line"><span class="number">2020</span>-<span class="number">04</span>-<span class="number">15</span> <span class="number">00</span>:<span class="number">55</span>:<span class="number">13.127</span> INFO [main]io.seata.core.rpc.netty.RpcServerBootstrap.start:<span class="number">155</span> -Server started </span><br></pre></td></tr></table></figure>
+
+<p>其中<code>&#123;dataSource-1&#125; </code>说明使用了数据库，并正常初始化完成</p>
+<ul>
+<li>查看注册中心，此时seata-serve 这个服务会有三个实例</li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/seata-ha-nacos-list.png" alt="seata-ha-nacos-list.png"></p>
+<h2 id="部署业务服务"><a href="#部署业务服务" class="headerlink" title="部署业务服务"></a>部署业务服务</h2><ul>
+<li>创建业务表并初始化数据</li>
+</ul>
+<p>具体的业务表可以参考 <a target="_blank" rel="noopener" href="https://github.com/helloworlde/spring-cloud-alibaba-component/blob/master/cloud-seata-nacos/README.md">cloud-seata-nacos/README.md</a></p>
+<ul>
+<li>添加 Nacos 配置</li>
+</ul>
+<p>在 public 的命名空间下，分别创建 data-id 为 <code>order-service.properties</code>, <code>pay-service.properties</code>, <code>storage-service.properties</code> 的配置，内容相同，需要修改数据库的地址、用户名和密码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># MySQL</span><br><span class="line">spring.datasource.url&#x3D;jdbc:mysql:&#x2F;&#x2F;192.168.199.2:30060&#x2F;seata?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf8&amp;allowMultiQueries&#x3D;true&amp;useSSL&#x3D;false</span><br><span class="line">spring.datasource.username&#x3D;root</span><br><span class="line">spring.datasource.password&#x3D;123456</span><br><span class="line">spring.datasource.driver-class-name&#x3D;com.mysql.cj.jdbc.Driver</span><br><span class="line"># Seata</span><br><span class="line">spring.cloud.alibaba.seata.tx-service-group&#x3D;my_test_tx_group</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>部署服务</li>
+</ul>
+<p>通过 application.yaml 配置文件部署服务，需要注意的是修改 ConfigMap 的 <code>NACOS_ADDR</code>为自己的 Nacos 地址</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">seata-ha-service</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app.kubernetes.io/name:</span> <span class="string">seata-ha-service</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">NodePort</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">port:</span> <span class="number">8081</span></span><br><span class="line">      <span class="attr">nodePort:</span> <span class="number">30081</span></span><br><span class="line">      <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app.kubernetes.io/name:</span> <span class="string">seata-ha-service</span></span><br><span class="line"></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">seata-ha-service-config</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">NACOS_ADDR:</span> <span class="number">192.168</span><span class="number">.199</span><span class="number">.2</span><span class="string">:8848</span></span><br><span class="line"></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">seata-ha-account</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line">  </span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ClusterRoleBinding</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">seata-ha-account</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">cluster-admin</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">seata-ha-account</span></span><br><span class="line">    <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">seata-ha-service</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app.kubernetes.io/name:</span> <span class="string">seata-ha-service</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app.kubernetes.io/name:</span> <span class="string">seata-ha-service</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app.kubernetes.io/name:</span> <span class="string">seata-ha-service</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">serviceAccountName:</span> <span class="string">seata-ha-account</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">seata-ha-order-service</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">&quot;registry.cn-qingdao.aliyuncs.com/hellowoodes/seata-ha-order-service:1.1&quot;</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">          <span class="attr">env:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">NACOS_ADDR</span></span><br><span class="line">              <span class="attr">valueFrom:</span></span><br><span class="line">                <span class="attr">configMapKeyRef:</span></span><br><span class="line">                  <span class="attr">key:</span> <span class="string">NACOS_ADDR</span></span><br><span class="line">                  <span class="attr">name:</span> <span class="string">seata-ha-service-config</span></span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">              <span class="attr">containerPort:</span> <span class="number">8081</span></span><br><span class="line">              <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">seata-ha-pay-service</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">&quot;registry.cn-qingdao.aliyuncs.com/hellowoodes/seata-ha-pay-service:1.1&quot;</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">          <span class="attr">env:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">NACOS_ADDR</span></span><br><span class="line">              <span class="attr">valueFrom:</span></span><br><span class="line">                <span class="attr">configMapKeyRef:</span></span><br><span class="line">                  <span class="attr">key:</span> <span class="string">NACOS_ADDR</span></span><br><span class="line">                  <span class="attr">name:</span> <span class="string">seata-ha-service-config</span></span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">              <span class="attr">containerPort:</span> <span class="number">8082</span></span><br><span class="line">              <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">seata-ha-storage-service</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">&quot;registry.cn-qingdao.aliyuncs.com/hellowoodes/seata-ha-storage-service:1.1&quot;</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">          <span class="attr">env:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">NACOS_ADDR</span></span><br><span class="line">              <span class="attr">valueFrom:</span></span><br><span class="line">                <span class="attr">configMapKeyRef:</span></span><br><span class="line">                  <span class="attr">key:</span> <span class="string">NACOS_ADDR</span></span><br><span class="line">                  <span class="attr">name:</span> <span class="string">seata-ha-service-config</span></span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">              <span class="attr">containerPort:</span> <span class="number">8083</span></span><br><span class="line">              <span class="attr">protocol:</span> <span class="string">TCP</span></span><br></pre></td></tr></table></figure>
+
+<p>通过以下命令，将应用部署到集群中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f application.yaml</span><br></pre></td></tr></table></figure>
+
+<p>然后查看创建的 pod，seata-ha-service 这个服务下有三个 pod</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pod | grep seata-ha-service</span><br><span class="line"></span><br><span class="line">seata-ha-service-7dbdc6894b-5r8q4      3/3     Running   0          12m</span><br></pre></td></tr></table></figure>
+
+<p>待应用启动后，在 Nacos 的服务列表中，会有相应的服务</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/seata-ha-service-list.png" alt="seata-ha-service-list.png"></p>
+<p>此时查看服务的日志，会看到服务向每一个 TC 都注册了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl logs -f seata-ha-service-7dbdc6894b-5r8q4 seata-ha-order-service</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/seata-ha-service-register.png" alt="seata-ha-service-register.png"></p>
+<p>查看任意的 TC 日志，会发现每一个服务都向 TC 注册了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubelet logs -f seata-ha-server-645844b8b6-9qh5j</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/seata-ha-tc-register.png" alt="seata-ha-tc-register.png"></p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><h3 id="测试成功场景"><a href="#测试成功场景" class="headerlink" title="测试成功场景"></a>测试成功场景</h3><p>调用下单接口，将 price 设置为 1，因为初始化的余额为 10，可以下单成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST \</span><br><span class="line">  http://192.168.199.2:30081/order/placeOrder \</span><br><span class="line">  -H <span class="string">&#x27;Content-Type: application/json&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;&#123;</span></span><br><span class="line"><span class="string">    &quot;userId&quot;: 1,</span></span><br><span class="line"><span class="string">    &quot;productId&quot;: 1,</span></span><br><span class="line"><span class="string">    &quot;price&quot;: 1</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>此时返回结果为：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">&quot;success&quot;</span>:<span class="literal">true</span>,<span class="attr">&quot;message&quot;</span>:<span class="literal">null</span>,<span class="attr">&quot;data&quot;</span>:<span class="literal">null</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>查看TC 的日志，事务成功提交：</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/seata-ha-commit-tc-success.png" alt="seata-ha-commit-tc-success.png"></p>
+<p>查看 order-service 服务日志<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/seata-ha-commit-success.png" alt="seata-ha-commit-success.png"></p>
+<h3 id="测试失败场景"><a href="#测试失败场景" class="headerlink" title="测试失败场景"></a>测试失败场景</h3><p>设置 price 为 100，此时余额不足，会下单失败抛出异常，事务会回滚</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST \</span><br><span class="line">  http://192.168.199.2:30081/order/placeOrder \</span><br><span class="line">  -H <span class="string">&#x27;Content-Type: application/json&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;&#123;</span></span><br><span class="line"><span class="string">    &quot;userId&quot;: 1,</span></span><br><span class="line"><span class="string">    &quot;productId&quot;: 1,</span></span><br><span class="line"><span class="string">    &quot;price&quot;: 100</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>查看 TC 的日志：<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/seata-ha-commit-tc-rollback.png" alt="seata-ha-commit-tc-rollback.png"></p>
+<p>查看服务的日志 ：<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/seata-ha-commit-service-rollback.png" alt="seata-ha-commit-service-rollback.png"></p>
+<p>多次调用查看服务日志，发现会随机的向其中某台TC发起事务注册，当扩容或缩容后，有相应的 TC 参与或退出，证明高可用部署生效</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Seata" >
+    <span class="tag-code">Seata</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/12/29/Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E4%BD%BF%E7%94%A8-Prometheus/">
+        <span class="nav-arrow">← </span>
+        
+          Kubernetes 中使用 Helm 部署使用 Prometheus
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/05/16/%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-Consul/">
+        
+          使用 Prometheus 和 Grafana 监控 Consul
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Seata-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%83%A8%E7%BD%B2%E5%AE%9E%E8%B7%B5"><span class="toc-nav-text">Seata 高可用部署实践</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-nav-text">准备工作</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%83%A8%E7%BD%B2-seata-server"><span class="toc-nav-text">部署 seata-server</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%83%A8%E7%BD%B2-seata-server-%E5%88%B0-Kubernetes"><span class="toc-nav-text">部署 seata-server 到 Kubernetes</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%83%A8%E7%BD%B2%E4%B8%9A%E5%8A%A1%E6%9C%8D%E5%8A%A1"><span class="toc-nav-text">部署业务服务</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95%E6%88%90%E5%8A%9F%E5%9C%BA%E6%99%AF"><span class="toc-nav-text">测试成功场景</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95%E5%A4%B1%E8%B4%A5%E5%9C%BA%E6%99%AF"><span class="toc-nav-text">测试失败场景</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/04/10/Seata-高可用部署实践/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Seata 高可用部署实践",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

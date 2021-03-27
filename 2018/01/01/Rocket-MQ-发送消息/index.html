@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Rocket MQ 发送消息 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Rocket MQ 发送消息</h2>
+  <p class="post-date">2018-01-01</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h2 id="Rocket-MQ-发送消息"><a href="#Rocket-MQ-发送消息" class="headerlink" title="Rocket MQ 发送消息"></a>Rocket MQ 发送消息</h2><p>@(消息队列)[RocketMQ, 消息]</p>
+<blockquote>
+<p>使用阿里巴巴的Rocket MQ发送消息的SpringBoo项目</p>
+</blockquote>
+<ul>
+<li>使用之前请现在<a target="_blank" rel="noopener" href="https://ons.console.aliyun.com/?spm=5176.2020520001.1002.d10ons.61d991b3GbNJPR#/home/topic">阿里云</a>申请消息队列并创建消息TOPIC、Producer和Consumer</li>
+</ul>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><ul>
+<li><p>下载： <code>https://github.com/helloworlde/SpringBoot-RocketMQ.git</code> </p>
+</li>
+<li><p>修改配置文件：修改<code>application.properties</code> ，填入相应的信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">spring.rocketmq.ONSAddresses&#x3D;消息队列地址</span><br><span class="line">spring.rocketmq.accessKey&#x3D;AccessKey</span><br><span class="line">spring.rocketmq.secretKey&#x3D;SercetKey</span><br><span class="line">spring.rocketmq.topic&#x3D;TOPIC</span><br><span class="line">spring.rocketmq.producerId生产者</span><br><span class="line">spring.rocketmq.consumerId&#x3D;订阅者</span><br></pre></td></tr></table></figure></li>
+<li><p>编译：<code>gradle build</code> </p>
+</li>
+<li><p>启动：<code>gradle bootrun</code></p>
+</li>
+</ul>
+<hr>
+<h2 id="API"><a href="#API" class="headerlink" title="API"></a>API</h2><p><strong>请求URL：</strong> </p>
+<ul>
+<li><code>http://localhost:8080/sendMessage</code></li>
+</ul>
+<p><strong>请求方式：</strong></p>
+<ul>
+<li><code>POST </code></li>
+</ul>
+<p><strong>参数：</strong> </p>
+<table>
+<thead>
+<tr>
+<th align="left">参数名</th>
+<th align="left">必选</th>
+<th align="left">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">body</td>
+<td align="left">是</td>
+<td align="left">String</td>
+<td>消息所携带的数据，可以是对象的JSON串</td>
+</tr>
+<tr>
+<td align="left">key</td>
+<td align="left">是</td>
+<td align="left">String</td>
+<td>32位key</td>
+</tr>
+<tr>
+<td align="left">tags</td>
+<td align="left">否</td>
+<td align="left">String</td>
+<td>Message Tag，用于过滤订阅者过滤消息</td>
+</tr>
+<tr>
+<td align="left">method</td>
+<td align="left">否</td>
+<td align="left">String</td>
+<td>消息发送方式，共有三种：同步发送：<code>SYNCHRONOUS</code>，异步发送：<code>ASYNCHRONOUS</code>, 单向发送：<code>ONE_WAY</code> ,默认使用同步发送方式发送消息</td>
+</tr>
+<tr>
+<td align="left">type</td>
+<td align="left">否</td>
+<td align="left">String</td>
+<td>消息类型，共有三种：顺序消息：<code>ORDER</code>，延时消息：<code>DELAY</code>，定时消息：<code>TIMING</code>，默认发送顺序消息</td>
+</tr>
+<tr>
+<td align="left">delayTime</td>
+<td align="left">否</td>
+<td align="left">long</td>
+<td>消息发送延时时间，单位是毫秒</td>
+</tr>
+<tr>
+<td align="left">startDeliveryTime</td>
+<td align="left">否</td>
+<td align="left">String</td>
+<td>定时消息发送时间，必须是<code>yyyy-MM-dd HH:mm:ss</code>格式</td>
+</tr>
+</tbody></table>
+<p><strong>顺序消息 Body</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;  </span><br><span class="line">    &quot;body&quot;:&quot;&#123;\&quot;name\&quot;:\&quot;MQ\&quot;,\&quot;type\&quot;:\&quot;Rocket\&quot;&#125;&quot;,</span><br><span class="line">    &quot;delayTime&quot;:30000,</span><br><span class="line">    &quot;key&quot;:&quot;key&quot;,</span><br><span class="line">    &quot;method&quot;:&quot;SYNCHRONOUS&quot;,</span><br><span class="line">    &quot;tags&quot;:&quot;TAG1,TAG2&quot;,</span><br><span class="line">    &quot;topic&quot;:&quot;TOPIC&quot;,</span><br><span class="line">    &quot;type&quot;:&quot;ORDER&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>延时消息 Body</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;  </span><br><span class="line">    &quot;body&quot;:&quot;&#123;\&quot;name\&quot;:\&quot;MQ\&quot;,\&quot;type\&quot;:\&quot;Rocket\&quot;&#125;&quot;,</span><br><span class="line">    &quot;delayTime&quot;:30000,</span><br><span class="line">    &quot;key&quot;:&quot;key&quot;,</span><br><span class="line">    &quot;method&quot;:&quot;ONE_WAY&quot;,</span><br><span class="line">    &quot;tags&quot;:&quot;TAG1,TAG2&quot;,</span><br><span class="line">    &quot;topic&quot;:&quot;TOPIC&quot;,</span><br><span class="line">    &quot;type&quot;:&quot;DELAY&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>定时消息 Body</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;  </span><br><span class="line">    &quot;body&quot;:&quot;&#123;\&quot;name\&quot;:\&quot;MQ\&quot;,\&quot;type\&quot;:\&quot;Rocket\&quot;&#125;&quot;,</span><br><span class="line">    &quot;key&quot;:&quot;key&quot;,</span><br><span class="line">    &quot;method&quot;:&quot;ASYNCHRONOUS&quot;,</span><br><span class="line">    &quot;startDeliveryTime&quot;:&quot;2017-09-01 17:40:00&quot;,</span><br><span class="line">    &quot;tags&quot;:&quot;TAG1,TAG2&quot;,</span><br><span class="line">    &quot;topic&quot;:&quot;TOPIC&quot;,</span><br><span class="line">    &quot;type&quot;:&quot;TIMING&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> <strong>返回示例</strong></p>
+<ul>
+<li>同步方式发送时返回消息信息，异步和单向方式返回值为空<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;messageId&quot;: &quot;0A00004541843624AEC09C820EAD0000&quot;,</span><br><span class="line">    &quot;topic&quot;: &quot;Topic&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p> <strong>返回参数说明</strong> </p>
+<table>
+<thead>
+<tr>
+<th align="left">参数名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">messageId</td>
+<td>所发送消息ID</td>
+</tr>
+<tr>
+<td align="left">topic</td>
+<td>所发送消息 Topic</td>
+</tr>
+</tbody></table>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Rocket MQ" >
+    <span class="tag-code">Rocket MQ</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/01/Windows-Server%E6%90%AD%E5%BB%BAShadowsocks%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+        <span class="nav-arrow">← </span>
+        
+          Windows Server搭建Shadowsocks服务器
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/01/Rocket-MQ-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/">
+        
+          Rocket MQ 相关知识
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Rocket-MQ-%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF"><span class="toc-nav-text">Rocket MQ 发送消息</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8"><span class="toc-nav-text">启动</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#API"><span class="toc-nav-text">API</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/01/Rocket-MQ-发送消息/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Rocket MQ 发送消息",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

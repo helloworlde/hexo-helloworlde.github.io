@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Cloud Kubernetes 服务注册和发现 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Cloud Kubernetes 服务注册和发现</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Spring-Cloud-Kubernetes-服务注册和发现"><a href="#Spring-Cloud-Kubernetes-服务注册和发现" class="headerlink" title="Spring Cloud Kubernetes 服务注册和发现"></a>Spring Cloud Kubernetes 服务注册和发现</h1><p>Spring Cloud Kubernetes 使用，可以通过引入 <code>org.springframework.cloud:spring-cloud-starter-kubernetes</code>，这个 starter 依赖于 <code>org.springframework.cloud:spring-cloud-kubernetes-core</code> 和 <code>org.springframework.cloud:spring-cloud-kubernetes-discovery</code></p>
+<h2 id="初始化-Kubernetes-Client"><a href="#初始化-Kubernetes-Client" class="headerlink" title="初始化 Kubernetes Client"></a>初始化 Kubernetes Client</h2><h3 id="初始化环境配置"><a href="#初始化环境配置" class="headerlink" title="初始化环境配置"></a>初始化环境配置</h3><p>环境初始化是通过 <code>org.springframework.cloud.kubernetes.profile.KubernetesProfileEnvironmentPostProcessor</code>类实现的，当环境初始化完成时，会检查 Kubernetes 是否开启，如果开启则会判断 Profile 是否注入到容器中，没有时将会注入 Profile 到容器中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postProcessEnvironment</span><span class="params">(ConfigurableEnvironment environment,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   SpringApplication application)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 判断是否启用 kubernetes，默认为 true</span></span><br><span class="line">	<span class="keyword">final</span> <span class="keyword">boolean</span> kubernetesEnabled = environment.getProperty(<span class="string">&quot;spring.cloud.kubernetes.enabled&quot;</span>, Boolean.class, <span class="keyword">true</span>);</span><br><span class="line">	<span class="keyword">if</span> (!kubernetesEnabled) &#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 如果在 Kubernetes 中</span></span><br><span class="line">	<span class="keyword">if</span> (isInsideKubernetes()) &#123;</span><br><span class="line">		<span class="comment">// 判断是否存在 Kubernetes 环境的配置，如果不存在，则添加到环境变量中</span></span><br><span class="line">		<span class="keyword">if</span> (hasKubernetesProfile(environment)) &#123;</span><br><span class="line">			<span class="comment">// ...</span></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			environment.addActiveProfile(KUBERNETES_PROFILE);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="comment">// ...</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="初始化-Kubernetes-依赖"><a href="#初始化-Kubernetes-依赖" class="headerlink" title="初始化 Kubernetes 依赖"></a>初始化 Kubernetes 依赖</h3><p>相关 Kubernetes 核心依赖的初始化是通过 <code>org.springframework.cloud.kubernetes.KubernetesAutoConfiguration</code>实现的</p>
+<ul>
+<li> 初始化 Kubernetes Config</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean(Config.class)</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Config <span class="title">kubernetesClientConfig</span><span class="params">(KubernetesClientProperties kubernetesClientProperties)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// 先尝试分别加载 ~/.kube 下面的配置，ServiceAccount 和 Namespace 文件</span></span><br><span class="line">		<span class="comment">// 当配置文件中的配置缺失时使用基本的配置</span></span><br><span class="line">		Config base = Config.autoConfigure(<span class="keyword">null</span>);</span><br><span class="line">		Config properties = <span class="keyword">new</span> ConfigBuilder(base)</span><br><span class="line">		<span class="comment">//	...</span></span><br><span class="line">		<span class="keyword">return</span> properties;		</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>加载配置时，会先从本地的 <code>~/.kube</code>中寻找配置，根据本地的配置，将当前应用中没有的配置补全，并返回相应的 Bean</p>
+<ul>
+<li>初始化 Kubernetes Client</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> KubernetesClient <span class="title">kubernetesClient</span><span class="params">(Config config)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> DefaultKubernetesClient(config);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 通过生成的配置初始化 KubernetesClient</p>
+<h2 id="服务注册"><a href="#服务注册" class="headerlink" title="服务注册"></a>服务注册</h2><p>服务注册是通过 <code>org.springframework.cloud.kubernetes.registry.KubernetesAutoServiceRegistration</code> 实现的，但是这个类在 2.x 中已经被标记为废弃，因为部署在 Kubernetes 中的服务已经存在于 etcd 中，所以注册并不会真正执行</p>
+<h3 id="初始化-Bean"><a href="#初始化-Bean" class="headerlink" title="初始化 Bean"></a>初始化 Bean</h3><p>相关 Bean 的初始化是在 <code>org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryClientAutoConfiguration</code> 中完成的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> KubernetesServiceRegistry <span class="title">getServiceRegistry</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> KubernetesServiceRegistry();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> KubernetesRegistration <span class="title">getRegistration</span><span class="params">(KubernetesClient client,</span></span></span><br><span class="line"><span class="function"><span class="params">                                              KubernetesDiscoveryProperties properties)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> KubernetesRegistration(client, properties);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> KubernetesDiscoveryProperties <span class="title">getKubernetesDiscoveryProperties</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> KubernetesDiscoveryProperties();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="注册流程"><a href="#注册流程" class="headerlink" title="注册流程"></a>注册流程</h3><ul>
+<li> 实例化 KubernetesAutoServiceRegistration 类</li>
+<li> 因为实现了 <code>SmartLifecycle</code> 接口，所以在应用启动完成，收到 <code>ServletWebServerInitializedEvent</code>事件时开始注册</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EventListener(ServletWebServerInitializedEvent.class)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ServletWebServerInitializedEvent event)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> localPort = event.getWebServer().getPort();</span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">this</span>.port.get() == <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="keyword">this</span>.port.compareAndSet(<span class="number">0</span>, localPort);</span><br><span class="line">		start();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.serviceRegistry.register(<span class="keyword">this</span>.registration);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">this</span>.context.publishEvent(</span><br><span class="line">			<span class="keyword">new</span> InstanceRegisteredEvent&lt;&gt;(<span class="keyword">this</span>, <span class="keyword">this</span>.registration.getProperties()));</span><br><span class="line">	<span class="keyword">this</span>.running.set(<span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注册完成后发出实例注册的事件</p>
+<ul>
+<li>在 <code>KubernetesServiceRegistry</code> 实现注册逻辑</li>
+</ul>
+<p>但实际上并未执行任何注册动作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">register</span><span class="params">(KubernetesRegistration registration)</span> </span>&#123;</span><br><span class="line">	log.info(<span class="string">&quot;Registering : &quot;</span> + registration);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="取消注册流程"><a href="#取消注册流程" class="headerlink" title="取消注册流程"></a>取消注册流程</h3><ul>
+<li>监听容器关闭事件 </li>
+</ul>
+<p>收到事件后，调用 stop 方法，执行关闭逻辑；在 stop 方法中调用 deregister 方法，取消注册</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EventListener(ContextClosedEvent.class)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ContextClosedEvent event)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (event.getApplicationContext() == <span class="keyword">this</span>.context) &#123;</span><br><span class="line">		stop();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">stop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.serviceRegistry.deregister(<span class="keyword">this</span>.registration);</span><br><span class="line">	<span class="keyword">this</span>.running.set(<span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>KubernetesServiceRegistry</code> 实现取消注册逻辑</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deregister</span><span class="params">(KubernetesRegistration registration)</span> </span>&#123;</span><br><span class="line">	log.info(<span class="string">&quot;DeRegistering : &quot;</span> + registration);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h2><h3 id="初始化-Bean-1"><a href="#初始化-Bean-1" class="headerlink" title="初始化 Bean"></a>初始化 Bean</h3><p>相关 Bean 的初始化在 <code>org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryClient</code> 中完成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> KubernetesDiscoveryClient <span class="title">kubernetesDiscoveryClient</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">	KubernetesClient client,</span></span></span><br><span class="line"><span class="function"><span class="params">	KubernetesDiscoveryProperties properties,</span></span></span><br><span class="line"><span class="function"><span class="params">	KubernetesClientServicesFunction kubernetesClientServicesFunction,</span></span></span><br><span class="line"><span class="function"><span class="params">	DefaultIsServicePortSecureResolver isServicePortSecureResolver)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> KubernetesDiscoveryClient(client, properties,</span><br><span class="line">		kubernetesClientServicesFunction, isServicePortSecureResolver);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取服务"><a href="#获取服务" class="headerlink" title="获取服务"></a>获取服务</h3><ul>
+<li>getService </li>
+</ul>
+<p>调用 <code>org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryClient#getServices()</code> 方法获取指定条件下的服务名称</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getServices</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	String spelExpression = <span class="keyword">this</span>.properties.getFilter();</span><br><span class="line">	Predicate&lt;Service&gt; filteredServices;</span><br><span class="line">	<span class="comment">// 根据条件过滤</span></span><br><span class="line">	<span class="keyword">if</span> (spelExpression == <span class="keyword">null</span> || spelExpression.isEmpty()) &#123;</span><br><span class="line">		filteredServices = (Service instance) -&gt; <span class="keyword">true</span>;</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="comment">// 解析表达式 并生成过滤条件</span></span><br><span class="line">		Expression filterExpr = <span class="keyword">this</span>.parser.parseExpression(spelExpression);</span><br><span class="line">		filteredServices = (Service instance) -&gt; &#123;</span><br><span class="line">			Boolean include = filterExpr.getValue(<span class="keyword">this</span>.evalCtxt, instance, Boolean.class);</span><br><span class="line">			<span class="keyword">if</span> (include == <span class="keyword">null</span>) &#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span> include;</span><br><span class="line">		&#125;;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> getServices(filteredServices);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getServices</span><span class="params">(Predicate&lt;Service&gt; filter)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">this</span>.kubernetesClientServicesFunction.apply(<span class="keyword">this</span>.client)</span><br><span class="line">	                                            .list()</span><br><span class="line">	                                            .getItems()</span><br><span class="line">	                                            .stream()</span><br><span class="line">	                                            .filter(filter)</span><br><span class="line">	                                            .map(s -&gt; s.getMetadata().getName())</span><br><span class="line">	                                            .collect(Collectors.toList());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取实例"><a href="#获取实例" class="headerlink" title="获取实例"></a>获取实例</h3><ul>
+<li>getInstance </li>
+</ul>
+<p>调用 <code>org.springframework.cloud.kubernetes.discovery.KubernetesDiscoveryClient#getInstances</code>，根据服务的名称获取相应的实例列表</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;ServiceInstance&gt; <span class="title">getInstances</span><span class="params">(String serviceId)</span> </span>&#123;</span><br><span class="line">	Assert.notNull(serviceId, <span class="string">&quot;[Assertion failed] - the object argument must not be null&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 判断是否查询所有命名空间下的服务，如果是则根据 metadata.name 查询，</span></span><br><span class="line">	<span class="comment">// 否则根据服务名称查询</span></span><br><span class="line">	List&lt;Endpoints&gt; endpointsList = <span class="keyword">this</span>.properties.isAllNamespaces()</span><br><span class="line">		? <span class="keyword">this</span>.client.endpoints()</span><br><span class="line">		             .inAnyNamespace()</span><br><span class="line">		             .withField(<span class="string">&quot;metadata.name&quot;</span>, serviceId)</span><br><span class="line">		             .list()</span><br><span class="line">		             .getItems()</span><br><span class="line">		: Collections.singletonList(<span class="keyword">this</span>.client.endpoints().withName(serviceId).get());</span><br><span class="line"></span><br><span class="line">	List&lt;EndpointSubsetNS&gt; subsetsNS = endpointsList.stream()</span><br><span class="line">	                                                .map(<span class="keyword">this</span>::getSubsetsFromEndpoints)</span><br><span class="line">	                                                .collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 获取所有的实例</span></span><br><span class="line">	List&lt;ServiceInstance&gt; instances = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">	<span class="keyword">if</span> (!subsetsNS.isEmpty()) &#123;</span><br><span class="line">		<span class="keyword">for</span> (EndpointSubsetNS es : subsetsNS) &#123;</span><br><span class="line">			instances.addAll(<span class="keyword">this</span>.getNamespaceServiceInstances(es, serviceId));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> instances;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> List&lt;ServiceInstance&gt; <span class="title">getNamespaceServiceInstances</span><span class="params">(EndpointSubsetNS es,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                           String serviceId)</span> </span>&#123;</span><br><span class="line">	String namespace = es.getNamespace();</span><br><span class="line">	List&lt;EndpointSubset&gt; subsets = es.getEndpointSubset();</span><br><span class="line">	List&lt;ServiceInstance&gt; instances = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">	<span class="keyword">if</span> (!subsets.isEmpty()) &#123;</span><br><span class="line">		<span class="comment">// 查询指定命名空间下的服务</span></span><br><span class="line">		<span class="keyword">final</span> Service service = <span class="keyword">this</span>.client.services()</span><br><span class="line">		                                   .inNamespace(namespace)</span><br><span class="line">		                                   .withName(serviceId)</span><br><span class="line">		                                   .get();</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 获取 metadata</span></span><br><span class="line">		<span class="keyword">final</span> Map&lt;String, String&gt; serviceMetadata = <span class="keyword">this</span>.getServiceMetadata(service);</span><br><span class="line">		KubernetesDiscoveryProperties.Metadata metadataProps = <span class="keyword">this</span>.properties.getMetadata();</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (EndpointSubset s : subsets) &#123;</span><br><span class="line">			<span class="comment">// Extend the service metadata map with per-endpoint port information (if</span></span><br><span class="line">			<span class="comment">// requested)</span></span><br><span class="line">			Map&lt;String, String&gt; endpointMetadata = <span class="keyword">new</span> HashMap&lt;&gt;(serviceMetadata);</span><br><span class="line">			<span class="keyword">if</span> (metadataProps.isAddPorts()) &#123;</span><br><span class="line">				<span class="comment">// 获取端口信息</span></span><br><span class="line">				Map&lt;String, String&gt; ports = s.getPorts()</span><br><span class="line">				                             .stream()</span><br><span class="line">				                             .filter(port -&gt; !StringUtils.isEmpty(port.getName()))</span><br><span class="line">				                             .collect(toMap(EndpointPort::getName, port -&gt; Integer.toString(port.getPort())));</span><br><span class="line">				<span class="comment">// 端口数据转为 map</span></span><br><span class="line">				Map&lt;String, String&gt; portMetadata = getMapWithPrefixedKeys(ports, metadataProps.getPortsPrefix());</span><br><span class="line"></span><br><span class="line">				<span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span><br><span class="line">					log.debug(<span class="string">&quot;Adding port metadata: &quot;</span> + portMetadata);</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 添加到 metadata 中</span></span><br><span class="line">				endpointMetadata.putAll(portMetadata);</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			List&lt;EndpointAddress&gt; addresses = s.getAddresses();</span><br><span class="line">			<span class="keyword">for</span> (EndpointAddress endpointAddress : addresses) &#123;</span><br><span class="line">				String instanceId = <span class="keyword">null</span>;</span><br><span class="line">				<span class="keyword">if</span> (endpointAddress.getTargetRef() != <span class="keyword">null</span>) &#123;</span><br><span class="line">					instanceId = endpointAddress.getTargetRef().getUid();</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				EndpointPort endpointPort = findEndpointPort(s);</span><br><span class="line">				instances.add(<span class="keyword">new</span> KubernetesServiceInstance(instanceId, serviceId,</span><br><span class="line">					endpointAddress, endpointPort, endpointMetadata,</span><br><span class="line">					<span class="keyword">this</span>.isServicePortSecureResolver</span><br><span class="line">						.resolve(<span class="keyword">new</span> DefaultIsServicePortSecureResolver.Input(</span><br><span class="line">							endpointPort.getPort(),</span><br><span class="line">							service.getMetadata().getName(),</span><br><span class="line">							service.getMetadata().getLabels(),</span><br><span class="line">							service.getMetadata().getAnnotations()))));</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> instances;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="服务列表更新"><a href="#服务列表更新" class="headerlink" title="服务列表更新"></a>服务列表更新</h3><p>Kubernetes 的服务列表更新是通过定时任务实现的，核心类是 <code>KubernetesDiscoveryClient</code> </p>
+<p>Kubernetes 不支持通过服务实例更新，因为调用时是通过 Service 的名称实现的，Kubernetes会做负载均衡，所以不需要在实例维度监听</p>
+<h4 id="实例初始化"><a href="#实例初始化" class="headerlink" title="实例初始化"></a>实例初始化</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(name = &quot;spring.cloud.kubernetes.discovery.catalog-services-watch.enabled&quot;, matchIfMissing = true)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> KubernetesCatalogWatch <span class="title">kubernetesCatalogWatch</span><span class="params">(KubernetesClient client)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> KubernetesCatalogWatch(client);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="监听实现"><a href="#监听实现" class="headerlink" title="监听实现"></a>监听实现</h4><p><code>KubernetesCatalogWatch</code> 类实现了 <code>ApplicationEventPublisherAware</code>接口，用于发现服务列表更新后发送相应的事件</p>
+<p>默认执行拉取任务的时间是30s，需要特别注意的是，该任务的开启依赖于<code>@EnableScheduling</code>注解开启定时任务，默认不会生效</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Scheduled(fixedDelayString = &quot;$&#123;spring.cloud.kubernetes.discovery.catalogServicesWatchDelay:30000&#125;&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">catalogServicesWatch</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		List&lt;String&gt; previousState = <span class="keyword">this</span>.catalogEndpointsState.get();</span><br><span class="line"></span><br><span class="line">		<span class="comment">// not all pods participate in the service discovery. only those that have</span></span><br><span class="line">		<span class="comment">// endpoints.</span></span><br><span class="line">		<span class="comment">// 仅有 endpoint 的服务参与服务发现</span></span><br><span class="line">		List&lt;Endpoints&gt; endpoints = <span class="keyword">this</span>.kubernetesClient.endpoints()</span><br><span class="line">		                                                 .list()</span><br><span class="line">		                                                 .getItems();</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 将 endpoint 转为pod名称</span></span><br><span class="line">		List&lt;String&gt; endpointsPodNames = endpoints.stream()</span><br><span class="line">		                                          .map(Endpoints::getSubsets)</span><br><span class="line">		                                          .filter(Objects::nonNull)</span><br><span class="line">		                                          .flatMap(Collection::stream)</span><br><span class="line">		                                          .map(EndpointSubset::getAddresses)</span><br><span class="line">		                                          .filter(Objects::nonNull)</span><br><span class="line">		                                          .flatMap(Collection::stream)</span><br><span class="line">		                                          .map(EndpointAddress::getTargetRef)</span><br><span class="line">		                                          .filter(Objects::nonNull)</span><br><span class="line">		                                          .map(ObjectReference::getName) </span><br><span class="line">		                                          .sorted(String::compareTo)</span><br><span class="line">		                                          .collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">		<span class="keyword">this</span>.catalogEndpointsState.set(endpointsPodNames);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 如果 pod 列表发生变化，则发送 HeartbeatEvent 事件</span></span><br><span class="line">		<span class="keyword">if</span> (!endpointsPodNames.equals(previousState)) &#123;</span><br><span class="line">			logger.trace(<span class="string">&quot;Received endpoints update from kubernetesClient: &#123;&#125;&quot;</span>, endpointsPodNames);</span><br><span class="line">			<span class="keyword">this</span>.publisher.publishEvent(<span class="keyword">new</span> HeartbeatEvent(<span class="keyword">this</span>, endpointsPodNames));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">		logger.error(<span class="string">&quot;Error watching Kubernetes Services&quot;</span>, e);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SpringCloud" >
+    <span class="tag-code">SpringCloud</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/Spring-Cloud-Gateway-%E4%BD%BF%E7%94%A8-Kubernetes-%E4%BD%9C%E4%B8%BA%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Cloud Gateway 使用 Kubernetes 作为服务发现
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/Spring-Cloud-Consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0/">
+        
+          Spring Cloud Consul 服务注册和发现
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Spring-Cloud-Kubernetes-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%91%E7%8E%B0"><span class="toc-nav-text">Spring Cloud Kubernetes 服务注册和发现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96-Kubernetes-Client"><span class="toc-nav-text">初始化 Kubernetes Client</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">初始化环境配置</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96-Kubernetes-%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">初始化 Kubernetes 依赖</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C"><span class="toc-nav-text">服务注册</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96-Bean"><span class="toc-nav-text">初始化 Bean</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B3%A8%E5%86%8C%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">注册流程</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%8F%96%E6%B6%88%E6%B3%A8%E5%86%8C%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">取消注册流程</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="toc-nav-text">服务发现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96-Bean-1"><span class="toc-nav-text">初始化 Bean</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%8E%B7%E5%8F%96%E6%9C%8D%E5%8A%A1"><span class="toc-nav-text">获取服务</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%8E%B7%E5%8F%96%E5%AE%9E%E4%BE%8B"><span class="toc-nav-text">获取实例</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%88%97%E8%A1%A8%E6%9B%B4%E6%96%B0"><span class="toc-nav-text">服务列表更新</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%AE%9E%E4%BE%8B%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-nav-text">实例初始化</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E7%9B%91%E5%90%AC%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">监听实现</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/Spring-Cloud-Kubernetes-服务注册和发现/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Cloud Kubernetes 服务注册和发现",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

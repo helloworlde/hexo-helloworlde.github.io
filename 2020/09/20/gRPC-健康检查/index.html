@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC  健康检查 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC  健康检查</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-健康检查"><a href="#gRPC-健康检查" class="headerlink" title="gRPC  健康检查"></a>gRPC  健康检查</h1><p>在 gRPC 中使用健康检查，在负载均衡前通过健康检查，只对健康的 Subchannel 发起请求，保证请求的成功率</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h3 id="Server-端"><a href="#Server-端" class="headerlink" title="Server 端"></a>Server 端</h3><p>健康检查是一个独立的 Service，需要在 Server 端显式添加健康检查服务</p>
+<p>健康检查定义了两个方法，一个适用于单次请求的 <code>check</code> 方法，另一个是适用于 Stream 流的 <code>watch</code> 方法</p>
+<p>Server 端的健康检查由 <code>io.grpc.services.HealthStatusManager</code>控制，抽象类是 <code>io.grpc.health.v1.HealthGrpc.HealthImplBase</code>，具体实现是通过 <code>io.grpc.services.HealthServiceImpl</code></p>
+<ul>
+<li>在 Server 端添加健康检查服务</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">HealthStatusManager healthStatusManager = <span class="keyword">new</span> HealthStatusManager();</span><br><span class="line"></span><br><span class="line">Server server = ServerBuilder.forPort(<span class="number">1234</span>)</span><br><span class="line">                             .addService(healthStatusManager.getHealthService())</span><br><span class="line">                             .addService(<span class="keyword">new</span> HelloServiceImpl())</span><br><span class="line">                             .build();</span><br></pre></td></tr></table></figure>
+
+<p>这样，当 Server 端启动之后，就可以通过访问 <code>grpc.health.v1.Health</code>服务获取当前的 Server 端的状态</p>
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><ol>
+<li>添加配置</li>
+</ol>
+<p>客户端开启健康检查有两个条件：</p>
+<ul>
+<li>配置了健康检查参数，配置的名称是 <code>healthCheckConfig</code>，通过指定 <code>serviceName</code> 的方式配置</li>
+<li>使用了支持健康检查的 LB (如 round_robin)</li>
+</ul>
+<p>需要注意，这里的 <code>serviceName</code>可以是组件名称，或者服务名称；服务端默认为 <code>&quot;&quot;</code>，  如果想检查某个组件，需要自己实现健康检查的逻辑；配置中的 <code>serviceName</code>只有在 NameReovler 解析到新的配置，且发生变化时才会更新，所以设置 <code>serviceName</code> 意义不大</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String, Object&gt; configMap = <span class="keyword">new</span> HashMap&lt;String, Object&gt;() &#123;&#123;</span><br><span class="line">    put(<span class="string">&quot;healthCheckConfig&quot;</span>, <span class="keyword">new</span> HashMap&lt;String, Object&gt;() &#123;&#123;</span><br><span class="line">        put(<span class="string">&quot;serviceName&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line">    &#125;&#125;);</span><br><span class="line">&#125;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">this</span>.channel = ManagedChannelBuilder</span><br><span class="line">        .forTarget(<span class="string">&quot;server&quot;</span>)</span><br><span class="line">        .usePlaintext()</span><br><span class="line">        .defaultServiceConfig(configMap)</span><br><span class="line">        .defaultLoadBalancingPolicy(<span class="string">&quot;round_robin&quot;</span>)</span><br><span class="line">        .build()</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>执行健康检查</li>
+</ol>
+<p>在发起请求前，会先使用 Service 的名称请求服务端健康检查服务，检查服务是否处于 <code>SERVING</code> 状态，如果状态正常，则发起请求，否则将会失败</p>
+<ul>
+<li>调整日志级别</li>
+</ul>
+<p>将<code>io.grpc.ChannelLogger</code>的日志级别调整到 <code>ALL</code>，用于观察日志</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Logger logger = Logger.getLogger(<span class="string">&quot;io.grpc.ChannelLogger&quot;</span>);</span><br><span class="line">logger.setLevel(Level.ALL);</span><br><span class="line"></span><br><span class="line">ConsoleHandler handler = <span class="keyword">new</span> ConsoleHandler();</span><br><span class="line">handler.setLevel(Level.ALL);</span><br><span class="line">logger.addHandler(handler);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当健康检查成功时输出成功日志</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">非常详细: [Subchannel&lt;<span class="number">3</span>&gt;: (server)] CONNECTING: Starting health-check <span class="keyword">for</span> <span class="string">&quot;io.github.helloworlde.HelloService&quot;</span></span><br><span class="line">非常详细: [Subchannel&lt;<span class="number">3</span>&gt;: (server)] READY: health-check responded SERVING</span><br><span class="line">非常详细: [Channel&lt;<span class="number">1</span>&gt;: (server)] Entering READY state with picker: ReadyPicker&#123;list=[SubchannelImpl&#123;delegate=Subchannel&lt;<span class="number">3</span>&gt;: (server)&#125;]&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当健康检查失败时输出错误日志</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">非常详细: [Subchannel&lt;<span class="number">3</span>&gt;: (server)] READY</span><br><span class="line">非常详细: [Subchannel&lt;<span class="number">3</span>&gt;: (server)] CONNECTING: Starting health-check <span class="keyword">for</span> <span class="string">&quot;io.github.helloworlde.HelloService&quot;</span></span><br><span class="line">非常详细: [Subchannel&lt;<span class="number">3</span>&gt;: (server)] TRANSIENT_FAILURE: health-check responded NOT_SERVING</span><br><span class="line">非常详细: [Channel&lt;<span class="number">1</span>&gt;: (server)] Entering TRANSIENT_FAILURE state with picker: EmptyPicker&#123;status=Status&#123;code=UNAVAILABLE, description=Health-check service responded NOT_SERVING <span class="keyword">for</span> <span class="string">&#x27;io.github.helloworlde.HelloService&#x27;</span>, cause=<span class="keyword">null</span>&#125;&#125;</span><br><span class="line">Exception in thread <span class="string">&quot;main&quot;</span> io.grpc.StatusRuntimeException: UNAVAILABLE: Health-check service responded NOT_SERVING <span class="keyword">for</span> <span class="string">&#x27;io.github.helloworlde.HelloService&#x27;</span></span><br><span class="line">	at io.grpc.stub.ClientCalls.toStatusRuntimeException(ClientCalls.java:<span class="number">274</span>)</span><br><span class="line">	at io.grpc.stub.ClientCalls.getUnchecked(ClientCalls.java:<span class="number">255</span>)</span><br><span class="line">	at io.grpc.stub.ClientCalls.blockingUnaryCall(ClientCalls.java:<span class="number">166</span>)</span><br><span class="line">	at io.github.helloworlde.HelloServiceGrpc$HelloServiceBlockingStub.howAreYou(HelloServiceGrpc.java:<span class="number">157</span>)</span><br><span class="line">	at io.github.helloworlde.CustomClient.howAreYou(CustomClient.java:<span class="number">74</span>)</span><br><span class="line">	at io.github.helloworlde.CustomClient.main(CustomClient.java:<span class="number">66</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>健康检查通过 <code>health.proto</code> 文件定义</p>
+<ul>
+<li>health.proto</li>
+</ul>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> grpc.health.v1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">option</span> csharp_namespace = <span class="string">&quot;Grpc.Health.V1&quot;</span>;</span><br><span class="line"><span class="keyword">option</span> go_package = <span class="string">&quot;google.golang.org/grpc/health/grpc_health_v1&quot;</span>;</span><br><span class="line"><span class="keyword">option</span> java_multiple_files = <span class="literal">true</span>;</span><br><span class="line"><span class="keyword">option</span> java_outer_classname = <span class="string">&quot;HealthProto&quot;</span>;</span><br><span class="line"><span class="keyword">option</span> java_package = <span class="string">&quot;io.grpc.health.v1&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">HealthCheckRequest</span> </span>&#123;</span><br><span class="line">  <span class="built_in">string</span> <span class="class"><span class="keyword">service</span> = 1;</span></span><br><span class="line"><span class="class">&#125;</span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class"><span class="title">message</span> HealthCheckResponse </span>&#123;</span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">ServingStatus</span> </span>&#123;</span><br><span class="line">    UNKNOWN = <span class="number">0</span>;</span><br><span class="line">    SERVING = <span class="number">1</span>;</span><br><span class="line">    NOT_SERVING = <span class="number">2</span>;</span><br><span class="line">    SERVICE_UNKNOWN = <span class="number">3</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  ServingStatus status = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">Health</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 单次健康检查</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> Check(HealthCheckRequest) <span class="keyword">returns</span> (HealthCheckResponse)</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 流式健康检查</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> Watch(HealthCheckRequest) <span class="keyword">returns</span> (stream HealthCheckResponse)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="客户端-1"><a href="#客户端-1" class="headerlink" title="客户端"></a>客户端</h3><h4 id="执行检查"><a href="#执行检查" class="headerlink" title="执行检查"></a>执行检查</h4><h5 id="发起检查"><a href="#发起检查" class="headerlink" title="发起检查"></a>发起检查</h5><ol>
+<li>获取配置</li>
+</ol>
+<p>在 <code>NameResolver</code> 解析后，调用 <code>io.grpc.internal.ManagedChannelImpl.NameResolverListener#onResult</code> 时检查是否有健康检查的配置，如果有则将配置添加到 <code>Attributes</code> 中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取属性</span></span><br><span class="line">Attributes effectiveAttrs = resolutionResult.getAttributes();</span><br><span class="line"><span class="comment">// 如果服务发现没有关闭</span></span><br><span class="line"><span class="keyword">if</span> (NameResolverListener.<span class="keyword">this</span>.helper == ManagedChannelImpl.<span class="keyword">this</span>.lbHelper) &#123;</span><br><span class="line">  <span class="comment">// 获取健康检查</span></span><br><span class="line">  Map&lt;String, ?&gt; healthCheckingConfig = effectiveServiceConfig.getHealthCheckingConfig();</span><br><span class="line">  <span class="comment">// 构建健康检查配置</span></span><br><span class="line">  <span class="keyword">if</span> (healthCheckingConfig != <span class="keyword">null</span>) &#123;</span><br><span class="line">    effectiveAttrs = effectiveAttrs.toBuilder()</span><br><span class="line">                                   .set(LoadBalancer.ATTR_HEALTH_CHECKING_CONFIG, healthCheckingConfig)</span><br><span class="line">                                   .build();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 更新负载均衡算法，处理未处理的请求</span></span><br><span class="line">  Status handleResult = helper.lb.tryHandleResolvedAddresses(</span><br><span class="line">          ResolvedAddresses.newBuilder()</span><br><span class="line">                           .setAddresses(servers)</span><br><span class="line">                           .setAttributes(effectiveAttrs)</span><br><span class="line">                           .setLoadBalancingPolicyConfig(effectiveServiceConfig.getLoadBalancingConfig())</span><br><span class="line">                           .build());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>为 <code>Subchannel</code> 配置健康检查</li>
+</ol>
+<p>通过代理调用 <code>io.grpc.util.RoundRobinLoadBalancer#handleResolvedAddresses</code>方法，然后调用 <code>io.grpc.services.HealthCheckingLoadBalancerFactory.HelperImpl#createSubchannel</code> 方法创建  <code>Subchannel</code>；创建用于健康检查的 <code>SubchannelStateListener</code>的实例 <code>HealthCheckState</code></p>
+<ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerFactory.HelperImpl#createSubchannel</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HealthCheckState hcState = <span class="keyword">new</span> HealthCheckState(<span class="keyword">this</span>, originalSubchannel, syncContext, delegate.getScheduledExecutorService());</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>添加健康检查</li>
+</ol>
+<p>如果有设置健康检查，则将健康检查添加到 <code>Subchannel</code>健康检查集合中；然后调用 <code>io.grpc.services.HealthCheckingLoadBalancerFactory.HealthCheckState#setServiceName</code> 方法执行</p>
+<ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerFactory.HealthCheckState#setServiceName</code></li>
+</ul>
+<p>如果此时有已经提交的请求，则取消，并发送健康检查请求；当第一次执行的时候，如果状态是 <code>IDLE</code>s，则会跳出不执行，直到状态变为<code>READY</code>时执行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setServiceName</span><span class="params">(<span class="meta">@Nullable</span> String newServiceName)</span> </span>&#123;</span><br><span class="line">    serviceName = newServiceName;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果在 RPC 请求期间服务名称更改，请取消该服务，以便用新名称进行新的调用</span></span><br><span class="line">    String cancelMsg = serviceName == <span class="keyword">null</span> ? <span class="string">&quot;Health check disabled by service config&quot;</span></span><br><span class="line">            : <span class="string">&quot;Switching to new service name: &quot;</span> + newServiceName;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 停止调用</span></span><br><span class="line">    stopRpc(cancelMsg);</span><br><span class="line">    <span class="comment">// 调整健康检查</span></span><br><span class="line">    adjustHealthCheck();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.internal.InternalSubchannel.TransportListener#transportReady</code></li>
+</ul>
+<p>当 <code>Transport</code> 状态是<code>READY</code> 的时候，开始健康检查</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">transportReady</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  syncContext.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      reconnectPolicy = <span class="keyword">null</span>;</span><br><span class="line">      <span class="keyword">if</span> (shutdownReason != <span class="keyword">null</span>) &#123;</span><br><span class="line">        Preconditions.checkState(activeTransport == <span class="keyword">null</span>, <span class="string">&quot;Unexpected non-null activeTransport&quot;</span>);</span><br><span class="line">        transport.shutdown(shutdownReason);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (pendingTransport == transport) &#123;</span><br><span class="line">        activeTransport = transport;</span><br><span class="line">        pendingTransport = <span class="keyword">null</span>;</span><br><span class="line">        gotoNonErrorState(READY);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.internal.InternalSubchannel#gotoState</code><br>将状态变为 <code>READY</code> 状态，</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">gotoState</span><span class="params">(<span class="keyword">final</span> ConnectivityStateInfo newState)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (state.getState() != newState.getState()) &#123;</span><br><span class="line">    Preconditions.checkState(state.getState() != SHUTDOWN,</span><br><span class="line">        <span class="string">&quot;Cannot transition out of SHUTDOWN to &quot;</span> + newState);</span><br><span class="line">    state = newState;</span><br><span class="line">    callback.onStateChange(InternalSubchannel.<span class="keyword">this</span>, newState);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>ManagedInternalSubchannelCallback#onStateChange</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">onStateChange</span><span class="params">(InternalSubchannel is, ConnectivityStateInfo newState)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 调用服务发现，重新解析</span></span><br><span class="line">  handleInternalSubchannelState(newState);</span><br><span class="line">  checkState(listener != <span class="keyword">null</span>, <span class="string">&quot;listener is null&quot;</span>);</span><br><span class="line">  listener.onSubchannelState(newState);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerFactory.HealthCheckState#onSubchannelState</code></li>
+</ul>
+<p>当 <code>Subchannel</code> 状态发生变化时执行健康检查</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSubchannelState</span><span class="params">(ConnectivityStateInfo rawState)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果当前的状态是 READY，且新的状态不是 READY，则更新 disabled 为 false</span></span><br><span class="line">    <span class="keyword">if</span> (Objects.equal(<span class="keyword">this</span>.rawState.getState(), READY)</span><br><span class="line">            &amp;&amp; !Objects.equal(rawState.getState(), READY)) &#123;</span><br><span class="line">        <span class="comment">// 断开连接，将重置已禁用标志，因为健康检查在新连接上可能可用</span></span><br><span class="line">        disabled = <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果是 SHUTDOWN，则移除</span></span><br><span class="line">    <span class="keyword">if</span> (Objects.equal(rawState.getState(), SHUTDOWN)) &#123;</span><br><span class="line">        helperImpl.hcStates.remove(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.rawState = rawState;</span><br><span class="line">    <span class="comment">// 调整健康检查状态</span></span><br><span class="line">    adjustHealthCheck();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerFactory.HealthCheckState#adjustHealthCheck</code></li>
+</ul>
+<p>当没有禁止，且服务名不为空，且连接状态是 READY，则发送健康检查的请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">adjustHealthCheck</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果没有禁止，且服务名不为空，且连接状态是 READY</span></span><br><span class="line">    <span class="keyword">if</span> (!disabled &amp;&amp; serviceName != <span class="keyword">null</span> &amp;&amp; Objects.equal(rawState.getState(), READY)) &#123;</span><br><span class="line">        running = <span class="keyword">true</span>;</span><br><span class="line">        <span class="comment">// 如果没有活跃的 RPC，且重试计时器没有等待，则开始 RPC</span></span><br><span class="line">        <span class="keyword">if</span> (activeRpc == <span class="keyword">null</span> &amp;&amp; !isRetryTimerPending()) &#123;</span><br><span class="line">            <span class="comment">// 执行健康检查，并根据结果发送请求</span></span><br><span class="line">            startRpc();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        running = <span class="keyword">false</span>;</span><br><span class="line">        stopRpc(<span class="string">&quot;Client stops health check&quot;</span>);</span><br><span class="line">        backoffPolicy = <span class="keyword">null</span>;</span><br><span class="line">        gotoState(rawState);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerFactory.HealthCheckState#startRpc</code></li>
+</ul>
+<p>在开始健康检查之前，将连接状态由 <code>READY</code> 改为 <code>CONNECTING</code>；<br>创建新的 <code>ClientCall.Listener</code>实例 <code>HcStream</code>，并调用 <code>start</code> 方法，发起请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">startRpc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!Objects.equal(concludedState.getState(), READY)) &#123;</span><br><span class="line">        <span class="comment">// 修改连接状态</span></span><br><span class="line">        gotoState(ConnectivityStateInfo.forNonError(CONNECTING));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 创建新的 ClientCall.Listener</span></span><br><span class="line">    activeRpc = <span class="keyword">new</span> HcStream();</span><br><span class="line">    <span class="comment">// 开始调用，发出请求</span></span><br><span class="line">    activeRpc.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerFactory.HealthCheckState.HcStream#HcStream</code></li>
+</ul>
+<p>在  <code>HcStream</code> 构造方法中，创建新的 Stream 请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">HcStream() &#123;</span><br><span class="line">    stopwatch = stopwatchSupplier.get().start();</span><br><span class="line">    callServiceName = serviceName;</span><br><span class="line">    <span class="comment">// 开始新的调用</span></span><br><span class="line">    call = subchannel.asChannel().newCall(HealthGrpc.getWatchMethod(), CallOptions.DEFAULT);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.internal.SubchannelChannel#newCall</code></li>
+</ul>
+<p>发起一个 <code>SERVER_STREAMING</code> 请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;RequestT, ResponseT&gt; <span class="function">ClientCall&lt;RequestT, ResponseT&gt; <span class="title">newCall</span><span class="params">(MethodDescriptor&lt;RequestT, ResponseT&gt; methodDescriptor, CallOptions callOptions)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Executor effectiveExecutor = callOptions.getExecutor() == <span class="keyword">null</span> ? executor : callOptions.getExecutor();</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ClientCallImpl&lt;&gt;(methodDescriptor,</span><br><span class="line">        effectiveExecutor,</span><br><span class="line">        callOptions.withOption(GrpcUtil.CALL_OPTIONS_RPC_OWNED_BY_BALANCER, Boolean.TRUE),</span><br><span class="line">        transportProvider, deadlineCancellationExecutor, callsTracer, <span class="keyword">false</span> <span class="comment">/* retryEnabled */</span>);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerFactory.HealthCheckState.HcStream#start</code></li>
+</ul>
+<p>开始调用，使用服务名作为健康检查的参数，向服务端发起健康检查请求<br>此时服务端接收到健康检查请求，根据请求的参数进行检查，然后返回结果</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 开始调用</span></span><br><span class="line">    call.start(<span class="keyword">this</span>, <span class="keyword">new</span> Metadata());</span><br><span class="line">    <span class="comment">// 发送服务健康检查消息</span></span><br><span class="line">    call.sendMessage(HealthCheckRequest.newBuilder().setService(serviceName).build());</span><br><span class="line">    call.halfClose();</span><br><span class="line">    call.request(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="处理结果"><a href="#处理结果" class="headerlink" title="处理结果"></a>处理结果</h5><ul>
+<li><code>io.grpc.services.HealthCheckingLoadBalancerFactory.HealthCheckState.HcStream#onMessage</code></li>
+</ul>
+<p>监听响应结果，如果是当前 <code>Subchannel</code>的请求响应，则进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(<span class="keyword">final</span> HealthCheckResponse response)</span> </span>&#123;</span><br><span class="line">    syncContext.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 如果是当前的请求，则进行处理</span></span><br><span class="line">            <span class="keyword">if</span> (activeRpc == HcStream.<span class="keyword">this</span>) &#123;</span><br><span class="line">                <span class="comment">// 根据响应更新连接状态</span></span><br><span class="line">                handleResponse(response);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>根据响应结果处理连接状态</li>
+</ul>
+<p>在 <code>io.grpc.services.HealthCheckingLoadBalancerFactory.HealthCheckState.HcStream#handleResponse</code> 方法中处理响应结果；如果是 <code>SERVING</code>状态，则将连接状态改为 <code>READY</code>，否则将状态改为 <code>UNAVAILABLE</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">handleResponse</span><span class="params">(HealthCheckResponse response)</span> </span>&#123;</span><br><span class="line">    callHasResponded = <span class="keyword">true</span>;</span><br><span class="line">    backoffPolicy = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取返回的状态</span></span><br><span class="line">    ServingStatus status = response.getStatus();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果是服务中，则更新连接状态为 READY</span></span><br><span class="line">    <span class="keyword">if</span> (Objects.equal(status, ServingStatus.SERVING)) &#123;</span><br><span class="line">        gotoState(ConnectivityStateInfo.forNonError(READY));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 更新连接状态为 UNAVAILABLE</span></span><br><span class="line">        gotoState(ConnectivityStateInfo.forTransientFailure(Status.UNAVAILABLE.withDescription(<span class="string">&quot;Health-check service responded &quot;</span> + status + <span class="string">&quot; for &#x27;&quot;</span> + callServiceName + <span class="string">&quot;&#x27;&quot;</span>)));</span><br><span class="line">    &#125;</span><br><span class="line">    call.request(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也会将 LB 状态也改为 <code>READY</code>，此时 Picker 变为 <code>ReadyPicker</code>，至此，完成健康检查</p>
+<h3 id="Server-端-1"><a href="#Server-端-1" class="headerlink" title="Server 端"></a>Server 端</h3><h4 id="设置服务状态"><a href="#设置服务状态" class="headerlink" title="设置服务状态"></a>设置服务状态</h4><h5 id="默认服务"><a href="#默认服务" class="headerlink" title="默认服务"></a>默认服务</h5><p><code>io.grpc.services.HealthServiceImpl#HealthServiceImpl</code> 内有一个 Map，用于存放各个服务的状态；默认含有一个 key 为 <code>&quot;&quot;</code>, value 为 <code>SERVING</code>的键值对，当请求参数中没有 seviceName 时直接返回 <code>SERVING</code> 状态</p>
+<h5 id="其他服务"><a href="#其他服务" class="headerlink" title="其他服务"></a>其他服务</h5><p>其他服务需要 Server 主动设置状态，具体的逻辑由自己实现，当服务状态发生变化时，通过调用 <code>io.grpc.services.HealthStatusManager#setStatus</code> 进行设置</p>
+<ul>
+<li><code>io.grpc.services.HealthStatusManager#setStatus</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setStatus</span><span class="params">(String service, ServingStatus status)</span> </span>&#123;</span><br><span class="line">    checkNotNull(status, <span class="string">&quot;status&quot;</span>);</span><br><span class="line">    healthService.setStatus(service, status);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthServiceImpl#setStatus</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setStatus</span><span class="params">(String service, ServingStatus status)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (watchLock) &#123;</span><br><span class="line">        <span class="keyword">if</span> (terminal) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        setStatusInternal(service, status);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthServiceImpl#setStatusInternal</code></li>
+</ul>
+<p>为 service 设置状态，当状态发生变化时，通过 Stream 发送响应给客户端，通知状态变化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setStatusInternal</span><span class="params">(String service, ServingStatus status)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 设置新的状态</span></span><br><span class="line">    ServingStatus prevStatus = statusMap.put(service, status);</span><br><span class="line">    <span class="comment">// 如果状态不一样，则通知状态变化</span></span><br><span class="line">    <span class="keyword">if</span> (prevStatus != status) &#123;</span><br><span class="line">        notifyWatchers(service, status);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>io.grpc.services.HealthServiceImpl#notifyWatchers</code></li>
+</ul>
+<p>如果有客户端 Stream，则将状态变化通知给所有的监听该服务的客户端</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">notifyWatchers</span><span class="params">(String service, <span class="meta">@Nullable</span> ServingStatus status)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 构建结果</span></span><br><span class="line">    HealthCheckResponse response = getResponseForWatch(status);</span><br><span class="line"></span><br><span class="line">    IdentityHashMap&lt;StreamObserver&lt;HealthCheckResponse&gt;, Boolean&gt; serviceWatchers = watchers.get(service);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果有监听，则遍历所有的监听，发送结果</span></span><br><span class="line">    <span class="keyword">if</span> (serviceWatchers != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (StreamObserver&lt;HealthCheckResponse&gt; responseObserver : serviceWatchers.keySet()) &#123;</span><br><span class="line">            responseObserver.onNext(response);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="处理健康检查"><a href="#处理健康检查" class="headerlink" title="处理健康检查"></a>处理健康检查</h4><h5 id="单次请求"><a href="#单次请求" class="headerlink" title="单次请求"></a>单次请求</h5><p>单次健康检查请求通过 <code>io.grpc.services.HealthServiceImpl#check</code> 处理，会根据当前的状态返回</p>
+<ul>
+<li><code>io.grpc.services.HealthServiceImpl#check</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">check</span><span class="params">(HealthCheckRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">                  StreamObserver&lt;HealthCheckResponse&gt; responseObserver)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 根据请求中的服务名获取状态</span></span><br><span class="line">    ServingStatus status = statusMap.get(request.getService());</span><br><span class="line">    <span class="comment">// 如果状态是 null，则返回 NOT_FOUND 错误</span></span><br><span class="line">    <span class="keyword">if</span> (status == <span class="keyword">null</span>) &#123;</span><br><span class="line">        responseObserver.onError(<span class="keyword">new</span> StatusException(Status.NOT_FOUND.withDescription(<span class="string">&quot;unknown service &quot;</span> + request.getService())));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 根据状态构造响应</span></span><br><span class="line">        HealthCheckResponse response = HealthCheckResponse.newBuilder().setStatus(status).build();</span><br><span class="line">        responseObserver.onNext(response);</span><br><span class="line">        responseObserver.onCompleted();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Stream-请求"><a href="#Stream-请求" class="headerlink" title="Stream 请求"></a>Stream 请求</h5><p>对于 Stream 请求，是通过 <code>io.grpc.services.HealthServiceImpl#watch</code> 处理<br>当接收到请求后，会从 Map 中获取服务状态，然后生成响应返回给客户端；<br>然后将该 <code>StreamObserver</code> 保存到  Service 对应的 Map 中，当 Service 状态发生变化时，通知相应的 Client<br>同时添加了监听器，当客户端关闭时，从 Map 中移除该 <code>StreamObserver</code></p>
+<ul>
+<li><code>io.grpc.services.HealthServiceImpl#watch</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">watch</span><span class="params">(HealthCheckRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">                  <span class="keyword">final</span> StreamObserver&lt;HealthCheckResponse&gt; responseObserver)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> String service = request.getService();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 加锁</span></span><br><span class="line">    <span class="keyword">synchronized</span> (watchLock) &#123;</span><br><span class="line">        <span class="comment">// 根据服务获取状态，构建结果，并发送出去</span></span><br><span class="line">        ServingStatus status = statusMap.get(service);</span><br><span class="line">        responseObserver.onNext(getResponseForWatch(status));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 从 watcher 中获取服务名的 map，如果不存在，则创建一个</span></span><br><span class="line">        IdentityHashMap&lt;StreamObserver&lt;HealthCheckResponse&gt;, Boolean&gt; serviceWatchers = watchers.get(service);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (serviceWatchers == <span class="keyword">null</span>) &#123;</span><br><span class="line">            serviceWatchers = <span class="keyword">new</span> IdentityHashMap&lt;&gt;();</span><br><span class="line">            watchers.put(service, serviceWatchers);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果存在，则将 responseObserver 添加到 map 中</span></span><br><span class="line">        serviceWatchers.put(responseObserver, Boolean.TRUE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Context.current().addListener(</span><br><span class="line">            <span class="keyword">new</span> CancellationListener() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="comment">// Called when the client has closed the stream</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancelled</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">synchronized</span> (watchLock) &#123;</span><br><span class="line">                        <span class="comment">// 当客户端关闭时，从 map 中移除方法对应的数据</span></span><br><span class="line">                        IdentityHashMap&lt;StreamObserver&lt;HealthCheckResponse&gt;, Boolean&gt; serviceWatchers = watchers.get(service);</span><br><span class="line">                        <span class="keyword">if</span> (serviceWatchers != <span class="keyword">null</span>) &#123;</span><br><span class="line">                            serviceWatchers.remove(responseObserver);</span><br><span class="line">                            <span class="keyword">if</span> (serviceWatchers.isEmpty()) &#123;</span><br><span class="line">                                watchers.remove(service);</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            MoreExecutors.directExecutor());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/gRPC-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC  负载均衡
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/gRPC-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">
+        
+          gRPC  自定义健康检查
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5"><span class="toc-nav-text">gRPC  健康检查</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Server-%E7%AB%AF"><span class="toc-nav-text">Server 端</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-nav-text">客户端</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-nav-text">实现</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-nav-text">定义</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF-1"><span class="toc-nav-text">客户端</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%89%A7%E8%A1%8C%E6%A3%80%E6%9F%A5"><span class="toc-nav-text">执行检查</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E5%8F%91%E8%B5%B7%E6%A3%80%E6%9F%A5"><span class="toc-nav-text">发起检查</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E5%A4%84%E7%90%86%E7%BB%93%E6%9E%9C"><span class="toc-nav-text">处理结果</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Server-%E7%AB%AF-1"><span class="toc-nav-text">Server 端</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E8%AE%BE%E7%BD%AE%E6%9C%8D%E5%8A%A1%E7%8A%B6%E6%80%81"><span class="toc-nav-text">设置服务状态</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E9%BB%98%E8%AE%A4%E6%9C%8D%E5%8A%A1"><span class="toc-nav-text">默认服务</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E5%85%B6%E4%BB%96%E6%9C%8D%E5%8A%A1"><span class="toc-nav-text">其他服务</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%A4%84%E7%90%86%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5"><span class="toc-nav-text">处理健康检查</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E5%8D%95%E6%AC%A1%E8%AF%B7%E6%B1%82"><span class="toc-nav-text">单次请求</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#Stream-%E8%AF%B7%E6%B1%82"><span class="toc-nav-text">Stream 请求</span></a></li></ol></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/gRPC-健康检查/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC  健康检查",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

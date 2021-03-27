@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      GraphQL Spring Boot 使用 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>GraphQL Spring Boot 使用</h2>
+  <p class="post-date">2019-01-29</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="GraphQL-Spring-Boot-使用"><a href="#GraphQL-Spring-Boot-使用" class="headerlink" title="GraphQL Spring Boot 使用"></a>GraphQL Spring Boot 使用</h1><p>项目地址 <a target="_blank" rel="noopener" href="https://github.com/helloworlde/spring-boot-graphql-demo">https://github.com/helloworlde/spring-boot-graphql-demo</a></p>
+<blockquote>
+<p>使用 SpringBoot 和 GraphQL 创建一个最简单的增删改查接口应用，使用 MongoDB 存储数据</p>
+</blockquote>
+<h2 id="创建应用"><a href="#创建应用" class="headerlink" title="创建应用"></a>创建应用</h2><ul>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    implementation(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-web&#x27;</span>)</span><br><span class="line">    implementation(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-data-mongodb&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    compileOnly(<span class="string">&#x27;org.projectlombok:lombok&#x27;</span>)</span><br><span class="line">    testImplementation(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-test&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加基础接口"><a href="#添加基础接口" class="headerlink" title="添加基础接口"></a>添加基础接口</h3><ul>
+<li>添加 Model</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@Builder</span></span><br><span class="line"><span class="meta">@Document</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Post</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="keyword">private</span> String id;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String title;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String content;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@CreatedDate</span></span><br><span class="line">    <span class="keyword">private</span> Date createDate;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加 Repository </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PostRepository</span> <span class="keyword">extends</span> <span class="title">MongoRepository</span>&lt;<span class="title">Post</span>, <span class="title">String</span>&gt; </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加配置</li>
+</ul>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># MongoDB Config</span></span><br><span class="line"><span class="meta">spring.data.mongodb.host</span>=<span class="string">localhost</span></span><br><span class="line"><span class="meta">spring.data.mongodb.port</span>=<span class="string">27017</span></span><br><span class="line"><span class="comment">#spring.data.mongodb.username=</span></span><br><span class="line"><span class="comment">#spring.data.mongodb.password=</span></span><br><span class="line"><span class="meta">spring.data.mongodb.database</span>=<span class="string">graphql</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加数据初始化</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DataInitializer</span> <span class="keyword">implements</span> <span class="title">ApplicationRunner</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> PostRepository postRepository;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">(ApplicationArguments args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        List&lt;Post&gt; posts = initPost();</span><br><span class="line">        posts.forEach(post -&gt; log.info(<span class="string">&quot;Post: &#123;&#125;&quot;</span>, post));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> List&lt;Post&gt; <span class="title">initPost</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        postRepository.deleteAll();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> Stream.of(<span class="string">&quot;Post one&quot;</span>, <span class="string">&quot;Post two&quot;</span>)</span><br><span class="line">                .map(title -&gt; &#123;</span><br><span class="line">                    Post post = Post.builder()</span><br><span class="line">                            .title(title)</span><br><span class="line">                            .content(<span class="string">&quot;Content of &quot;</span> + title)</span><br><span class="line">                            .build();</span><br><span class="line">                    <span class="keyword">return</span> postRepository.save(post);</span><br><span class="line">                &#125;)</span><br><span class="line">                .collect(Collectors.toList());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加-GraphQL-配置"><a href="#添加-GraphQL-配置" class="headerlink" title="添加 GraphQL 配置"></a>添加 GraphQL 配置</h3><ul>
+<li>添加 GraphQL 依赖</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">implementation(<span class="string">&#x27;com.graphql-java:graphql-spring-boot-starter:5.0.2&#x27;</span>)</span><br><span class="line"><span class="comment">// 提供 UI    </span></span><br><span class="line">implementation(<span class="string">&#x27;com.graphql-java:graphiql-spring-boot-starter:5.0.2&#x27;</span>)</span><br><span class="line"><span class="comment">// 用于 Resolver    </span></span><br><span class="line">implementation(<span class="string">&#x27;com.graphql-java:graphql-java-tools:5.2.4&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加接口定义脚本</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"># io.github.helloworlde.graphql.model.Post 对应的Model</span><br><span class="line">type Post &#123;</span><br><span class="line">    id: ID,</span><br><span class="line">    title: String,</span><br><span class="line">    content: String,</span><br><span class="line">    createDate: String</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># io.github.helloworlde.graphql.resolver.PostMutation.updatePost 的入参 post</span><br><span class="line">input PostInput&#123;</span><br><span class="line">    title: String!,</span><br><span class="line">    content: String!</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 查询 io.github.helloworlde.graphql.resolver.PostQuery</span><br><span class="line">type Query&#123;</span><br><span class="line">    posts: [Post]</span><br><span class="line">    post(id: ID!): Post</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 修改 io.github.helloworlde.graphql.resolver.PostMutation</span><br><span class="line">type Mutation&#123;</span><br><span class="line">    createPost(post: PostInput): Post!</span><br><span class="line">    updatePost(id: ID!, post: PostInput): Post!</span><br><span class="line">    deletePost(id: ID!): String</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="添加接口-Resolver"><a href="#添加接口-Resolver" class="headerlink" title="添加接口 Resolver"></a>添加接口 Resolver</h4><ul>
+<li>查询 Resolver</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PostQuery</span> <span class="keyword">implements</span> <span class="title">GraphQLQueryResolver</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> PostRepository postRepository;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Post&gt; <span class="title">posts</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> postRepository.findAll();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Optional&lt;Post&gt; <span class="title">post</span><span class="params">(String id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> postRepository.findById(id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改 Resolver</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PostMutation</span> <span class="keyword">implements</span> <span class="title">GraphQLMutationResolver</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> PostRepository postRepository;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Post <span class="title">createPost</span><span class="params">(Post post)</span> </span>&#123;</span><br><span class="line">        Post newPost = Post.builder()</span><br><span class="line">                .title(post.getTitle())</span><br><span class="line">                .content(post.getContent())</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> postRepository.save(newPost);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Post <span class="title">updatePost</span><span class="params">(String id, Post post)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        Post currentPost = postRepository.findById(id)</span><br><span class="line">                .orElseThrow(() -&gt; <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;Post &quot;</span> + id + <span class="string">&quot; Not Exist&quot;</span>));</span><br><span class="line"></span><br><span class="line">        currentPost.setTitle(post.getTitle());</span><br><span class="line">        currentPost.setContent(post.getContent());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> postRepository.save(currentPost);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">deletePost</span><span class="params">(String id)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        postRepository.findById(id)</span><br><span class="line">                .orElseThrow(() -&gt; <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;Post &quot;</span> + id + <span class="string">&quot; Not Exist&quot;</span>));</span><br><span class="line"></span><br><span class="line">        postRepository.deleteById(id);</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><ul>
+<li><p>启动应用 </p>
+</li>
+<li><p>访问 <a target="_blank" rel="noopener" href="http://localhost:8080/graphiql">http://localhost:8080/graphiql</a></p>
+</li>
+</ul>
+<h4 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h4><ul>
+<li>查询列表</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  posts &#123;</span><br><span class="line">    id</span><br><span class="line">    title</span><br><span class="line">    content</span><br><span class="line">    createDate</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;data&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;posts&quot;</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">&quot;id&quot;</span>: <span class="string">&quot;5c50245b7ed65eacb3372aba&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;title&quot;</span>: <span class="string">&quot;Post one&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;content&quot;</span>: <span class="string">&quot;Content of Post one&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;createDate&quot;</span>: <span class="string">&quot;Tue Jan 29 18:00:59 CST 2019&quot;</span></span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">&quot;id&quot;</span>: <span class="string">&quot;5c50245b7ed65eacb3372abb&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;title&quot;</span>: <span class="string">&quot;Post two&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;content&quot;</span>: <span class="string">&quot;Content of Post two&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;createDate&quot;</span>: <span class="string">&quot;Tue Jan 29 18:00:59 CST 2019&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查询指定 id</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  post(id: &quot;5c50245b7ed65eacb3372aba&quot;) &#123;</span><br><span class="line">    id</span><br><span class="line">    title</span><br><span class="line">    content</span><br><span class="line">    createDate</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;data&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;post&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;id&quot;</span>: <span class="string">&quot;5c50245b7ed65eacb3372aba&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;title&quot;</span>: <span class="string">&quot;Post one&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;content&quot;</span>: <span class="string">&quot;Content of Post one&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;createDate&quot;</span>: <span class="string">&quot;Tue Jan 29 18:00:59 CST 2019&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="修改"><a href="#修改" class="headerlink" title="修改"></a>修改</h4><ul>
+<li>新增 </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mutation &#123;</span><br><span class="line">  createPost(post: &#123;title: &quot;New Posts&quot;, content: &quot;New Post Content&quot;&#125;) &#123;</span><br><span class="line">    id</span><br><span class="line">    title</span><br><span class="line">    content</span><br><span class="line">    createDate</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;data&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;createPost&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;id&quot;</span>: <span class="string">&quot;5c5027197ed65eaf47a0854d&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;title&quot;</span>: <span class="string">&quot;New Posts&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;content&quot;</span>: <span class="string">&quot;New Post Content&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;createDate&quot;</span>: <span class="string">&quot;Tue Jan 29 18:12:41 CST 2019&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改 </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mutation &#123;</span><br><span class="line">  updatePost(id: &quot;5c5027197ed65eaf47a0854d&quot;, post: &#123;title: &quot;Update Posts&quot;, content: &quot;Update Post Content&quot;&#125;) &#123;</span><br><span class="line">    id</span><br><span class="line">    title</span><br><span class="line">    content</span><br><span class="line">    createDate</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;data&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;updatePost&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;id&quot;</span>: <span class="string">&quot;5c5027197ed65eaf47a0854d&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;title&quot;</span>: <span class="string">&quot;Update Posts&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;content&quot;</span>: <span class="string">&quot;Update Post Content&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;createDate&quot;</span>: <span class="string">&quot;Tue Jan 29 18:12:41 CST 2019&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>删除</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mutation &#123;</span><br><span class="line">  deletePost(id: &quot;5c5027197ed65eaf47a0854d&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;data&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;deletePost&quot;</span>: <span class="string">&quot;5c5027197ed65eaf47a0854d&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ul>
+<li><a target="_blank" rel="noopener" href="http://graphql.cn/">GraphQL</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/oril/spring-boot-graphql-mongodb-8733002b728a">Spring Boot + GraphQL + MongoDB</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/graphql-java-kickstart/graphql-spring-boot">graphql-spring-boot</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/zhouyuexie/learn-graphql">learn-graphql</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/leonardomso/graphql-mongodb-server">graphql-mongodb-server</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#GraphQL" >
+    <span class="tag-code">GraphQL</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/01/07/MySQL-%E4%B8%AD%E5%85%B3%E4%BA%8Egap-lock-next-key-lock-%E7%9A%84%E4%B8%80%E4%B8%AA%E9%97%AE%E9%A2%98/">
+        <span class="nav-arrow">← </span>
+        
+          MySQL 中关于gap lock / next-key lock 的一个问题
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/03/24/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3-Traefik-Docker-Swarm-%E4%BD%BF%E7%94%A8/">
+        
+          微服务网关 Traefik - Docker Swarm 使用
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#GraphQL-Spring-Boot-%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">GraphQL Spring Boot 使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BA%94%E7%94%A8"><span class="toc-nav-text">创建应用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E5%9F%BA%E7%A1%80%E6%8E%A5%E5%8F%A3"><span class="toc-nav-text">添加基础接口</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0-GraphQL-%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">添加 GraphQL 配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%8E%A5%E5%8F%A3-Resolver"><span class="toc-nav-text">添加接口 Resolver</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%9F%A5%E8%AF%A2"><span class="toc-nav-text">查询</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E4%BF%AE%E6%94%B9"><span class="toc-nav-text">修改</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-nav-text">参考文章</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2019/01/29/GraphQL-Spring-Boot-使用/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "GraphQL Spring Boot 使用",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Kubernetes 中使用 Helm 部署应用 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Kubernetes 中使用 Helm 部署应用</h2>
+  <p class="post-date">2019-09-08</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Kubernetes-中使用-Helm-部署应用"><a href="#Kubernetes-中使用-Helm-部署应用" class="headerlink" title="Kubernetes 中使用 Helm 部署应用"></a>Kubernetes 中使用 Helm 部署应用</h1><h2 id="创建应用"><a href="#创建应用" class="headerlink" title="创建应用"></a>创建应用</h2><p>创建一个简单的应用，提供一个 REST 接口；使用 Golang 编写，然后将镜像 push 到 Docker Hub</p>
+<ul>
+<li>go.mod</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">module github.com/helloworlde/rest</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="number">1.12</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>main.go </li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/ping&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(writer http.ResponseWriter, request *http.Request)</span></span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;Pong&quot;</span>)</span><br><span class="line">		_, _ = fmt.Fprint(writer, <span class="string">&quot;Pong&quot;</span>)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	fmt.Println(<span class="string">&quot;Server Started&quot;</span>)</span><br><span class="line">	log.Fatal(http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Dockerfile </li>
+</ul>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> golang AS build-<span class="keyword">env</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /go/src/github.com/hellowrolde/rest</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> . .</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENV</span> GO111MODULE on</span><br><span class="line"><span class="keyword">ENV</span> GOPROXY=https://gocenter.io</span><br><span class="line"><span class="keyword">ENV</span> GOOS linux</span><br><span class="line"><span class="keyword">ENV</span> GOARCH <span class="number">386</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> go mod download</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> go build -v -o /go/src/github.com/hellowrolde/rest/app</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">FROM</span> alpine</span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> --from=build-env  /go/src/github.com/hellowrolde/rest/app /usr/<span class="built_in">local</span>/bin/app</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> ln -sf /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> [<span class="string">&quot;app&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>构建并 push 镜像</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker build -t hellowooeds/rest . </span><br><span class="line">docker push hellowooeds/rest</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-Helm"><a href="#使用-Helm" class="headerlink" title="使用 Helm"></a>使用 Helm</h2><h3 id="添加-Helm"><a href="#添加-Helm" class="headerlink" title="添加 Helm"></a>添加 Helm</h3><h4 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm create rest</span><br></pre></td></tr></table></figure>
+
+<p>然后会在项目目录下创建一个 rest 的文件夹，里面包含所需要的 Helm 配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── Chart.yaml</span><br><span class="line">├── charts</span><br><span class="line">├── templates</span><br><span class="line">│   ├── NOTES.txt</span><br><span class="line">│   ├── _helpers.tpl</span><br><span class="line">│   ├── deployment.yaml</span><br><span class="line">│   ├── ingress.yaml</span><br><span class="line">│   ├── service.yaml</span><br><span class="line">│   └── tests</span><br><span class="line">│       └── test-connection.yaml</span><br><span class="line">└── values.yaml</span><br><span class="line"></span><br><span class="line">3 directories, 8 files</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Chart.yaml: 用于描述 Chart 的属性</li>
+<li>values.yaml: 存放项目的配置项，如镜像名称或者 tag 等，用于和模板组装</li>
+<li>charts: 用于存放依赖的 chart 的，当有依赖需要管理时，可以添加 requirements.yaml 文件，可用于管理项目内或者外部的依赖</li>
+<li>templates: 用于存放需要的配置模板</li>
+</ul>
+<h4 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h4><ul>
+<li>Chart.yaml </li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">appVersion:</span> <span class="string">&quot;1.0&quot;</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">Rest</span> <span class="string">application</span> <span class="string">with</span> <span class="string">Helm</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">rest</span></span><br><span class="line"><span class="attr">version:</span> <span class="number">0.1</span><span class="number">.0</span></span><br><span class="line"><span class="attr">maintainers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">HelloWood</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改 values.yaml </li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">backend:</span></span><br><span class="line">  <span class="attr">image:</span> <span class="string">hellowoodes/rest</span></span><br><span class="line">  <span class="attr">tag:</span> <span class="string">&quot;latest&quot;</span></span><br><span class="line">  <span class="attr">pullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="attr">namespace:</span> <span class="string">rest</span></span><br><span class="line"></span><br><span class="line"><span class="attr">service:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">NodePort</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>backend-service.yaml</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">backend</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">backend</span></span><br><span class="line">  <span class="attr">namespace:</span> &#123;&#123; <span class="string">.Values.namespace</span> &#125;&#125;</span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">8080</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">backend</span></span><br><span class="line">  <span class="attr">type:</span> &#123;&#123; <span class="string">.Values.service.type</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>backend-deployment.yaml</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">extensions/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">backend</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">backend</span></span><br><span class="line">  <span class="attr">namespace:</span> &#123;&#123; <span class="string">.Values.namespace</span> &#125;&#125;</span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">backend</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">backend</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">backend</span></span><br><span class="line">          <span class="attr">image:</span> &#123;&#123; <span class="string">.Values.backend.image</span> &#125;&#125;<span class="string">:&#123;&#123;</span> <span class="string">.Values.backend.tag</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">8080</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="安装应用"><a href="#安装应用" class="headerlink" title="安装应用"></a>安装应用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm install ./rest --name rest</span><br></pre></td></tr></table></figure>
+
+<p>如果不指定名称，会随机生成一个</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">NAME:   rest</span><br><span class="line">LAST DEPLOYED: Sun Jul 14 18:50:16 2019</span><br><span class="line">NAMESPACE: default</span><br><span class="line">STATUS: DEPLOYED</span><br><span class="line"></span><br><span class="line">RESOURCES:</span><br><span class="line">==&gt; v1/Pod(related)</span><br><span class="line">NAME                      READY  STATUS             RESTARTS  AGE</span><br><span class="line">backend-5bc9d6cb99-pfwn5  0/1    ContainerCreating  0         0s</span><br><span class="line"></span><br><span class="line">==&gt; v1/Service</span><br><span class="line">NAME     TYPE      CLUSTER-IP     EXTERNAL-IP  PORT(S)         AGE</span><br><span class="line">backend  NodePort  10.105.41.183  &lt;none&gt;       8080:31381/TCP  0s</span><br><span class="line"></span><br><span class="line">==&gt; v1beta1/Deployment</span><br><span class="line">NAME     READY  UP-TO-DATE  AVAILABLE  AGE</span><br><span class="line">backend  0/1    1           0          0s</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">NOTES:</span><br><span class="line">1. Get the application URL by running these commands:</span><br><span class="line">  <span class="built_in">export</span> NODE_PORT=$(kubectl get service -l app=backend --namespace default  -o jsonpath=<span class="string">&quot;&#123;.items[0].spec.ports[0].nodePort&#125;&quot;</span>)</span><br><span class="line">  <span class="built_in">export</span> NODE_IP=$(kubectl get nodes --namespace default -o jsonpath=<span class="string">&quot;&#123;.items[0].status.addresses[0].address&#125;&quot;</span>)</span><br><span class="line">  <span class="built_in">echo</span> http://<span class="variable">$NODE_IP</span>:<span class="variable">$NODE_PORT</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="查看"><a href="#查看" class="headerlink" title="查看"></a>查看</h4><ul>
+<li>查看 Helm 信息</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm list</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NAME	REVISION	UPDATED                 	STATUS  	CHART     	APP VERSION	NAMESPACE</span><br><span class="line">rest	1       	Sun Jul 14 18:55:25 2019	DEPLOYED	rest-0.1.0	1.0        	default</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看 Deployment、Service、Pod</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get all -l app=backend</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">NAME                           READY   STATUS    RESTARTS   AGE</span><br><span class="line">pod/backend-5bc9d6cb99-kmpvx   1/1     Running   0          7m15s</span><br><span class="line"></span><br><span class="line">NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE</span><br><span class="line">service/backend      NodePort    10.104.248.37   &lt;none&gt;        8080:31064/TCP   7m15s</span><br><span class="line"></span><br><span class="line">NAME                      READY   UP-TO-DATE   AVAILABLE   AGE</span><br><span class="line">deployment.apps/backend   1/1     1            1           7m15s</span><br><span class="line"></span><br><span class="line">NAME                                 DESIRED   CURRENT   READY   AGE</span><br><span class="line">replicaset.apps/backend-5bc9d6cb99   1         1         1       7m15s</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h4><p>访问通过 NOTES 获取到的 IP 和端口</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">http get http://192.168.0.110:31381/ping</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Length: 4</span><br><span class="line">Content-Type: text/plain; charset=utf-8</span><br><span class="line">Date: Sun, 14 Jul 2019 10:53:18 GMT</span><br><span class="line"></span><br><span class="line">Pong</span><br></pre></td></tr></table></figure>
+
+<h3 id="打包"><a href="#打包" class="headerlink" title="打包"></a>打包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm package ./rest</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Successfully packaged chart and saved it to: /path/to/project/rest-0.1.0.tgz</span><br></pre></td></tr></table></figure>
+
+<h3 id="更新"><a href="#更新" class="headerlink" title="更新"></a>更新</h3><p>当应用发生了更新之后，需要升级部署，这时候可以通过修改 Helm 的配置来实现；如镜像版本从1.0 更新到 1.1</p>
+<ul>
+<li>修改 values.yaml</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">backend:</span></span><br><span class="line">  <span class="attr">image:</span> <span class="string">hellowoodes/rest</span></span><br><span class="line">  <span class="attr">tag:</span> <span class="string">&quot;1.1&quot;</span></span><br><span class="line">  <span class="attr">pullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"></span><br><span class="line"><span class="attr">service:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">NodePort</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>执行更新 </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm upgrade rest ./rest --repo <span class="built_in">local</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Release <span class="string">&quot;rest&quot;</span> has been upgraded. Happy Helming!</span><br><span class="line">LAST DEPLOYED: Sun Jul 14 21:03:57 2019</span><br><span class="line">NAMESPACE: default</span><br><span class="line">STATUS: DEPLOYED</span><br><span class="line"></span><br><span class="line">RESOURCES:</span><br><span class="line">==&gt; v1/Pod(related)</span><br><span class="line">NAME                     READY  STATUS   RESTARTS  AGE</span><br><span class="line">backend-56876f876-vvbzz  1/1    Running  0         85s</span><br><span class="line"></span><br><span class="line">==&gt; v1/Service</span><br><span class="line">NAME     TYPE      CLUSTER-IP   EXTERNAL-IP  PORT(S)         AGE</span><br><span class="line">backend  NodePort  10.97.22.28  &lt;none&gt;       8080:31496/TCP  7m10s</span><br><span class="line"></span><br><span class="line">==&gt; v1beta1/Deployment</span><br><span class="line">NAME     READY  UP-TO-DATE  AVAILABLE  AGE</span><br><span class="line">backend  1/1    1           1          7m10s</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">NOTES:</span><br><span class="line">1. Get the application URL by running these commands:</span><br><span class="line">  <span class="built_in">export</span> NODE_PORT=$(kubectl get service -l app=backend --namespace default -o jsonpath=<span class="string">&quot;&#123;.items[0].spec.ports[0].nodePort&#125;&quot;</span>)</span><br><span class="line">  <span class="built_in">export</span> NODE_IP=$(kubectl get nodes --namespace default -o jsonpath=<span class="string">&quot;&#123;.items[0].status.addresses[0].address&#125;&quot;</span>)</span><br><span class="line">  <span class="built_in">echo</span> http://<span class="variable">$NODE_IP</span>:<span class="variable">$NODE_PORT</span></span><br></pre></td></tr></table></figure>
+
+<p>等待更新完成后，查看 Pod 的描述信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl describe pod backend-56876f876-vvbzz</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 pod 的镜像已经从 1.0 更新到了 1.1 </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Normal  Pulled     29s   kubelet, ubuntu-server  Container image <span class="string">&quot;hellowoodes/rest:1.1&quot;</span> already present on machine</span><br></pre></td></tr></table></figure>
+
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3><h3 id="删除应用"><a href="#删除应用" class="headerlink" title="删除应用"></a>删除应用</h3><p>删除 Helm 应用后，所有相关的 Service，Deployment，Pod 等都会被删除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm delete --purge rest</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看-Repo-应用"><a href="#查看-Repo-应用" class="headerlink" title="查看 Repo 应用"></a>查看 Repo 应用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm serve</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Regenerating index. This may take a moment.</span><br><span class="line">Now serving you on 127.0.0.1:8879</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/helm-app-list.png" alt="helm-app-list.png"></p>
+<hr>
+<h3 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h3><p><a target="_blank" rel="noopener" href="https://github.com/helloworlde/helm-app-rest">https://github.com/helloworlde/helm-app-rest</a></p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+  <a href="/tags#Helm" >
+    <span class="tag-code">Helm</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/09/08/Kubernetes-%E4%B8%AD%E5%AE%89%E8%A3%85-Helm/">
+        <span class="nav-arrow">← </span>
+        
+          Kubernetes 中安装 Helm
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/09/08/Kubenetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Traefik-%E4%BD%9C%E4%B8%BA-Ingress-%E8%BD%AC%E5%8F%91%E6%B5%81%E9%87%8F/">
+        
+          Kubenetes 中使用 Traefik 作为 Ingress 转发流量
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8"><span class="toc-nav-text">Kubernetes 中使用 Helm 部署应用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BA%94%E7%94%A8"><span class="toc-nav-text">创建应用</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-Helm"><span class="toc-nav-text">使用 Helm</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0-Helm"><span class="toc-nav-text">添加 Helm</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-nav-text">初始化</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-nav-text">修改配置文件</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85%E5%BA%94%E7%94%A8"><span class="toc-nav-text">安装应用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%9F%A5%E7%9C%8B"><span class="toc-nav-text">查看</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-nav-text">测试</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%89%93%E5%8C%85"><span class="toc-nav-text">打包</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%9B%B4%E6%96%B0"><span class="toc-nav-text">更新</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link"><span class="toc-nav-text"></span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%A0%E9%99%A4%E5%BA%94%E7%94%A8"><span class="toc-nav-text">删除应用</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%9F%A5%E7%9C%8B-Repo-%E5%BA%94%E7%94%A8"><span class="toc-nav-text">查看 Repo 应用</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%A1%B9%E7%9B%AE%E5%9C%B0%E5%9D%80"><span class="toc-nav-text">项目地址</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2019/09/08/Kubernetes-中使用-Helm-部署应用/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Kubernetes 中使用 Helm 部署应用",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

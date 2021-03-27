@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      使用 Prometheus 和 Grafana 监控 SpringBoot 应用 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>使用 Prometheus 和 Grafana 监控 SpringBoot 应用</h2>
+  <p class="post-date">2020-05-16</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="使用-Prometheus-和-Grafana-监控-Spring-Boot-应用"><a href="#使用-Prometheus-和-Grafana-监控-Spring-Boot-应用" class="headerlink" title="使用 Prometheus 和 Grafana 监控 Spring Boot 应用"></a>使用 Prometheus 和 Grafana 监控 Spring Boot 应用</h1><p>监控 Spring Boot 应用的状态，以及一些自定义的业务数据</p>
+<h2 id="监控-Spring-Boot-应用"><a href="#监控-Spring-Boot-应用" class="headerlink" title="监控 Spring Boot 应用"></a>监控 Spring Boot 应用</h2><ul>
+<li>添加依赖 build.gradle </li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">compile(<span class="string">&#x27;org.springframework.boot:spring-boot-starter-actuator&#x27;</span>)</span><br><span class="line">compile(<span class="string">&#x27;io.micrometer:micrometer-core:1.5.1&#x27;</span>)</span><br><span class="line">compile(<span class="string">&#x27;io.micrometer:micrometer-registry-prometheus:1.5.1&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改配置 application.properties</li>
+</ul>
+<p>需要注意的是，<code>management.metrics.tags.application</code>这个参数一定要有，否则很多报表会因为没有这个tag不能正常显示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># Actuator</span><br><span class="line">management.endpoints.web.exposure.include&#x3D;*</span><br><span class="line"># Prometheus</span><br><span class="line">management.metrics.tags.application&#x3D;$&#123;spring.application.name&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加 Prometheus 监控</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;spring-prometheus&#x27;</span></span><br><span class="line">  <span class="attr">metrics_path:</span> <span class="string">&#x27;/actuator/prometheus&#x27;</span></span><br><span class="line">  <span class="attr">scrape_interval:</span> <span class="string">5s</span></span><br><span class="line">  <span class="attr">static_configs:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">targets:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">host.docker.internal:8081</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>配置 Grafana </li>
+</ul>
+<p>从 Grafana Dashboard 市场查找 Spring Boot 的看板，复制 ID 导入到 Grafana 中，如 <a target="_blank" rel="noopener" href="https://grafana.com/grafana/dashboards/6756">6756</a></p>
+<p>导入之后发现有些数据不能正确显示，这是因为设置了变量，需要修改变量的值：</p>
+<p>Dashboard Setting -&gt; Variables，选择相应的变量进行修改，这里修改两个：<code>applicaiton</code> 和 <code>instance</code></p>
+<p>application</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">label_values(application)</span><br></pre></td></tr></table></figure>
+
+<p>instance</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">label_values(jvm_memory_used_bytes&#123;application&#x3D;&quot;$application&quot;&#125;,instance)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/springboot-grafana-dashboard-variable.png" alt="springboot-grafana-dashboard-variable.png"></p>
+<p>这样，就可以实现 application 和 instance的联动，选择application后，instance中显示相应的应用的实例</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/springboot-grafana-dashboard.png" alt="springboot-grafana-dashboard.png"></p>
+<h2 id="监控方法执行时间和数量"><a href="#监控方法执行时间和数量" class="headerlink" title="监控方法执行时间和数量"></a>监控方法执行时间和数量</h2><p>Prometheus 提供了时间和数量的监控指标，通过在方法上添加 <code>@Counted</code>和<code>@Timed</code>来监控数据；相关文档可以参考 <a target="_blank" rel="noopener" href="http://micrometer.io/docs/concepts#_the_timed_annotation">The @Timed annotation</a></p>
+<ul>
+<li>注入切面的Bean</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableAspectJAutoProxy</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PrometheusAspectConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TimedAspect <span class="title">timedAspect</span><span class="params">(MeterRegistry registry)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> TimedAspect(registry);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CountedAspect <span class="title">countedAspect</span><span class="params">(MeterRegistry registry)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CountedAspect(registry);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="监控定时任务"><a href="#监控定时任务" class="headerlink" title="监控定时任务"></a>监控定时任务</h4><ul>
+<li>监控定时任务</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomScheduleTask</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Random random = <span class="keyword">new</span> Random();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(fixedDelay = 5000)</span></span><br><span class="line">    <span class="meta">@Timed(value = &quot;custom_task_time&quot;, extraTags = &#123;&quot;name&quot;, &quot;自定义定时任务&quot;&#125;, description = &quot;自定义定时任务监控&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">customSchedule</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Thread.sleep(random.nextInt(<span class="number">5000</span>));</span><br><span class="line">        log.info(<span class="string">&quot;定时任务执行完成&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看监控数据</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl localhost:8081/actuator/prometheus | grep custom_task</span><br></pre></td></tr></table></figure>
+
+<h4 id="监控接口"><a href="#监控接口" class="headerlink" title="监控接口"></a>监控接口</h4><ul>
+<li>controller</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Timed</span></span><br><span class="line"><span class="meta">@Counted</span></span><br><span class="line"><span class="meta">@GetMapping(&quot;/timed&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">timed</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> customService.timed(UUID.randomUUID().toString());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>监控数据</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl localhost:8081/actuator/prometheus | grep method_time</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="自定义监控指标"><a href="#自定义监控指标" class="headerlink" title="自定义监控指标"></a>自定义监控指标</h2><p>通过自定义监控指标监控业务相关数据</p>
+<h3 id="监控类型"><a href="#监控类型" class="headerlink" title="监控类型"></a>监控类型</h3><p>相关监控类型的文档可以参考 <a target="_blank" rel="noopener" href="https://prometheus.io/docs/concepts/metric_types/">Metrics types</a><br>相关使用文档可以参考 <a target="_blank" rel="noopener" href="https://github.com/prometheus/client_java#histogram">Prometheus JVM Client</a></p>
+<ul>
+<li>Counter </li>
+</ul>
+<p>一个单调递增的累计计量，在重新启动时值会被置为0，可以用于统计请求数量，错误数量，任务完成的数量等；不能用Counter统计可以减少的值</p>
+<ul>
+<li>Gauge </li>
+</ul>
+<p>Gauge 表示可以任意增减的值，通常用于计量类似温度，CPU使用率这样的值，或者正在处理的请求数量这样可增可减的值</p>
+<ul>
+<li>Histogram </li>
+</ul>
+<p>统计直方图，通常用于统计请求的时间，响应body的大小等，并将其计数在可配置的存储桶中，它还提供所有观察值的总和</p>
+<ul>
+<li>Summary</li>
+</ul>
+<p>和 Histogram 类似，它在滑动时间窗口内计算可配置的分位数，详细区别可以参考 <a target="_blank" rel="noopener" href="https://prometheus.io/docs/practices/histograms/">Histograms and summaries</a></p>
+<h3 id="自定义监控请求统计"><a href="#自定义监控请求统计" class="headerlink" title="自定义监控请求统计"></a>自定义监控请求统计</h3><h4 id="添加统计数据"><a href="#添加统计数据" class="headerlink" title="添加统计数据"></a>添加统计数据</h4><p>定义统计请求数据，分别统计请求的次数，错误的次数，相应的时间；可以使用 Filter来实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AccessMetricsFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> CollectorRegistry collectorRegistry;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;spring.application.name&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String applicationName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Counter totalCounter;</span><br><span class="line">    <span class="keyword">private</span> Counter errorCounter;</span><br><span class="line">    <span class="keyword">private</span> Histogram responseTime;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        log.info(<span class="string">&quot;初始化counter&quot;</span>);</span><br><span class="line"></span><br><span class="line">        totalCounter = Counter.build(<span class="string">&quot;custom_request_total&quot;</span>, <span class="string">&quot;自定义请求次数统计&quot;</span>)</span><br><span class="line">                              .labelNames(<span class="string">&quot;application&quot;</span>, <span class="string">&quot;path&quot;</span>)</span><br><span class="line">                              .create();</span><br><span class="line"></span><br><span class="line">        errorCounter = Counter.build(<span class="string">&quot;custom_request_error&quot;</span>, <span class="string">&quot;自定义请求错误次数统计&quot;</span>)</span><br><span class="line">                              .labelNames(<span class="string">&quot;application&quot;</span>, <span class="string">&quot;path&quot;</span>)</span><br><span class="line">                              .create();</span><br><span class="line"></span><br><span class="line">        responseTime = Histogram.build(<span class="string">&quot;custom_response_time&quot;</span>, <span class="string">&quot;自定义请求响应时间&quot;</span>)</span><br><span class="line">                                .labelNames(<span class="string">&quot;application&quot;</span>, <span class="string">&quot;path&quot;</span>)</span><br><span class="line">                                .create();</span><br><span class="line"></span><br><span class="line">        collectorRegistry.register(totalCounter);</span><br><span class="line">        collectorRegistry.register(errorCounter);</span><br><span class="line">        collectorRegistry.register(responseTime);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();</span><br><span class="line">        String path = request.getRequestURI();</span><br><span class="line"></span><br><span class="line">        Histogram.Timer timer = responseTime.labels(applicationName, path).startTimer();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            filterChain.doFilter(servletRequest, servletResponse);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            errorCounter.labels(applicationName, path).inc();</span><br><span class="line">            <span class="keyword">throw</span> e;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            totalCounter.labels(applicationName, path).inc();</span><br><span class="line">            timer.observeDuration();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动应用，访问接口后查看统计数据</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">curl localhost:8081/actuator/prometheus | grep custom_request</span><br><span class="line"></span><br><span class="line"><span class="comment"># HELP custom_request_total 自定义请求次数统计</span></span><br><span class="line"><span class="comment"># TYPE custom_request_total counter</span></span><br><span class="line">custom_request_total&#123;path=<span class="string">&quot;/order&quot;</span>,&#125; 3.0</span><br><span class="line">custom_request_total&#123;path=<span class="string">&quot;/db&quot;</span>,&#125; 1004.0</span><br><span class="line">custom_request_total&#123;path=<span class="string">&quot;/actuator/prometheus&quot;</span>,&#125; 150.0</span><br><span class="line"><span class="comment"># HELP custom_request_error 自定义请求错误次数统计</span></span><br><span class="line"><span class="comment"># TYPE custom_request_error counter</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="添加监控看板"><a href="#添加监控看板" class="headerlink" title="添加监控看板"></a>添加监控看板</h4><ul>
+<li>现在要统计所有的错误请求次数，可以在 Prometheus的查询面板中查询：</li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/springboot-custom-metrics-prometheus.png" alt="springboot-custom-metrics-prometheus.png"></p>
+<p>这样，就可以得到相应的错误数据，接下来只需要在Grafana中展示就可以</p>
+<ul>
+<li>添加看板</li>
+</ul>
+<p>添加一个 Dashboard，并添加一个 Panel，在 Panel 的 Metrics 中添加刚才的查询语句</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/springboot-custom-metrics-grafana-query.png" alt="springboot-custom-metrics-grafana-query.png"></p>
+<p>执行查询后，会看到有图表生成，变量的名称通过 Legend 字段指定，如这里是 <code>custom_request_total&#123;application=&quot;prometheus&quot;, instance=&quot;host.docker.internal:8081&quot;, job=&quot;spring-prometheus&quot;, path=&quot;/db&quot;&#125;</code>，需要显示路径名称，即 path 的值，可以设置 Legend 为 <code>&#123;&#123;path&#125;&#125;</code>，这样会显示正确的名称</p>
+<p>其他的显示单位，显示效果等以及面板的名称可以通过旁边的设置选项进行配置</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/prometheus-grafana-custom-dashboard-setting-panel-detail.png" alt="prometheus-grafana-custom-dashboard-setting-panel-detail.png"></p>
+<ul>
+<li>添加应用和实例变量</li>
+</ul>
+<p>Dashboard Settings -&gt; Variables</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">label_values(application)</span><br><span class="line"></span><br><span class="line">label_values(jvm_memory_used_bytes&#123;application&#x3D;&quot;$application&quot;&#125;,instance)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加统计数据查询</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 请求总次数</span><br><span class="line">sum(custom_request_total&#123;application=&quot;$application&quot;,instance=&quot;$instance&quot;&#125;)</span><br><span class="line"></span><br><span class="line"># 错误请求总次数</span><br><span class="line">sum(custom_request_total&#123;application=&quot;$application&quot;, instance=&quot;$instance&quot;&#125;)</span><br><span class="line"></span><br><span class="line"># 每分钟请求次数</span><br><span class="line">rate(custom_request_total&#123;application=&quot;$application&quot;, instance=&quot;$instance&quot;&#125;[1m])</span><br><span class="line"></span><br><span class="line"># 每分钟错误请求次数</span><br><span class="line">rate(custom_request_error&#123;application=&quot;$application&quot;, instance=&quot;$instance&quot;&#125;[$__interval])</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/prometheus-grafana-custom-dashboard-result.png" alt="prometheus-grafana-custom-dashboard-result.png"></p>
+<hr>
+<ul>
+<li>相关项目可以参考 <a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBootCollection/blob/master/prometheus/">Prometheus</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Prometheus" >
+    <span class="tag-code">Prometheus</span>
+  </a>
+
+  <a href="/tags#Grafana" >
+    <span class="tag-code">Grafana</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/05/16/%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-Consul/">
+        <span class="nav-arrow">← </span>
+        
+          使用 Prometheus 和 Grafana 监控 Consul
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/05/16/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89-Grafana-%E9%9D%A2%E6%9D%BF%E7%9B%91%E6%8E%A7-Consul/">
+        
+          使用自定义 Grafana 面板监控 Consul
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-Prometheus-%E5%92%8C-Grafana-%E7%9B%91%E6%8E%A7-Spring-Boot-%E5%BA%94%E7%94%A8"><span class="toc-nav-text">使用 Prometheus 和 Grafana 监控 Spring Boot 应用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%9B%91%E6%8E%A7-Spring-Boot-%E5%BA%94%E7%94%A8"><span class="toc-nav-text">监控 Spring Boot 应用</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%9B%91%E6%8E%A7%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E5%92%8C%E6%95%B0%E9%87%8F"><span class="toc-nav-text">监控方法执行时间和数量</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E7%9B%91%E6%8E%A7%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1"><span class="toc-nav-text">监控定时任务</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E7%9B%91%E6%8E%A7%E6%8E%A5%E5%8F%A3"><span class="toc-nav-text">监控接口</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9B%91%E6%8E%A7%E6%8C%87%E6%A0%87"><span class="toc-nav-text">自定义监控指标</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E7%9B%91%E6%8E%A7%E7%B1%BB%E5%9E%8B"><span class="toc-nav-text">监控类型</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9B%91%E6%8E%A7%E8%AF%B7%E6%B1%82%E7%BB%9F%E8%AE%A1"><span class="toc-nav-text">自定义监控请求统计</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%BB%9F%E8%AE%A1%E6%95%B0%E6%8D%AE"><span class="toc-nav-text">添加统计数据</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%9B%91%E6%8E%A7%E7%9C%8B%E6%9D%BF"><span class="toc-nav-text">添加监控看板</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/05/16/使用-Prometheus-和-Grafana-监控-SpringBoot-应用/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "使用 Prometheus 和 Grafana 监控 SpringBoot 应用",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      gRPC 命名解析 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>gRPC 命名解析</h2>
+  <p class="post-date">2020-09-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="gRPC-命名解析"><a href="#gRPC-命名解析" class="headerlink" title="gRPC 命名解析"></a>gRPC 命名解析</h1><p>命名解析根据服务的 URI，从注册中心获取并解析服务实例 IP，默认支持 schema 为 DNS，grpclb，xds 等</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-source-code-name-resolver-diagram.png" alt="grpc-source-code-name-resolver-diagram.png"></p>
+<p>gRPC 的命名解析的父类接口是 <code>NameResolver</code><br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-source-code-name-resolver-class.png" alt="grpc-source-code-name-resolver-class.png"></p>
+<p><code>NameResolver</code> 包含有多个子类，用于实现命名解析<br>每个 <code>NameResolver</code> 都有一个 <code>Provider</code>，用于创建 <code>NameResolver</code> 实例；所有的 <code>Provider</code> 都注册到 <code>NameResolverRegistry</code> 中，<code>NameResolverRegistry</code> 创建 <code>Factory</code> 实例，最终通过 <code>Provider</code> 创建 <code>NameResolver</code></p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/grpc-source-code-name-resolver-with-sub-class.png" alt="grpc-source-code-name-resolver-with-sub-class.png"></p>
+<p>命名解析的整个工作流程是：</p>
+<ol>
+<li>使用 <code>NameResolverRegistry</code> 或者 SPI 方式注册 Provider</li>
+<li>调用 Channel 的 <code>build</code> 方法创建 <code>NameResovler.Factory</code></li>
+<li>根据 Factory 最终调用 Provider 创建 <code>NameResolver</code>，</li>
+<li>创建 <code>Listener</code> 的实例</li>
+<li>调用 <code>NameResolver</code> 的 <code>start</code> 方法，传入 <code>Listener</code> 实例</li>
+<li>创建 <code>Runnable</code> 任务，通过调用 <code>Listener</code> 的 <code>onResult</code> 方法进行更新</li>
+</ol>
+<h2 id="创建-NameResolver"><a href="#创建-NameResolver" class="headerlink" title="创建 NameResolver"></a>创建 NameResolver</h2><p>在 Channel 调用 <code>build</code> 方式时，会在 <code>io.grpc.internal.ManagedChannelImpl#ManagedChannelImpl</code>的构造方法中获取 <code>NameResolver.Factory</code>，这个属性的值是由调用 <code>io.grpc.internal.AbstractManagedChannelImplBuilder#getNameResolverFactory</code> 方法获取的，这个方法里面的属性值来自于 <code>io.grpc.NameResolverRegistry#asFactory</code>,<code>NameResolverRegistry</code> 自己通过内部类 <code>NameResolverFactory</code>创建了<code>NameResovler.Factory</code> 的实例，在<code>io.grpc.internal.ManagedChannelImpl#getNameResolver</code>中调用 Factory 的 <code>newNameResolver</code>时，从 <code>provider</code> 属性中获取根据优先级排序后的 Provider，通过 Provider 创建 <code>NameResolver</code> 实例并返回第一个有效实例</p>
+<ol>
+<li>创建 Channel 时注册 <code>NameResovlerProvider</code></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NameResolverRegistry.getDefaultRegistry().register(<span class="keyword">new</span> DnsNameResolverProvider());</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在 Channel 中获取 <code>Factory</code></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 服务发现工厂</span></span><br><span class="line"><span class="keyword">this</span>.nameResolverFactory = builder.getNameResolverFactory();</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>在 <code>NameResolverRegistry</code> 中初始化 <code>Factory</code>，构造 <code>NameResolverFactory</code> 实例，在 <code>asFactory</code> 方法中返回</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> NameResolver.Factory factory = <span class="keyword">new</span> NameResolverFactory();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回该实例</span></span><br><span class="line"><span class="keyword">private</span> NameResolver.Factory nameResolverFactory = nameResolverRegistry.asFactory();</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>获取 <code>NameResovler</code> 实例</li>
+</ol>
+<p>创建 <code>NameResolver</code> 的 <code>Factory</code> 是通过 Channel 的 <code>Builder</code> 传入的，<code>Args</code> 是在 Channel 的构造方法中创建的</p>
+<ul>
+<li>io.grpc.internal.ManagedChannelImpl#ManagedChannelImpl</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 命名解析器参数</span></span><br><span class="line"><span class="keyword">this</span>.nameResolverArgs = NameResolver.Args.newBuilder()</span><br><span class="line">                                         .setDefaultPort(builder.getDefaultPort())</span><br><span class="line">                                         .setProxyDetector(proxyDetector)</span><br><span class="line">                                         .setSynchronizationContext(syncContext)</span><br><span class="line">                                         .setScheduledExecutorService(scheduledExecutor)</span><br><span class="line">                                         .setServiceConfigParser(serviceConfigParser)</span><br><span class="line">                                         .setChannelLogger(channelLogger)</span><br><span class="line">                                         .setOffloadExecutor(</span><br><span class="line">                                                 <span class="comment">// Avoid creating the offloadExecutor until it is first used</span></span><br><span class="line">                                                 <span class="keyword">new</span> Executor() &#123;</span><br><span class="line">                                                   <span class="meta">@Override</span></span><br><span class="line">                                                   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span> </span>&#123;</span><br><span class="line">                                                     offloadExecutorHolder.getExecutor().execute(command);</span><br><span class="line">                                                   &#125;</span><br><span class="line">                                                 &#125;)</span><br><span class="line">                                         .build();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 命名解析</span></span><br><span class="line"><span class="keyword">this</span>.nameResolver = getNameResolver(target, nameResolverFactory, nameResolverArgs);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.ManagedChannelImpl#getNameResolver</li>
+</ul>
+<p>根据地址，创建 <code>NameResolver</code> 实例，如果 URI 缺少 <code>Schema</code>，则添加默认的 <code>Schema</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> NameResolver <span class="title">getNameResolver</span><span class="params">(String target,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    NameResolver.Factory nameResolverFactory,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    NameResolver.Args nameResolverArgs)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 解析地址</span></span><br><span class="line">  URI targetUri = <span class="keyword">new</span> URI(target);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 创建 NameResolver</span></span><br><span class="line">  <span class="keyword">if</span> (targetUri != <span class="keyword">null</span>) &#123;</span><br><span class="line">    NameResolver resolver = nameResolverFactory.newNameResolver(targetUri, nameResolverArgs);</span><br><span class="line">    <span class="keyword">if</span> (resolver != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> resolver;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果不是 URI 格式，则使用默认的 schema</span></span><br><span class="line">  <span class="keyword">if</span> (!URI_PATTERN.matcher(target).matches()) &#123;</span><br><span class="line">    targetUri = <span class="keyword">new</span> URI(nameResolverFactory.getDefaultScheme(), <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span> + target, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">    NameResolver resolver = nameResolverFactory.newNameResolver(targetUri, nameResolverArgs);</span><br><span class="line">    <span class="keyword">if</span> (resolver != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> resolver;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(String.format(<span class="string">&quot;cannot find a NameResolver for %s%s&quot;</span>, target, uriSyntaxErrors.length() &gt; <span class="number">0</span> ? <span class="string">&quot; (&quot;</span> + uriSyntaxErrors + <span class="string">&quot;)&quot;</span> : <span class="string">&quot;&quot;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.DnsNameResolverProvider#newNameResolver</li>
+</ul>
+<p>在 NameResolverProvider 中创建 NameResolver，调用具体实现类的构造方法，初始化相应的参数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> DnsNameResolver <span class="title">newNameResolver</span><span class="params">(URI targetUri, NameResolver.Args args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果是 DNS 开头的 Schema</span></span><br><span class="line">    <span class="keyword">if</span> (SCHEME.equals(targetUri.getScheme())) &#123;</span><br><span class="line">        <span class="comment">// 检查要解析的服务不为空，且以斜线开头</span></span><br><span class="line">        String targetPath = Preconditions.checkNotNull(targetUri.getPath(), <span class="string">&quot;targetPath&quot;</span>);</span><br><span class="line">        Preconditions.checkArgument(targetPath.startsWith(<span class="string">&quot;/&quot;</span>), <span class="string">&quot;the path component (%s) of the target (%s) must start with &#x27;/&#x27;&quot;</span>, targetPath, targetUri);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 截取斜线之后的部分作为服务名</span></span><br><span class="line">        String name = targetPath.substring(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 创建 DNS 服务解析器</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> DnsNameResolver(</span><br><span class="line">                targetUri.getAuthority(),</span><br><span class="line">                name,</span><br><span class="line">                args,</span><br><span class="line">                GrpcUtil.SHARED_CHANNEL_EXECUTOR,</span><br><span class="line">                Stopwatch.createUnstarted(),</span><br><span class="line">                InternalServiceProviders.isAndroid(getClass().getClassLoader()));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果不是 DNS 开头的则返回 null</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="Listener"><a href="#Listener" class="headerlink" title="Listener"></a>Listener</h2><ul>
+<li>io.grpc.internal.ManagedChannelImpl#exitIdleMode</li>
+</ul>
+<p>创建负载均衡，和服务解析实例作为参数，创建 <code>Listener</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">exitIdleMode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  LbHelperImpl lbHelper = <span class="keyword">new</span> LbHelperImpl();</span><br><span class="line">  <span class="comment">// 自动配置负载均衡</span></span><br><span class="line">  lbHelper.lb = loadBalancerFactory.newLoadBalancer(lbHelper);</span><br><span class="line">  <span class="keyword">this</span>.lbHelper = lbHelper;</span><br><span class="line">  <span class="comment">// 服务发现监听器</span></span><br><span class="line">  NameResolverListener listener = <span class="keyword">new</span> NameResolverListener(lbHelper, nameResolver);</span><br><span class="line">  nameResolver.start(listener);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>io.grpc.internal.DnsNameResolver#start</li>
+</ul>
+<p><code>start</code> 方法最终通过线程池执行 <code>Resolve</code> 任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">(Listener2 listener)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (usingExecutorResource) &#123;</span><br><span class="line">        executor = SharedResourceHolder.get(executorResource);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 解析</span></span><br><span class="line">    resolve();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">resolve</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (resolving || shutdown || !cacheRefreshRequired()) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    resolving = <span class="keyword">true</span>;</span><br><span class="line">    <span class="comment">// 根据监听器，解析名称</span></span><br><span class="line">    executor.execute(<span class="keyword">new</span> Resolve(listener));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="解析地址"><a href="#解析地址" class="headerlink" title="解析地址"></a>解析地址</h2><ul>
+<li>io.grpc.internal.DnsNameResolver.Resolve</li>
+</ul>
+<p><code>Resolve</code> 实现了 <code>Runnable</code> 接口，在 <code>run</code> 方法中，先调用 <code>doResolve</code> 方法，将目标 URI 解析为地址集合，同时也会获取配置<br>然后根据获取的地址和配置为 <code>ResolutionResult.Builder</code>  赋值，调用 <code>Listener2</code> 的 <code>onResult</code> 方法处理更新的结果</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Resolve</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Listener2 savedListener;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从 DNS 解析服务</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        InternalResolutionResult result = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ResolutionResult.Builder resolutionResultBuilder = ResolutionResult.newBuilder();</span><br><span class="line">            <span class="comment">// 代理的地址</span></span><br><span class="line">            <span class="comment">// 根据 HOST 解析地址和配置</span></span><br><span class="line">            result = doResolve(<span class="keyword">false</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (result.error != <span class="keyword">null</span>) &#123;</span><br><span class="line">                savedListener.onError(result.error);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 如果有地址，则设置地址</span></span><br><span class="line">            <span class="keyword">if</span> (result.addresses != <span class="keyword">null</span>) &#123;</span><br><span class="line">                resolutionResultBuilder.setAddresses(result.addresses);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (result.config != <span class="keyword">null</span>) &#123;</span><br><span class="line">                resolutionResultBuilder.setServiceConfig(result.config);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (result.attributes != <span class="keyword">null</span>) &#123;</span><br><span class="line">                resolutionResultBuilder.setAttributes(result.attributes);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 更新负载均衡策略，处理未处理的请求</span></span><br><span class="line">            savedListener.onResult(resolutionResultBuilder.build());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            savedListener.onError(Status.UNAVAILABLE.withDescription(<span class="string">&quot;Unable to resolve host &quot;</span> + host).withCause(e));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="更新实例"><a href="#更新实例" class="headerlink" title="更新实例"></a>更新实例</h2><ul>
+<li>io.grpc.internal.ManagedChannelImpl.NameResolverListener#onResult</li>
+</ul>
+<p><code>NameResolverListener</code> 是 <code>Listener2</code> 的实现类；<code>Listener2</code> 是 <code>Listener</code> 接口的抽象实现，新增了一个 <code>onResult</code> 方法</p>
+<p>在 <code>onResult</code> 方法中有个 <code>Runnable</code>，<code>run</code> 方法会根据传入的结果，更新服务的配置；然后根据实例地址，更新负载均衡的实例列表</p>
+<p>任务由 <code>SynchronizationContext</code> 执行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResult</span><span class="params">(<span class="keyword">final</span> ResolutionResult resolutionResult)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">NamesResolved</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      List&lt;EquivalentAddressGroup&gt; servers = resolutionResult.getAddresses();</span><br><span class="line">      <span class="comment">// 更新传入的配置 ...</span></span><br><span class="line">      </span><br><span class="line">      ManagedChannelServiceConfig effectiveServiceConfig;</span><br><span class="line">      handleServiceConfigUpdate();</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 获取属性</span></span><br><span class="line">      Attributes effectiveAttrs = resolutionResult.getAttributes();</span><br><span class="line">      <span class="comment">// 如果服务发现没有关闭</span></span><br><span class="line">      <span class="keyword">if</span> (NameResolverListener.<span class="keyword">this</span>.helper == ManagedChannelImpl.<span class="keyword">this</span>.lbHelper) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 更新负载均衡实例</span></span><br><span class="line">        Status handleResult = helper.lb.tryHandleResolvedAddresses(</span><br><span class="line">                ResolvedAddresses.newBuilder()</span><br><span class="line">                                 .setAddresses(servers)</span><br><span class="line">                                 .setAttributes(effectiveAttrs)</span><br><span class="line">                                 .setLoadBalancingPolicyConfig(effectiveServiceConfig.getLoadBalancingConfig())</span><br><span class="line">                                 .build());</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 执行处理</span></span><br><span class="line">  syncContext.execute(<span class="keyword">new</span> NamesResolved());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/09/20/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-NameResolver/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC 使用自定义的 NameResolver
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/09/20/HPA-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E6%8C%87%E6%A0%87%E8%87%AA%E5%8A%A8%E6%89%A9%E7%BC%A9%E5%AE%B9/">
+        
+          HPA 使用自定义的指标自动扩缩容
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#gRPC-%E5%91%BD%E5%90%8D%E8%A7%A3%E6%9E%90"><span class="toc-nav-text">gRPC 命名解析</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA-NameResolver"><span class="toc-nav-text">创建 NameResolver</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Listener"><span class="toc-nav-text">Listener</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%A7%A3%E6%9E%90%E5%9C%B0%E5%9D%80"><span class="toc-nav-text">解析地址</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%9B%B4%E6%96%B0%E5%AE%9E%E4%BE%8B"><span class="toc-nav-text">更新实例</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2020/09/20/gRPC-命名解析/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "gRPC 命名解析",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      树莓派 4b 无网线安装 Ubuntu 并初始化 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>树莓派 4b 无网线安装 Ubuntu 并初始化</h2>
+  <p class="post-date">2019-12-15</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="树莓派-4b-无网线安装-Ubuntu-并初始化"><a href="#树莓派-4b-无网线安装-Ubuntu-并初始化" class="headerlink" title="树莓派 4b 无网线安装 Ubuntu 并初始化"></a>树莓派 4b 无网线安装 Ubuntu 并初始化</h1><blockquote>
+<p>必需设备：</p>
+</blockquote>
+<ul>
+<li>树莓派 4b</li>
+<li>SD 卡</li>
+<li>HDMI 线</li>
+<li>显示器</li>
+<li>键盘</li>
+<li>电源及数据线</li>
+</ul>
+<h2 id="设置镜像"><a href="#设置镜像" class="headerlink" title="设置镜像"></a>设置镜像</h2><p>在树莓派官网的连接，找到 Ubuntu，根据指引，找到 Ubuntu 的镜像，即<a target="_blank" rel="noopener" href="https://ubuntu.com/download/raspberry-pi">https://ubuntu.com/download/raspberry-pi</a><br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/raspberrypi-ubuntu.png" alt="raspberrypi-ubuntu.png"></p>
+<h3 id="下载镜像"><a href="#下载镜像" class="headerlink" title="下载镜像"></a>下载镜像</h3><p>点击下载 64 位镜像，随后会开始下载<a target="_blank" rel="noopener" href="http://cdimage.ubuntu.com/releases/19.10.1/release/ubuntu-19.10.1-preinstalled-server-arm64+raspi3.img.xz?_ga=2.165606655.1314896456.1576331584-894154124.1576331584">ubuntu-19.10.1-preinstalled-server-arm64+raspi3.img.xz</a>这个文件</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/raspberrypi-ubuntu-download.png" alt="raspberrypi-ubuntu-download.png"></p>
+<p>但是这个文件下载很慢，也没有国内的镜像，可以使用迅雷下载，或者直接下载上传的镜像 <a target="_blank" rel="noopener" href="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/ubuntu-19.10.1-preinstalled-server-arm64+raspi3.img.xz">ubuntu-19.10.1-preinstalled-server-arm64+raspi3.img.xz</a></p>
+<h3 id="刻录镜像"><a href="#刻录镜像" class="headerlink" title="刻录镜像"></a>刻录镜像</h3><h4 id="格式化-SD卡"><a href="#格式化-SD卡" class="headerlink" title="格式化 SD卡"></a>格式化 SD卡</h4><p>刻录镜像前，要先将 SD 卡格式化，在 Mac 上，可以使用官方推荐的<a target="_blank" rel="noopener" href="https://www.sdcard.org/downloads/formatter/">SD Card Formatter</a>, 也可以用上传到地址进行下载Mac 版：<a target="_blank" rel="noopener" href="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/SDCardFormatterv5_Mac.zip">SDCardFormatterv5_Mac.zip</a></p>
+<h4 id="刻录镜像-1"><a href="#刻录镜像-1" class="headerlink" title="刻录镜像"></a>刻录镜像</h4><p>刻录镜像有多种方式，不同平台操作不同，可以参考 <a target="_blank" rel="noopener" href="https://ubuntu.com/download/iot/installation-media">https://ubuntu.com/download/iot/installation-media</a></p>
+<p>在 Mac 上，可以用官方推荐的软件<a target="_blank" rel="noopener" href="https://www.balena.io/etcher">balenaEtcher</a>，可以从上传的位置下载<a target="_blank" rel="noopener" href="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/balenaEtcher-1.5.70.dmg">balenaEtcher-1.5.70.dmg</a>，也可以直接用命令行执行</p>
+<ul>
+<li>查找 SD 卡挂载名称</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diskutil list</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;dev&#x2F;disk0 (internal, physical):</span><br><span class="line">   #:                       TYPE NAME                    SIZE       IDENTIFIER</span><br><span class="line">   0:      GUID_partition_scheme                        *500.3 GB   disk0</span><br><span class="line">   1:                        EFI EFI                     314.6 MB   disk0s1</span><br><span class="line">   2:                 Apple_APFS Container disk1         500.0 GB   disk0s2</span><br><span class="line"></span><br><span class="line">&#x2F;dev&#x2F;disk1 (synthesized):</span><br><span class="line">   #:                       TYPE NAME                    SIZE       IDENTIFIER</span><br><span class="line">   0:      APFS Container Scheme -                      +500.0 GB   disk1</span><br><span class="line">                                 Physical Store disk0s2</span><br><span class="line">   1:                APFS Volume Macintosh HD - 数据     280.9 GB   disk1s1</span><br><span class="line">   2:                APFS Volume Preboot                 82.4 MB    disk1s2</span><br><span class="line">   3:                APFS Volume Recovery                528.5 MB   disk1s3</span><br><span class="line">   4:                APFS Volume VM                      8.6 GB     disk1s4</span><br><span class="line">   5:                APFS Volume Macintosh HD            10.8 GB    disk1s5</span><br><span class="line">&#x2F;dev&#x2F;disk3</span><br><span class="line">#:                       TYPE NAME                    SIZE       IDENTIFIER</span><br><span class="line">0:     FDisk_partition_scheme                        *32.0 GB    disk3</span><br><span class="line">1:                 DOS_FAT_32 SD                      32.0 GB    disk3s1</span><br></pre></td></tr></table></figure>
+
+<p>其中的 <code>/dev/disk3</code>就是 SD卡</p>
+<ul>
+<li>取消挂载</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diskutil unmountDisk /dev/disk3</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Unmount of all volumes on &#x2F;dev&#x2F;disk3 was successful</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>复制镜像到 SD 卡</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c <span class="string">&#x27;gunzip -c /Users/xxx/Downloads/ubuntu-19.10.1-preinstalled-server-arm64+raspi3.img.xz | sudo dd of=/dev/disk3 bs=32m&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>这个过程可能要十几分钟，取决于 SD 卡的速度，需要耐心等待，直到提示完成</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">3719+1 records in</span><br><span class="line">3719+1 records out</span><br><span class="line">3899999744 bytes transferred in 642.512167 secs (6069924 bytes&#x2F;sec)</span><br></pre></td></tr></table></figure>
+
+<h2 id="启动树莓派"><a href="#启动树莓派" class="headerlink" title="启动树莓派"></a>启动树莓派</h2><h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>将 SD 卡插入树莓派中，接通电源，连接 HDMI 线到显示器，并插入键盘；等待启动完成后会提示输入用户，默认的用户和密码都是<code>ubuntu</code>，进入后会要求修改密码</p>
+<ul>
+<li>修改 root 用户密码</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo passwd</span><br></pre></td></tr></table></figure>
+
+<p>根据提示输入密码即可</p>
+<h3 id="设置-WiFi"><a href="#设置-WiFi" class="headerlink" title="设置 WiFi"></a>设置 WiFi</h3><p>默认的树莓派会使用网线，如果有可以用的网线，直接插入，更新 WiFi 配置即可，如果不能用，则需要手动配置 WiFi</p>
+<h4 id="查找可用的接口"><a href="#查找可用的接口" class="headerlink" title="查找可用的接口"></a>查找可用的接口</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip link show </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000</span><br><span class="line">    link&#x2F;loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><br><span class="line">2: eth0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc mq state DOWN mode DEFAULT group default qlen 1000</span><br><span class="line">    link&#x2F;ether dc:a6:32:5f:b4:3e brd ff:ff:ff:ff:ff:ff</span><br><span class="line">3: wlan0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP mode DORMANT group default qlen 1000</span><br><span class="line">    link&#x2F;ether dc:a6:32:5f:b4:3f brd ff:ff:ff:ff:ff:ff</span><br></pre></td></tr></table></figure>
+
+<h4 id="编辑配置文件"><a href="#编辑配置文件" class="headerlink" title="编辑配置文件"></a>编辑配置文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cp /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml.bk</span><br><span class="line">vi /etc/netplan/50-cloud-init.yaml</span><br></pre></td></tr></table></figure>
+
+<p>此时的配置文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This file is generated from information provided by</span></span><br><span class="line"><span class="comment"># the datasource.  Changes to it will not persist across an instance.</span></span><br><span class="line"><span class="comment"># To disable cloud-init&#x27;s network configuration capabilities, write a file</span></span><br><span class="line"><span class="comment"># /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:</span></span><br><span class="line"><span class="comment"># network: &#123;config: disabled&#125;</span></span><br><span class="line"><span class="attr">network:</span></span><br><span class="line">    <span class="attr">ethernets:</span></span><br><span class="line">        <span class="attr">eth0:</span></span><br><span class="line">            <span class="attr">dhcp4:</span> <span class="literal">true</span></span><br><span class="line">            <span class="attr">optional:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">version:</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>需要新加 WiFi 的配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">network:</span></span><br><span class="line">    <span class="attr">ethernets:</span></span><br><span class="line">        <span class="attr">eth0:</span></span><br><span class="line">            <span class="attr">dhcp4:</span> <span class="literal">true</span></span><br><span class="line">            <span class="attr">optional:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">wifis:</span></span><br><span class="line">        <span class="attr">wlan0:</span></span><br><span class="line">            <span class="attr">optional:</span> <span class="literal">true</span></span><br><span class="line">            <span class="attr">access-points:</span></span><br><span class="line">               <span class="attr">&quot;YOUR_NETWORK_SSID&quot;:</span></span><br><span class="line">                    <span class="attr">password:</span> <span class="string">&quot;YOUR_PASSWORD&quot;</span></span><br><span class="line">            <span class="attr">dhcp4:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">version:</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>将无线网的名称和密码填写上</p>
+<h4 id="检查配置"><a href="#检查配置" class="headerlink" title="检查配置"></a>检查配置</h4><ul>
+<li>检查</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo netplan --debug try</span><br></pre></td></tr></table></figure>
+<p>如果检查结果中没有 error，则说明正常</p>
+<ul>
+<li>生成配置 </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo netplan --debug generate</span><br></pre></td></tr></table></figure>
+<p>如果检查结果中没有 error，则说明正常</p>
+<ul>
+<li>应用配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo netplan --debug apply</span><br></pre></td></tr></table></figure>
+
+<p>设置完成后，重启树莓派</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reboot now</span><br></pre></td></tr></table></figure>
+
+<p>待重启完成后即可自动连接上 WiFi</p>
+<h2 id="配置-SSH"><a href="#配置-SSH" class="headerlink" title="配置 SSH"></a>配置 SSH</h2><h3 id="获取-IP"><a href="#获取-IP" class="headerlink" title="获取 IP"></a>获取 IP</h3><p>获取 IP 可以从路由器的配置界面查看到；也可以使用在树莓派上通过命令找到</p>
+<ul>
+<li>安装 <code>net-tools</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt update </span><br><span class="line">apt install net-tools</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>待安装完成后，查找 IP</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">eth0: flags&#x3D;4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu 1500</span><br><span class="line">        ether dc:a6:32:5f:b4:3e  txqueuelen 1000  (Ethernet)</span><br><span class="line">        RX packets 0  bytes 0 (0.0 B)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 0  bytes 0 (0.0 B)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br><span class="line"></span><br><span class="line">lo: flags&#x3D;73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536</span><br><span class="line">        inet 127.0.0.1  netmask 255.0.0.0</span><br><span class="line">        inet6 ::1  prefixlen 128  scopeid 0x10&lt;host&gt;</span><br><span class="line">        loop  txqueuelen 1000  (Local Loopback)</span><br><span class="line">        RX packets 102  bytes 7390 (7.3 KB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 102  bytes 7390 (7.3 KB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br><span class="line"></span><br><span class="line">wlan0: flags&#x3D;4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 192.168.199.5  netmask 255.255.255.0  broadcast 192.168.199.255</span><br><span class="line">        inet6 fe80::dea6:32ff:fe5f:b43f  prefixlen 64  scopeid 0x20&lt;link&gt;</span><br><span class="line">        ether dc:a6:32:5f:b4:3f  txqueuelen 1000  (Ethernet)</span><br><span class="line">        RX packets 292  bytes 78773 (78.7 KB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 181  bytes 32959 (32.9 KB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br></pre></td></tr></table></figure>
+
+<p>其中的 <code>192.168.199.5</code>就是树莓派的 IP</p>
+<h3 id="配置-SSH-1"><a href="#配置-SSH-1" class="headerlink" title="配置 SSH"></a>配置 SSH</h3><ul>
+<li>开启远程登录</li>
+</ul>
+<p>默认的 22 端口是关闭的，需要手动打开</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/ssh/sshd_config</span><br></pre></td></tr></table></figure>
+
+<p>需要将 <code>#Port 22</code>的注释去掉，然后重启 SSH</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/ssh restart</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[ ok ] Restarting ssh (via systemctl): ssh.service.</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>配置登录的 key</li>
+</ul>
+<p>配置key 可以在开启了 ssh 后，通过账号密码，将 key 拷贝到树莓派</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp ~/.ssh/id_rsa.pub ubuntu@192.168.199.5:/root/.ssh/authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p>或者上传包含自己key 的文件，在树莓派上下载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -O path/to/my/authorized_keys</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="参考内容"><a href="#参考内容" class="headerlink" title="参考内容"></a>参考内容</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.raspberrypi.org/downloads/">RaspberryPi Downloads</a></li>
+<li><a target="_blank" rel="noopener" href="https://ubuntu.com/download/raspberry-pi">Install Ubuntu Server on a Raspberry Pi 2, 3 or 4</a></li>
+<li><a target="_blank" rel="noopener" href="https://ubuntu.com/download/iot/installation-media">Create installation media for Ubuntu</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.balena.io/etcher/">balenaEtcher</a></li>
+<li><a target="_blank" rel="noopener" href="https://raspberrypi.stackexchange.com/questions/98598/how-to-setup-the-raspberry-pi-3-onboard-wifi-for-ubuntu-server-18-04-with-netpla">How to setup the Raspberry Pi 3 onboard WiFi for Ubuntu Server 18.04 with netplan?</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Ubuntu" >
+    <span class="tag-code">Ubuntu</span>
+  </a>
+
+  <a href="/tags#RaspberryPi" >
+    <span class="tag-code">RaspberryPi</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/12/07/%E4%BD%BF%E7%94%A8-GitHub-%E4%BD%9C%E4%B8%BA-Helm-%E4%BB%93%E5%BA%93/">
+        <span class="nav-arrow">← </span>
+        
+          使用 GitHub 作为 Helm 仓库
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2019/12/29/Kubernetes-%E4%B8%AD%E4%BD%BF%E7%94%A8-Helm-%E9%83%A8%E7%BD%B2%E4%BD%BF%E7%94%A8-Prometheus/">
+        
+          Kubernetes 中使用 Helm 部署使用 Prometheus
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E6%A0%91%E8%8E%93%E6%B4%BE-4b-%E6%97%A0%E7%BD%91%E7%BA%BF%E5%AE%89%E8%A3%85-Ubuntu-%E5%B9%B6%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-nav-text">树莓派 4b 无网线安装 Ubuntu 并初始化</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%AE%BE%E7%BD%AE%E9%95%9C%E5%83%8F"><span class="toc-nav-text">设置镜像</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%B8%8B%E8%BD%BD%E9%95%9C%E5%83%8F"><span class="toc-nav-text">下载镜像</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%BB%E5%BD%95%E9%95%9C%E5%83%8F"><span class="toc-nav-text">刻录镜像</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96-SD%E5%8D%A1"><span class="toc-nav-text">格式化 SD卡</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%88%BB%E5%BD%95%E9%95%9C%E5%83%8F-1"><span class="toc-nav-text">刻录镜像</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8%E6%A0%91%E8%8E%93%E6%B4%BE"><span class="toc-nav-text">启动树莓派</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%90%AF%E5%8A%A8"><span class="toc-nav-text">启动</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%AE%BE%E7%BD%AE-WiFi"><span class="toc-nav-text">设置 WiFi</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%9F%A5%E6%89%BE%E5%8F%AF%E7%94%A8%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="toc-nav-text">查找可用的接口</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E7%BC%96%E8%BE%91%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-nav-text">编辑配置文件</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%A3%80%E6%9F%A5%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">检查配置</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-SSH"><span class="toc-nav-text">配置 SSH</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%8E%B7%E5%8F%96-IP"><span class="toc-nav-text">获取 IP</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-SSH-1"><span class="toc-nav-text">配置 SSH</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E5%86%85%E5%AE%B9"><span class="toc-nav-text">参考内容</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2019/12/15/树莓派-4b-无网线安装-Ubuntu-并初始化/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "树莓派 4b 无网线安装 Ubuntu 并初始化",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring Boot 发送邮件 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Boot 发送邮件</h2>
+  <p class="post-date">2017-12-31</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><blockquote>
+<p>在 Spring Boot 中使用 Spring Mail 发送邮件</p>
+</blockquote>
+<ul>
+<li>项目地址：<a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBoot-Mail">https://github.com/helloworlde/SpringBoot-Mail</a></li>
+</ul>
+<hr>
+<h2 id="添加-Spring-Mail-依赖"><a href="#添加-Spring-Mail-依赖" class="headerlink" title="添加 Spring Mail 依赖"></a>添加 Spring Mail 依赖</h2><ul>
+<li>build.gradle </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compile(&#39;org.springframework.boot:spring-boot-starter-mail&#39;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加配置文件"><a href="#添加配置文件" class="headerlink" title="添加配置文件"></a>添加配置文件</h2><ul>
+<li>application.properties</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">spring.mail.host&#x3D;smtpdm.aliyun.com</span><br><span class="line">spring.mail.port&#x3D;465</span><br><span class="line">spring.mail.username&#x3D;&quot;你的邮箱&quot;</span><br><span class="line">spring.mail.password&#x3D;&quot;你的密码&quot;</span><br><span class="line">spring.mail.properties.smtp.auth&#x3D;true</span><br><span class="line">spring.mail.properties.smtp.starttls.enable&#x3D;true</span><br><span class="line">spring.mail.properties.smtp.starttls.required&#x3D;true</span><br><span class="line">spring.mail.properties.mail.smtp.ssl.enable&#x3D;true</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="发送简单邮件"><a href="#发送简单邮件" class="headerlink" title="发送简单邮件"></a>发送简单邮件</h2><ul>
+<li>MailUtil.java</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.mail.MailException;</span><br><span class="line">import org.springframework.mail.SimpleMailMessage;</span><br><span class="line">import org.springframework.mail.javamail.JavaMailSender;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">import org.thymeleaf.TemplateEngine;</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">public class MailUtil &#123;</span><br><span class="line"></span><br><span class="line">    private final Logger logger &#x3D; LoggerFactory.getLogger(getClass());</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    JavaMailSender mailSender;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    TemplateEngine templateEngine;</span><br><span class="line"></span><br><span class="line">    public void sendSimpleEmail(String deliver, String[] receiver, String[] carbonCopy, String subject, String content) throws ServiceException &#123;</span><br><span class="line"></span><br><span class="line">        long startTimestamp &#x3D; System.currentTimeMillis();</span><br><span class="line">        logger.info(&quot;Start send mail ... &quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            SimpleMailMessage message &#x3D; new SimpleMailMessage();</span><br><span class="line">            message.setFrom(deliver);</span><br><span class="line">            message.setTo(receiver);</span><br><span class="line">            message.setCc(carbonCopy);</span><br><span class="line">            message.setSubject(subject);</span><br><span class="line">            message.setText(content);</span><br><span class="line">            mailSender.send(message);</span><br><span class="line">            logger.info(&quot;Send mail success, cost &#123;&#125; million seconds&quot;, System.currentTimeMillis() - startTimestamp);</span><br><span class="line">        &#125; catch (MailException e) &#123;</span><br><span class="line">            logger.error(&quot;Send mail failed, error message is : &#123;&#125; \n&quot;, e.getMessage());</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            throw new ServiceException(e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>发送邮件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void sendSimpleEmail() &#123;</span><br><span class="line">    String deliver &#x3D; &quot;你的邮件地址&quot;;</span><br><span class="line">    String[] receiver &#x3D; &#123;&quot;接收者邮件地址&quot;&#125;;</span><br><span class="line">    String[] carbonCopy &#x3D; &#123;&quot;抄送者邮件地址&quot;&#125;;</span><br><span class="line">    String subject &#x3D; &quot;This is a simple email&quot;;</span><br><span class="line">    String content &#x3D; &quot;This is a simple content&quot;;</span><br><span class="line">    </span><br><span class="line">    try &#123;</span><br><span class="line">        mailUtil.sendSimpleEmail(deliver, receiver, carbonCopy, subject, content);</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">        assertFalse(&quot;Send simple email failed&quot;, true);</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="发送-HTML-内容的邮件"><a href="#发送-HTML-内容的邮件" class="headerlink" title="发送 HTML 内容的邮件"></a>发送 HTML 内容的邮件</h2><ul>
+<li>MailUtil.java</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">import cn.com.hellowood.mail.util.ServiceException;</span><br><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.mail.javamail.JavaMailSender;</span><br><span class="line">import org.springframework.mail.javamail.MimeMessageHelper;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line">import javax.mail.MessagingException;</span><br><span class="line">import javax.mail.internet.MimeMessage;</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">public class MailUtil &#123;</span><br><span class="line"></span><br><span class="line">    private final Logger logger &#x3D; LoggerFactory.getLogger(getClass());</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    JavaMailSender mailSender;</span><br><span class="line"></span><br><span class="line">    public void sendHtmlEmail(String deliver, String[] receiver, String[] carbonCopy, String subject, String content, boolean isHtml) throws ServiceException &#123;</span><br><span class="line">        long startTimestamp &#x3D; System.currentTimeMillis();</span><br><span class="line">        logger.info(&quot;Start send email ...&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            MimeMessage message &#x3D; mailSender.createMimeMessage();</span><br><span class="line">            MimeMessageHelper messageHelper &#x3D; new MimeMessageHelper(message);</span><br><span class="line"></span><br><span class="line">            messageHelper.setFrom(deliver);</span><br><span class="line">            messageHelper.setTo(receiver);</span><br><span class="line">            messageHelper.setCc(carbonCopy);</span><br><span class="line">            messageHelper.setSubject(subject);</span><br><span class="line">            messageHelper.setText(content, isHtml);</span><br><span class="line"></span><br><span class="line">            mailSender.send(message);</span><br><span class="line">            logger.info(&quot;Send email success, cost &#123;&#125; million seconds&quot;, System.currentTimeMillis() - startTimestamp);</span><br><span class="line">        &#125; catch (MessagingException e) &#123;</span><br><span class="line">            logger.error(&quot;Send email failed, error message is &#123;&#125; \n&quot;, e.getMessage());</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            throw new ServiceException(e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>发送 HTML 邮件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void sendHtmlEmail() &#123;</span><br><span class="line">    String deliver &#x3D; &quot;你的邮件地址&quot;;</span><br><span class="line">    String[] receiver &#x3D; &#123;&quot;接收者邮件地址&quot;&#125;;</span><br><span class="line">    String[] carbonCopy &#x3D; &#123;&quot;抄送者邮件地址&quot;&#125;;</span><br><span class="line">    String subject &#x3D; &quot;This is a HTML content email&quot;;</span><br><span class="line">    String content &#x3D; &quot;&lt;h1&gt;This is HTML content email &lt;&#x2F;h1&gt;&quot;;</span><br><span class="line">    </span><br><span class="line">    boolean isHtml &#x3D; true;</span><br><span class="line">    try &#123;</span><br><span class="line">        mailUtil.sendHtmlEmail(deliver, receiver, carbonCopy, subject, content, isHtml);</span><br><span class="line">    &#125; catch (ServiceException e) &#123;</span><br><span class="line">        assertFalse(&quot;Send HTML content email failed&quot;, true);</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="发送带附件的邮件"><a href="#发送带附件的邮件" class="headerlink" title="发送带附件的邮件"></a>发送带附件的邮件</h2><ul>
+<li>MailUtil.java</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.mail.javamail.JavaMailSender;</span><br><span class="line">import org.springframework.mail.javamail.MimeMessageHelper;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line">import javax.mail.MessagingException;</span><br><span class="line">import javax.mail.internet.MimeMessage;</span><br><span class="line">import java.io.File;</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">public class MailUtil &#123;</span><br><span class="line"></span><br><span class="line">    private final Logger logger &#x3D; LoggerFactory.getLogger(getClass());</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    JavaMailSender mailSender;</span><br><span class="line"></span><br><span class="line">    public void sendAttachmentFileEmail(String deliver, String[] receiver, String[] carbonCopy, String subject, String content, boolean isHtml, String fileName, File file) throws ServiceException &#123;</span><br><span class="line">        long startTimestamp &#x3D; System.currentTimeMillis();</span><br><span class="line">        logger.info(&quot;Start send mail ...&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            MimeMessage message &#x3D; mailSender.createMimeMessage();</span><br><span class="line">            MimeMessageHelper messageHelper &#x3D; new MimeMessageHelper(message, true);</span><br><span class="line"></span><br><span class="line">            messageHelper.setFrom(deliver);</span><br><span class="line">            messageHelper.setTo(receiver);</span><br><span class="line">            messageHelper.setCc(carbonCopy);</span><br><span class="line">            messageHelper.setSubject(subject);</span><br><span class="line">            messageHelper.setText(content, isHtml);</span><br><span class="line">            messageHelper.addAttachment(fileName, file);</span><br><span class="line"></span><br><span class="line">            mailSender.send(message);</span><br><span class="line">            logger.info(&quot;Send mail success, cost &#123;&#125; million seconds&quot;, System.currentTimeMillis() - startTimestamp);</span><br><span class="line">        &#125; catch (MessagingException e) &#123;</span><br><span class="line">            logger.error(&quot;Send mail failed, error message is &#123;&#125;\n&quot;, e.getMessage());</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            throw new ServiceException(e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>发送带附件的邮件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void sendAttachmentFileEmail() &#123;</span><br><span class="line">    String FILE_PATH &#x3D; &quot;文件地址&quot;;</span><br><span class="line">    String deliver &#x3D; &quot;你的邮件地址&quot;;</span><br><span class="line">    String[] receiver &#x3D; &#123;&quot;接收者邮件地址&quot;&#125;;</span><br><span class="line">    String[] carbonCopy &#x3D; &#123;&quot;抄送者邮件地址&quot;&#125;;    </span><br><span class="line">    String subject &#x3D; &quot;This is an attachment file email&quot;;</span><br><span class="line">    String content &#x3D; &quot;&lt;h2&gt;This is an attachment file email&lt;&#x2F;h2&gt;&quot;;</span><br><span class="line">    boolean isHtml &#x3D; true;</span><br><span class="line"></span><br><span class="line">    File file &#x3D; new File(FILE_PATH);</span><br><span class="line">    String fileName &#x3D; FILE_PATH.substring(FILE_PATH.lastIndexOf(File.separator));</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">        mailUtil.sendAttachmentFileEmail(deliver, receiver, carbonCopy, subject, content, isHtml, fileName, file);</span><br><span class="line">    &#125; catch (ServiceException e) &#123;</span><br><span class="line">        assertFalse(&quot;Send attachment file email failed&quot;, true);</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="发送模板邮件"><a href="#发送模板邮件" class="headerlink" title="发送模板邮件"></a>发送模板邮件</h2><blockquote>
+<p>使用 Thymeleaf 作为模板</p>
+</blockquote>
+<ul>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compile(&#39;org.springframework.boot:spring-boot-starter-thymeleaf&#39;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>邮件模板(<code>InternalServerErrorTemplate.html</code>)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang&#x3D;&quot;en&quot; xmlns:th&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;1999&#x2F;xhtml&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;Hello World&lt;&#x2F;title&gt;</span><br><span class="line">    &lt;meta charset&#x3D;&quot;utf-8&quot;&#x2F;&gt;</span><br><span class="line">    &lt;meta name&#x3D;&quot;viewport&quot; content&#x3D;&quot;width&#x3D;device-width, initial-scale&#x3D;1, shrink-to-fit&#x3D;no&quot;&#x2F;&gt;</span><br><span class="line">    &lt;link rel&#x3D;&quot;stylesheet&quot; href&#x3D;&quot;https:&#x2F;&#x2F;cdn.bootcss.com&#x2F;bootstrap&#x2F;4.0.0-beta.2&#x2F;css&#x2F;bootstrap.min.css&quot;</span><br><span class="line">          th:href&#x3D;&quot;@&#123;https:&#x2F;&#x2F;cdn.bootcss.com&#x2F;bootstrap&#x2F;4.0.0-beta.2&#x2F;css&#x2F;bootstrap.min.css&#125;&quot;&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;style type&#x3D;&quot;text&#x2F;css&quot;&gt;</span><br><span class="line">    .full-screen &#123;</span><br><span class="line">        height: fit-content;</span><br><span class="line">        width: fit-content;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    .fixed-page &#123;</span><br><span class="line">        overflow-x: scroll;</span><br><span class="line">        overflow-y: scroll;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    .container &#123;</span><br><span class="line">        width: 100%;</span><br><span class="line">        padding-right: 15px;</span><br><span class="line">        padding-left: 15px;</span><br><span class="line">        margin-right: auto;</span><br><span class="line">        margin-left: auto</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    .jumbotron &#123;</span><br><span class="line">        padding: 2rem 1rem;</span><br><span class="line">        margin-bottom: 2rem;</span><br><span class="line">        background-color: #e9ecef;</span><br><span class="line">        border-radius: .3rem</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    .jumbotron-fluid &#123;</span><br><span class="line">        padding-right: 0;</span><br><span class="line">        padding-left: 0;</span><br><span class="line">        border-radius: 0</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&lt;&#x2F;style&gt;</span><br><span class="line">&lt;body class&#x3D;&quot;fixed-page&quot;&gt;</span><br><span class="line">&lt;table width&#x3D;&quot;100%&quot; border&#x3D;&quot;0&quot; align&#x3D;&quot;center&quot; cellpadding&#x3D;&quot;0&quot; cellspacing&#x3D;&quot;0&quot; bgcolor&#x3D;&quot;#ffffff&quot;</span><br><span class="line">       style&#x3D;&quot;font-family:&#39;Microsoft YaHei&#39;;&quot;&gt;</span><br><span class="line">    &lt;div class&#x3D;&quot;jumbotron jumbotron-fluid full-screen&quot;&gt;</span><br><span class="line">        &lt;div class&#x3D;&quot;container  full-screen&quot;&gt;</span><br><span class="line">            &lt;h3&gt;Hi,</span><br><span class="line">                &lt;span th:text&#x3D;&quot;$&#123;username&#125;&quot;&gt;Developer&lt;&#x2F;span&gt;</span><br><span class="line">            &lt;&#x2F;h3&gt;</span><br><span class="line">            &lt;p&gt;There is an exception occurred in method</span><br><span class="line">                &lt;code style&#x3D;&quot;color: #d57e13;&quot;&gt;&lt;span th:text&#x3D;&quot;$&#123;methodName&#125;&quot;&gt;methodName&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;,</span><br><span class="line">                the error message is :</span><br><span class="line">            &lt;&#x2F;p&gt;</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">            &lt;pre&gt;</span><br><span class="line">                &lt;code style&#x3D;&quot;font-family: &#39;Source Code Pro&#39;;&quot;&gt;</span><br><span class="line">                    &lt;span th:text&#x3D;&quot;$&#123;errorMessage&#125;&quot;&gt;Error Message&lt;&#x2F;span&gt;</span><br><span class="line">                &lt;&#x2F;code&gt;</span><br><span class="line">            &lt;&#x2F;pre&gt;</span><br><span class="line">            &lt;&#x2F;div&gt;</span><br><span class="line">            &lt;span th:text&#x3D;&quot;$&#123;occurredTime&#125;&quot;&gt;occurredTime&lt;&#x2F;span&gt;</span><br><span class="line">        &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line">&lt;&#x2F;table&gt;</span><br><span class="line">&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>MailUtil.java</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.mail.javamail.JavaMailSender;</span><br><span class="line">import org.springframework.mail.javamail.MimeMessageHelper;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">import org.thymeleaf.TemplateEngine;</span><br><span class="line">import org.thymeleaf.context.Context;</span><br><span class="line"></span><br><span class="line">import javax.mail.MessagingException;</span><br><span class="line">import javax.mail.internet.MimeMessage;</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">public class MailUtil &#123;</span><br><span class="line"></span><br><span class="line">    private final Logger logger &#x3D; LoggerFactory.getLogger(getClass());</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    JavaMailSender mailSender;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    TemplateEngine templateEngine;</span><br><span class="line"></span><br><span class="line">    public void sendTemplateEmail(String deliver, String[] receiver, String[] carbonCopy, String subject, String template, Context context) throws ServiceException &#123;</span><br><span class="line">        long startTimestamp &#x3D; System.currentTimeMillis();</span><br><span class="line">        logger.info(&quot;Start send mail ...&quot;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            MimeMessage message &#x3D; mailSender.createMimeMessage();</span><br><span class="line">            MimeMessageHelper messageHelper &#x3D; new MimeMessageHelper(message);</span><br><span class="line"></span><br><span class="line">            String content &#x3D; templateEngine.process(template, context);</span><br><span class="line">            messageHelper.setFrom(deliver);</span><br><span class="line">            messageHelper.setTo(receiver);</span><br><span class="line">            messageHelper.setCc(carbonCopy);</span><br><span class="line">            messageHelper.setSubject(subject);</span><br><span class="line">            messageHelper.setText(content, true);</span><br><span class="line"></span><br><span class="line">            mailSender.send(message);</span><br><span class="line">            logger.info(&quot;Send mail success, cost &#123;&#125; million seconds&quot;, System.currentTimeMillis() - startTimestamp);</span><br><span class="line">        &#125; catch (MessagingException e) &#123;</span><br><span class="line">            logger.error(&quot;Send mail failed, error message is &#123;&#125; \n&quot;, e.getMessage());</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            throw new ServiceException(e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>发送模板邮件 </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void sendTemplateEmail() &#123;</span><br><span class="line">    String deliver &#x3D; &quot;你的邮件地址&quot;;</span><br><span class="line">    String[] receiver &#x3D; &#123;&quot;接收者邮件地址&quot;&#125;;</span><br><span class="line">    String[] carbonCopy &#x3D; &#123;&quot;抄送者邮件地址&quot;&#125;;</span><br><span class="line">    String template &#x3D; &quot;mail&#x2F;InternalServerErrorTemplate&quot;;</span><br><span class="line">    String subject &#x3D; &quot;This is a template email&quot;;</span><br><span class="line">    Context context &#x3D; new Context();</span><br><span class="line">    String errorMessage;</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">        throw new NullPointerException();</span><br><span class="line">    &#125; catch (NullPointerException e) &#123;</span><br><span class="line">        Writer writer &#x3D; new StringWriter();</span><br><span class="line">        PrintWriter printWriter &#x3D; new PrintWriter(writer);</span><br><span class="line">        e.printStackTrace(printWriter);</span><br><span class="line">        errorMessage &#x3D; writer.toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    context.setVariable(&quot;username&quot;, &quot;HelloWood&quot;);</span><br><span class="line">    context.setVariable(&quot;methodName&quot;, &quot;cn.com.hellowood.mail.MailUtilTests.sendTemplateEmail()&quot;);</span><br><span class="line">    context.setVariable(&quot;errorMessage&quot;, errorMessage);</span><br><span class="line">    context.setVariable(&quot;occurredTime&quot;, new Date());</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">        mailUtil.sendTemplateEmail(deliver, receiver, carbonCopy, subject, template, context);</span><br><span class="line">    &#125; catch (ServiceException e) &#123;</span><br><span class="line">        assertFalse(&quot;Send template email failed&quot;, true);</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Mail" >
+    <span class="tag-code">Mail</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2017/12/31/Spring-Boot-MyBatis-%E5%8A%A8%E6%80%81%E6%95%B0%E6%8D%AE%E6%BA%90%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Boot MyBatis 动态数据源常见问题和解决方法
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2017/12/31/Spring-Boot-Mail-Could-not-connect-to-SMTP-host/">
+        
+          Spring Boot Mail Could not connect to SMTP host
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0-Spring-Mail-%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">添加 Spring Mail 依赖</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-nav-text">添加配置文件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%91%E9%80%81%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6"><span class="toc-nav-text">发送简单邮件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%91%E9%80%81-HTML-%E5%86%85%E5%AE%B9%E7%9A%84%E9%82%AE%E4%BB%B6"><span class="toc-nav-text">发送 HTML 内容的邮件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%91%E9%80%81%E5%B8%A6%E9%99%84%E4%BB%B6%E7%9A%84%E9%82%AE%E4%BB%B6"><span class="toc-nav-text">发送带附件的邮件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%91%E9%80%81%E6%A8%A1%E6%9D%BF%E9%82%AE%E4%BB%B6"><span class="toc-nav-text">发送模板邮件</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2017/12/31/Spring-Boot-发送邮件/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Spring Boot 发送邮件",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

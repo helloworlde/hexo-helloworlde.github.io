@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      MyBatis 中使用 Collection 嵌套查询 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>MyBatis 中使用 Collection 嵌套查询</h2>
+  <p class="post-date">2018-01-01</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><blockquote>
+<p>当使用 MyBatis 进行查询的时候如果一个 JavaBean 中包含另一个 JavaBean 或者 Collection 时，可以通过 MyBatis 的嵌套查询来获取需要的结果;<br>以下以用户登录时的角色和菜单直接的关系为例使用嵌套查询</p>
+</blockquote>
+<hr>
+<h2 id="JavaBean"><a href="#JavaBean" class="headerlink" title="JavaBean"></a>JavaBean</h2><ul>
+<li><p>RoleModel</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public class RoleModel &#123;</span><br><span class="line">    private Integer id;</span><br><span class="line">    private String name;</span><br><span class="line">    private Boolean isActive;</span><br><span class="line">    private String description;</span><br><span class="line">    private Date lastUpdateTime;</span><br><span class="line">    private List&lt;MenuModel&gt; menus;</span><br><span class="line">    ···</span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure></li>
+<li><p>MenuModel</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class MenuModel &#123;</span><br><span class="line">    private Integer id;</span><br><span class="line">    private String value;</span><br><span class="line">    private String displayValue;</span><br><span class="line">    private String url;</span><br><span class="line">    private Integer category;</span><br><span class="line">    private String description;</span><br><span class="line">    private Boolean isActive;</span><br><span class="line">    private Date lastUpdateTime;</span><br><span class="line">    </span><br><span class="line">    ···</span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="表"><a href="#表" class="headerlink" title="表"></a>表</h2><ul>
+<li>Role</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE role (</span><br><span class="line">  id               INT         NOT NULL AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">  name             VARCHAR(50) NOT NULL UNIQUE,</span><br><span class="line">  description      VARCHAR(100),</span><br><span class="line">  is_active        BOOLEAN     NOT NULL DEFAULT TRUE,</span><br><span class="line">  last_update_time TIMESTAMP            DEFAULT current_timestamp ON UPDATE current_timestamp</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">INSERT INTO role (name, description, is_active, last_update_time)</span><br><span class="line">VALUES (&#39;ROLE_ADMIN&#39;, &#39;Administrator&#39;, TRUE, current_timestamp);</span><br><span class="line">INSERT INTO role (name, description, is_active, last_update_time)</span><br><span class="line">VALUES (&#39;ROLE_USER&#39;, &#39;User&#39;, TRUE, current_timestamp);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Menu<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE menu (</span><br><span class="line">  id               INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">  value            VARCHAR(100) NOT NULL,</span><br><span class="line">  display_value    VARCHAR(100) NOT NULL,</span><br><span class="line">  url              VARCHAR(100) NOT NULL,</span><br><span class="line">  category         INT,</span><br><span class="line">  description      VARCHAR(100),</span><br><span class="line">  is_active        BOOLEAN      NOT NULL DEFAULT TRUE,</span><br><span class="line">  last_update_time TIMESTAMP             DEFAULT current_timestamp ON UPDATE current_timestamp</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">INSERT INTO menu (value, display_value, url, description, is_active, last_update_time)</span><br><span class="line">VALUES (&#39;&#x2F;admin&#x2F;dashboard&#39;, &#39;Admin Dashboard&#39;, &#39;&#x2F;admin&#x2F;dashboard&#39;, &#39;Admin Dashboard&#39;, TRUE, current_timestamp);</span><br><span class="line"></span><br><span class="line">INSERT INTO menu (value, display_value, url, description, is_active, last_update_time)</span><br><span class="line">VALUES (&#39;&#x2F;admin&#x2F;profile&#39;, &#39;Admin Profile&#39;, &#39;&#x2F;admin&#x2F;profile&#39;, &#39;Admin Profile&#39;, TRUE, current_timestamp);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">INSERT INTO menu (value, display_value, url, description, is_active, last_update_time)</span><br><span class="line">VALUES (&#39;&#x2F;user&#x2F;dashboard&#39;, &#39;User Dashboard&#39;, &#39;&#x2F;user&#x2F;dashboard&#39;, &#39;User Dashboard&#39;, TRUE, current_timestamp);</span><br><span class="line"></span><br><span class="line">INSERT INTO menu (value, display_value, url, description, is_active, last_update_time)</span><br><span class="line">VALUES (&#39;&#x2F;user&#x2F;profile&#39;, &#39;User Profile&#39;, &#39;&#x2F;user&#x2F;profile&#39;, &#39;User Profile&#39;, TRUE, current_timestamp);</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li>RoleMenuXref<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE role_menu_xref (</span><br><span class="line">  id               INT NOT NULL AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">  role_id          INT NOT NULL,</span><br><span class="line">  menu_id          INT NOT NULL,</span><br><span class="line">  last_update_time TIMESTAMP    DEFAULT current_timestamp ON UPDATE current_timestamp,</span><br><span class="line">  CONSTRAINT FOREIGN KEY fk_role_menu_xref_role_id (role_id) REFERENCES role (id),</span><br><span class="line">  CONSTRAINT FOREIGN KEY fk_role_menu_xref_menu_id(menu_id) REFERENCES menu (id),</span><br><span class="line">  CONSTRAINT UNIQUE (role_id, menu_id)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">INSERT role_menu_xref (role_id, menu_id, last_update_time)</span><br><span class="line">VALUES (1, 1, current_timestamp);</span><br><span class="line"></span><br><span class="line">INSERT role_menu_xref (role_id, menu_id, last_update_time)</span><br><span class="line">VALUES (1, 2, current_timestamp);</span><br><span class="line"></span><br><span class="line">INSERT role_menu_xref (role_id, menu_id, last_update_time)</span><br><span class="line">VALUES (2, 3, current_timestamp);</span><br><span class="line"></span><br><span class="line">INSERT role_menu_xref (role_id, menu_id, last_update_time)</span><br><span class="line">VALUES (2, 4, current_timestamp);</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h2 id="Collection-一个查询调用另一个查询实现的嵌套"><a href="#Collection-一个查询调用另一个查询实现的嵌套" class="headerlink" title="Collection 一个查询调用另一个查询实现的嵌套"></a>Collection 一个查询调用另一个查询实现的嵌套</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">    &lt;resultMap id&#x3D;&quot;BaseRoleResultMap&quot; type&#x3D;&quot;cn.com.hellowood.springsecurity.model.RoleModel&quot;&gt;</span><br><span class="line">    &lt;id column&#x3D;&quot;id&quot; property&#x3D;&quot;id&quot; jdbcType&#x3D;&quot;INTEGER&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;name&quot; property&#x3D;&quot;name&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;is_active&quot; property&#x3D;&quot;isActive&quot; jdbcType&#x3D;&quot;BOOLEAN&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;description&quot; property&#x3D;&quot;description&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;last_update_time&quot; property&#x3D;&quot;lastUpdateTime&quot; jdbcType&#x3D;&quot;TIMESTAMP&quot;&#x2F;&gt;</span><br><span class="line">    &lt;collection property&#x3D;&quot;menus&quot; ofType&#x3D;&quot;cn.com.hellowood.springsecurity.model.menus&quot;</span><br><span class="line">                javaType&#x3D;&quot;java.util.ArrayList&quot; select&#x3D;&quot;getMenus&quot;</span><br><span class="line">                column&#x3D;&quot;id&quot;&gt;</span><br><span class="line">    &lt;&#x2F;collection&gt;</span><br><span class="line">&lt;&#x2F;resultMap&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;resultMap id&#x3D;&quot;BaseMenuResultMap&quot; type&#x3D;&quot;cn.com.hellowood.springsecurity.model.MenuModel&quot;&gt;</span><br><span class="line">    &lt;id column&#x3D;&quot;id&quot; property&#x3D;&quot;id&quot; jdbcType&#x3D;&quot;INTEGER&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;value&quot; property&#x3D;&quot;value&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;display_value&quot; property&#x3D;&quot;displayValue&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;url&quot; property&#x3D;&quot;url&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;category&quot; property&#x3D;&quot;category&quot; jdbcType&#x3D;&quot;INTEGER&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;description&quot; property&#x3D;&quot;description&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;is_active&quot; property&#x3D;&quot;isActive&quot; jdbcType&#x3D;&quot;BIT&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;last_update_time&quot; property&#x3D;&quot;lastUpdateTime&quot; jdbcType&#x3D;&quot;TIMESTAMP&quot;&#x2F;&gt;</span><br><span class="line">&lt;&#x2F;resultMap&gt;</span><br><span class="line"></span><br><span class="line">&lt;select id&#x3D;&quot;getRoles&quot; parameterType&#x3D;&quot;java.lang.Integer&quot; resultMap&#x3D;&quot;BaseRoleResultMap&quot;&gt;</span><br><span class="line">    SELECT</span><br><span class="line">        id,</span><br><span class="line">        name,</span><br><span class="line">        is_active,</span><br><span class="line">        description,</span><br><span class="line">        last_update_time</span><br><span class="line">    FROM role</span><br><span class="line">&lt;&#x2F;select&gt;</span><br><span class="line"></span><br><span class="line">&lt;select id&#x3D;&quot;getMenus&quot; parameterType&#x3D;&quot;java.lang.Integer&quot; resultMap&#x3D;&quot;BaseMenuResultMap&quot;&gt;</span><br><span class="line">    SELECT</span><br><span class="line">        m.id,</span><br><span class="line">        m.value,</span><br><span class="line">        m.display_value,</span><br><span class="line">        m.url,</span><br><span class="line">        m.category,</span><br><span class="line">        m.description,</span><br><span class="line">        m.is_active,</span><br><span class="line">        m.last_update_time</span><br><span class="line">    FROM menu m</span><br><span class="line">        LEFT JOIN</span><br><span class="line">        role_menu_xref rmx</span><br><span class="line">            ON m.id &#x3D; rmx.menu_id</span><br><span class="line">    WHERE role_id &#x3D; #&#123;roleId, jdbcType&#x3D;INTEGER&#125;</span><br><span class="line">&lt;&#x2F;select&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>此时，调用 <code>getRoles()</code> 方法就可以通过嵌套查询同时查找 Role 属性了</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;collection property&#x3D;&quot;menus&quot; ofType&#x3D;&quot;cn.com.hellowood.springsecurity.model.menus&quot;</span><br><span class="line">            javaType&#x3D;&quot;java.util.ArrayList&quot; select&#x3D;&quot;getMenus&quot;</span><br><span class="line">            column&#x3D;&quot;id&quot;&gt;</span><br><span class="line">&lt;&#x2F;collection&gt;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li>collection : 一个复杂的类型关联，许多结果将映射为这种类型</li>
+<li>property : 这是关联的 JavaBean 中的属性名， 在 RoleModel 中对应 <code>private List&lt;MenuModel&gt; menus;</code></li>
+<li>javaType : property 属性对应的集合类型</li>
+<li>ofType : property 集合中的泛型，在 RoleModel 中是 MenuModel</li>
+<li>column : RoleModel 的 id ，作为参数传入被调用的 Select 语句</li>
+<li>select : 另外一个映射语句的 ID</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="Collection-同一个查询映射到属性的嵌套"><a href="#Collection-同一个查询映射到属性的嵌套" class="headerlink" title="Collection 同一个查询映射到属性的嵌套"></a>Collection 同一个查询映射到属性的嵌套</h2><blockquote>
+<p>如果再一个查询中可以直接查询到所需要的数据，但是需要映射到该对象的属性上，则可以使用该方式</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">&lt;resultMap id&#x3D;&quot;BaseRoleResultMap&quot; type&#x3D;&quot;cn.com.hellowood.springsecurity.model.RoleModel&quot;&gt;</span><br><span class="line">    &lt;id column&#x3D;&quot;id&quot; property&#x3D;&quot;id&quot; jdbcType&#x3D;&quot;INTEGER&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;name&quot; property&#x3D;&quot;name&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;is_active&quot; property&#x3D;&quot;isActive&quot; jdbcType&#x3D;&quot;BOOLEAN&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;description&quot; property&#x3D;&quot;description&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">    &lt;result column&#x3D;&quot;last_update_time&quot; property&#x3D;&quot;lastUpdateTime&quot; jdbcType&#x3D;&quot;TIMESTAMP&quot;&#x2F;&gt;</span><br><span class="line">    &lt;collection property&#x3D;&quot;menus&quot; ofType&#x3D;&quot;cn.com.hellowood.springsecurity.model.MenuModel&quot;</span><br><span class="line">                javaType&#x3D;&quot;java.util.ArrayList&quot;&gt;</span><br><span class="line">        &lt;id column&#x3D;&quot;id&quot; property&#x3D;&quot;id&quot; jdbcType&#x3D;&quot;INTEGER&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;value&quot; property&#x3D;&quot;value&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;display_value&quot; property&#x3D;&quot;displayValue&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;url&quot; property&#x3D;&quot;url&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;category&quot; property&#x3D;&quot;category&quot; jdbcType&#x3D;&quot;INTEGER&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;description&quot; property&#x3D;&quot;description&quot; jdbcType&#x3D;&quot;VARCHAR&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;is_active&quot; property&#x3D;&quot;isActive&quot; jdbcType&#x3D;&quot;BIT&quot;&#x2F;&gt;</span><br><span class="line">        &lt;result column&#x3D;&quot;last_update_time&quot; property&#x3D;&quot;lastUpdateTime&quot; jdbcType&#x3D;&quot;TIMESTAMP&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;collection&gt;</span><br><span class="line">&lt;&#x2F;resultMap&gt;</span><br><span class="line"></span><br><span class="line">&lt;select id&#x3D;&quot;getRoles&quot; parameterType&#x3D;&quot;java.lang.Integer&quot; resultMap&#x3D;&quot;BaseRoleResultMap&quot;&gt;</span><br><span class="line">    SELECT</span><br><span class="line">        r.id,</span><br><span class="line">        r.name,</span><br><span class="line">        r.description,</span><br><span class="line">        r.is_active,</span><br><span class="line">        r.last_update_time,</span><br><span class="line">        m.id,</span><br><span class="line">        m.value,</span><br><span class="line">        m.display_value,</span><br><span class="line">        m.url,</span><br><span class="line">        m.category,</span><br><span class="line">        m.description,</span><br><span class="line">        m.is_active,</span><br><span class="line">        m.last_update_time</span><br><span class="line">    FROM role r</span><br><span class="line">        LEFT JOIN role_menu_xref rmx</span><br><span class="line">            ON r.id &#x3D; rmx.role_id</span><br><span class="line">        LEFT JOIN menu m</span><br><span class="line">            ON m.id &#x3D; rmx.menu_id</span><br><span class="line">    WHERE r.id &#x3D; #&#123;roleId,jdbcType&#x3D;INTEGER&#125;</span><br><span class="line">&lt;&#x2F;select&gt;</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#MyBatis" >
+    <span class="tag-code">MyBatis</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/01/Spring-Security-%E7%9A%84-Remember-Me-%E8%AE%B0%E4%BD%8F%E5%AF%86%E7%A0%81%E5%8A%9F%E8%83%BD%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">
+        <span class="nav-arrow">← </span>
+        
+          在使用 Spring Security 的 Remember Me 记住密码功能时遇到的问题和解决方法
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/01/MyBatis-%E4%B8%AD%E4%BD%BF%E7%94%A8-Association-%E5%B5%8C%E5%A5%97%E6%9F%A5%E8%AF%A2/">
+        
+          MyBatis 中使用 Association 嵌套查询
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#JavaBean"><span class="toc-nav-text">JavaBean</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%A1%A8"><span class="toc-nav-text">表</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Collection-%E4%B8%80%E4%B8%AA%E6%9F%A5%E8%AF%A2%E8%B0%83%E7%94%A8%E5%8F%A6%E4%B8%80%E4%B8%AA%E6%9F%A5%E8%AF%A2%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%B5%8C%E5%A5%97"><span class="toc-nav-text">Collection 一个查询调用另一个查询实现的嵌套</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Collection-%E5%90%8C%E4%B8%80%E4%B8%AA%E6%9F%A5%E8%AF%A2%E6%98%A0%E5%B0%84%E5%88%B0%E5%B1%9E%E6%80%A7%E7%9A%84%E5%B5%8C%E5%A5%97"><span class="toc-nav-text">Collection 同一个查询映射到属性的嵌套</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/01/MyBatis-中使用-Collection-嵌套查询/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "MyBatis 中使用 Collection 嵌套查询",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

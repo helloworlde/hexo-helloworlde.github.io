@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link active">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link mobile-active">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <main class="app-body">
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/12/31/SpringBoot-%E4%BD%BF%E7%94%A8-MySQL%E4%BF%9D%E5%AD%98emoji-%E8%A1%A8%E6%83%85/">SpringBoot 使用 MySQL保存emoji 表情</a>
+      </h2>
+      <p class="article-date">December 31, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#MySQL" >
+    <span class="tag-code">MySQL</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          SpringBoot 使用 MySQL保存emoji 表情
+在使用 SpringBoot 开发的应用中，有表单提交的内容中含有 emoji 表情，导致保存失败；这是因为MySQL 默认的 utf8 长度为3位，emoji 表情有4位
+
+
+更改表的字符集为utf8mb4
+
+1ALTER TAB ...
+        
+      </div>
+      <a class="more" href="/2018/12/31/SpringBoot-%E4%BD%BF%E7%94%A8-MySQL%E4%BF%9D%E5%AD%98emoji-%E8%A1%A8%E6%83%85/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/12/31/Spring-Boot-%E9%85%8D%E7%BD%AE-HTTPS-%E8%AE%BF%E9%97%AE/">Spring Boot 配置 HTTPS 访问</a>
+      </h2>
+      <p class="article-date">December 31, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Spring Boot 配置 HTTPS 访问
+相关代码
+
+生成证书
+创建新证书
+
+123456789101112131415161718keytool -genkeypair -alias hellowood -keyalg RSA -keysize 2048 -storetype PKC ...
+        
+      </div>
+      <a class="more" href="/2018/12/31/Spring-Boot-%E9%85%8D%E7%BD%AE-HTTPS-%E8%AE%BF%E9%97%AE/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/12/24/SpringBoot-%E4%B8%AD-Spring-Security-403-%E8%87%AA%E5%AE%9A%E4%B9%89%E8%BF%94%E5%9B%9E%E6%B6%88%E6%81%AF/">SpringBoot 中 Spring Security 403 自定义返回消息</a>
+      </h2>
+      <p class="article-date">December 24, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#SpringSecurity" >
+    <span class="tag-code">SpringSecurity</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          SpringBoot 中 Spring Security 403 自定义返回消息
+自定义处理类 CustomAccessDeniedHandler 
+
+1234567891011121314151617181920212223242526272829303132333435363738394 ...
+        
+      </div>
+      <a class="more" href="/2018/12/24/SpringBoot-%E4%B8%AD-Spring-Security-403-%E8%87%AA%E5%AE%9A%E4%B9%89%E8%BF%94%E5%9B%9E%E6%B6%88%E6%81%AF/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/10/23/Kubernetes-%E9%85%8D%E7%BD%AE-kubeconfig-%E8%AE%BF%E9%97%AE%E5%A4%9A%E4%B8%AA%E9%9B%86%E7%BE%A4/">Kubernetes 配置 kubeconfig 访问多个集群</a>
+      </h2>
+      <p class="article-date">October 23, 2018</p>
+      
+        
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Kubernetes 配置 kubeconfig 访问多个集群
+如果有多个不同的集群，需要切换访问，就需要配置多个 Kubernetes 账号和 Context；集群的 KubeConfig 文件一般为~/.kube/config，默认只能访问一个集群，如果需要访问多个集群就需要修改这个文件 ...
+        
+      </div>
+      <a class="more" href="/2018/10/23/Kubernetes-%E9%85%8D%E7%BD%AE-kubeconfig-%E8%AE%BF%E9%97%AE%E5%A4%9A%E4%B8%AA%E9%9B%86%E7%BE%A4/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/10/22/Kubernetes-%E4%B8%AD%E9%83%A8%E7%BD%B2-SpringBoot-%E5%BA%94%E7%94%A8/">Kubernetes 中部署 SpringBoot 应用 </a>
+      </h2>
+      <p class="article-date">October 22, 2018</p>
+      
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Kubernetes" >
+    <span class="tag-code">Kubernetes</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Kubernetes 中部署 SpringBoot 应用
+在 Kubernetes 中通过yaml 配置文件预先声明部署 SpringBoot 应用
+
+
+代码地址 https://github.com/helloworlde/k8s-service
+
+创建 SpringBoot 应用
+创建名 ...
+        
+      </div>
+      <a class="more" href="/2018/10/22/Kubernetes-%E4%B8%AD%E9%83%A8%E7%BD%B2-SpringBoot-%E5%BA%94%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/10/21/Ubuntu-%E6%90%AD%E5%BB%BA-ShadowSocks-%E6%9C%8D%E5%8A%A1/">Ubuntu 搭建 ShadowSocks 服务</a>
+      </h2>
+      <p class="article-date">October 21, 2018</p>
+      
+        
+  <a href="/tags#Ubuntu" >
+    <span class="tag-code">Ubuntu</span>
+  </a>
+
+  <a href="/tags#Tool" >
+    <span class="tag-code">Tool</span>
+  </a>
+
+  <a href="/tags#ShadowSocks" >
+    <span class="tag-code">ShadowSocks</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Ubuntu 搭建 ShadowSocks 服务
+在 Ubuntu 服务器上通过脚本安装 ShadowSocks 服务
+
+
+来自 https://teddysun.com/342.html
+
+安装
+下载安装脚本 
+
+1wget --no-check-certificate  https:&# ...
+        
+      </div>
+      <a class="more" href="/2018/10/21/Ubuntu-%E6%90%AD%E5%BB%BA-ShadowSocks-%E6%9C%8D%E5%8A%A1/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/10/13/Mac-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%BF%E9%97%AE-Dropbox/">Mac 客户端访问 Dropbox</a>
+      </h2>
+      <p class="article-date">October 13, 2018</p>
+      
+        
+  <a href="/tags#Tool" >
+    <span class="tag-code">Tool</span>
+  </a>
+
+  <a href="/tags#Dropbox" >
+    <span class="tag-code">Dropbox</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Mac 客户端访问 Dropbox
+通过使用 ShadowSocks 的 PAC 代理模式可以访问到 Dropbox 的网页版，但是在 Mac 上下载客户端，打开后却提示无法连接
+
+
+参考文章 https://my.oschina.net/frankies/blog/367659 设置更改H ...
+        
+      </div>
+      <a class="more" href="/2018/10/13/Mac-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%BF%E9%97%AE-Dropbox/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/08/25/Java-%E4%B8%AD%E8%AE%A1%E7%AE%97%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E5%80%BC/">Java 中计算字符串表达式的值</a>
+      </h2>
+      <p class="article-date">August 25, 2018</p>
+      
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Java 中计算字符串表达式的值
+在 Java 中计算字符串数值表达式可以用 javax.script.ScriptEngine#eval(java.lang.String)，通过调用 JavaScript 来计算
+
+123456789101112131415161718import jav ...
+        
+      </div>
+      <a class="more" href="/2018/08/25/Java-%E4%B8%AD%E8%AE%A1%E7%AE%97%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E5%80%BC/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/08/08/Docker-%E5%AE%B9%E5%99%A8%E4%B8%AD%E8%BF%90%E8%A1%8C-Docker-%E5%91%BD%E4%BB%A4/">Docker 容器中运行 Docker 命令</a>
+      </h2>
+      <p class="article-date">August 8, 2018</p>
+      
+        
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Docker 容器中运行 Docker 命令
+在使用 GitLab/Jenkins 等 CI 软件的时候需要使用 Docker 命令来构建镜像，需要在容器中使用 Docker 命令；通过将宿主机的 Docker 共享给容器即可
+
+
+在启动容器时添加以下命令：
+
+123--privileged ...
+        
+      </div>
+      <a class="more" href="/2018/08/08/Docker-%E5%AE%B9%E5%99%A8%E4%B8%AD%E8%BF%90%E8%A1%8C-Docker-%E5%91%BD%E4%BB%A4/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2018/08/01/%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E5%B7%A5%E5%85%B7-Sonarqube-%E6%90%AD%E5%BB%BA%E4%BD%BF%E7%94%A8/">代码质量工具 Sonarqube 搭建使用</a>
+      </h2>
+      <p class="article-date">August 1, 2018</p>
+      
+        
+  <a href="/tags#Tool" >
+    <span class="tag-code">Tool</span>
+  </a>
+
+  <a href="/tags#Sonarqube" >
+    <span class="tag-code">Sonarqube</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          代码质量工具 Sonarqube 搭建使用
+Sonarqube 是一个代码质量管理平台，可以结合不同的测试工具，代码分析工具，持续集成工具等提供代码质量可是化和管理的工具
+
+
+在线工具
+截图
+
+使用启动容器123456docker run -d --name sonarqube \    - ...
+        
+      </div>
+      <a class="more" href="/2018/08/01/%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E5%B7%A5%E5%85%B7-Sonarqube-%E6%90%AD%E5%BB%BA%E4%BD%BF%E7%94%A8/">Read more</a>
+    </article>
+  
+
+  
+    <div class="guide-pager">
+  
+    <a href="/page/5/"><span class="page-arrow">← </span>Prev</a>
+  
+  
+    <a href="/page/7/">Next<span class="page-arrow"> →</span></a>
+  
+</div>
+  
+</main>
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

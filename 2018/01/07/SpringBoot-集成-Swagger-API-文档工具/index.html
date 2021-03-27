@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      SpringBoot 集成 Swagger API 文档工具 | Hexo
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Hexo</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>SpringBoot 集成 Swagger API 文档工具</h2>
+  <p class="post-date">2018-01-07</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Spring-Boot-集成-Swagger-API-文档工具"><a href="#Spring-Boot-集成-Swagger-API-文档工具" class="headerlink" title="Spring Boot 集成 Swagger API 文档工具"></a>Spring Boot 集成 Swagger API 文档工具</h1><ul>
+<li>项目地址：<a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBootCollection/blob/master/SpringBoot-Swagger">https://github.com/helloworlde/SpringBootCollection/blob/master/SpringBoot-Swagger</a></li>
+</ul>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://swagger.io/">Swaager</a> 是一个开源用于设计、撰写、测试 RESTful API 的工具</p>
+</blockquote>
+<h2 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">compile(<span class="string">&#x27;io.springfox:springfox-swagger2:2.7.0&#x27;</span>)</span><br><span class="line">compile(<span class="string">&#x27;io.springfox:springfox-swagger-ui:2.7.0&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置-Swagger"><a href="#配置-Swagger" class="headerlink" title="配置 Swagger"></a>配置 Swagger</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.swagger.configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> springfox.documentation.builders.ApiInfoBuilder;</span><br><span class="line"><span class="keyword">import</span> springfox.documentation.builders.PathSelectors;</span><br><span class="line"><span class="keyword">import</span> springfox.documentation.builders.RequestHandlerSelectors;</span><br><span class="line"><span class="keyword">import</span> springfox.documentation.service.ApiInfo;</span><br><span class="line"><span class="keyword">import</span> springfox.documentation.service.Contact;</span><br><span class="line"><span class="keyword">import</span> springfox.documentation.spi.DocumentationType;</span><br><span class="line"><span class="keyword">import</span> springfox.documentation.spring.web.plugins.Docket;</span><br><span class="line"><span class="keyword">import</span> springfox.documentation.swagger2.annotations.EnableSwagger2;</span><br><span class="line"></span><br><span class="line"><span class="meta">@EnableSwagger2</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Swagger2Configuration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Docket <span class="title">createRestApi</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Docket(DocumentationType.SWAGGER_2)</span><br><span class="line">                .groupName(<span class="string">&quot;HelloWood&quot;</span>)</span><br><span class="line">                .apiInfo(apiInfo())</span><br><span class="line">                .select()</span><br><span class="line">                <span class="comment">// 扫描的包所在位置</span></span><br><span class="line">                .apis(RequestHandlerSelectors.basePackage(<span class="string">&quot;cn.com.hellowood.swagger.controller&quot;</span>))</span><br><span class="line">                <span class="comment">// 扫描的 URL 规则</span></span><br><span class="line">                .paths(PathSelectors.any())</span><br><span class="line">                .build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> ApiInfo <span class="title">apiInfo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 联系信息</span></span><br><span class="line">        Contact contact = <span class="keyword">new</span> Contact(<span class="string">&quot;HelloWood&quot;</span>, <span class="string">&quot;hellowood.com.cn&quot;</span>, <span class="string">&quot;hellowoodes@outlook.com&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ApiInfoBuilder()</span><br><span class="line">                <span class="comment">// 大标题</span></span><br><span class="line">                .title(<span class="string">&quot;Swagger Application&quot;</span>)</span><br><span class="line">                <span class="comment">// 描述</span></span><br><span class="line">                .description(<span class="string">&quot;Swagger Application Demo&quot;</span>)</span><br><span class="line">                <span class="comment">// 服务条款 URL</span></span><br><span class="line">                .termsOfServiceUrl(<span class="string">&quot;http://hellowood.com.cn&quot;</span>)</span><br><span class="line">                .contact(contact)</span><br><span class="line">                <span class="comment">// 版本</span></span><br><span class="line">                .version(<span class="string">&quot;0.0.1-SNAPSHOT&quot;</span>)</span><br><span class="line">                .build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="添加-Model-描述"><a href="#添加-Model-描述" class="headerlink" title="添加 Model 描述"></a>添加 Model 描述</h2><ul>
+<li>Product.java</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.swagger.modal;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> io.swagger.annotations.Api;</span><br><span class="line"><span class="keyword">import</span> io.swagger.annotations.ApiModelProperty;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Api(value = &quot;Product&quot;, description = &quot;商品类&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Product</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1435515995276255188L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiModelProperty(notes = &quot;主键&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiModelProperty(notes = &quot;名称&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiModelProperty(notes = &quot;价格&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> price;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>CommonResponse.java<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.swagger.common;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.swagger.utils.JSONUtil;</span><br><span class="line"><span class="keyword">import</span> io.swagger.annotations.ApiModelProperty;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CommonResponse</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiModelProperty(notes = &quot;状态码&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> code;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiModelProperty(notes = &quot;返回消息&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String message;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiModelProperty(notes = &quot;返回的数据&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Object data;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="添加-API-接口及描述"><a href="#添加-API-接口及描述" class="headerlink" title="添加 API 接口及描述"></a>添加 API 接口及描述</h2><ul>
+<li>ProductController.java<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.com.hellowood.swagger.controller;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.swagger.common.CommonResponse;</span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.swagger.common.ResponseUtil;</span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.swagger.modal.Product;</span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.swagger.service.ProductService;</span><br><span class="line"><span class="keyword">import</span> cn.com.hellowood.swagger.utils.ServiceException;</span><br><span class="line"><span class="keyword">import</span> io.swagger.annotations.*;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 类描述</span></span><br><span class="line"><span class="meta">@Api(value = &quot;商品信息&quot;, tags = &#123;&quot;商品信息API&quot;&#125;, description = &quot;商品信息API接口&quot;)</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/product&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProductController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ProductService productService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiOperation(value = &quot;查询所有商品&quot;, notes = &quot;查询所有的商品信息&quot;, httpMethod = &quot;GET&quot;)</span></span><br><span class="line">    <span class="meta">@ApiResponses(&#123;</span></span><br><span class="line"><span class="meta">            @ApiResponse(code = 200, message = &quot;请求成功&quot;, response = CommonResponse.class),</span></span><br><span class="line"><span class="meta">            @ApiResponse(code = 400, message = &quot;请求参数错误&quot;, response = CommonResponse.class),</span></span><br><span class="line"><span class="meta">            @ApiResponse(code = 401, message = &quot;未授权的访问&quot;, response = CommonResponse.class),</span></span><br><span class="line"><span class="meta">            @ApiResponse(code = 403, message = &quot;拒绝访问&quot;, response = CommonResponse.class),</span></span><br><span class="line"><span class="meta">            @ApiResponse(code = 404, message = &quot;资源不存在&quot;, response = CommonResponse.class),</span></span><br><span class="line"><span class="meta">            @ApiResponse(code = 500, message = &quot;服务器内部错误&quot;, response = CommonResponse.class)</span></span><br><span class="line"><span class="meta">    &#125;)</span></span><br><span class="line">    <span class="meta">@GetMapping</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommonResponse <span class="title">getAllProduct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseUtil.generateResponse(productService.getAllProduct());</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiOperation(value = &quot;通过 ID 查询商品信息&quot;, notes = &quot;通过 ID 查询商品信息&quot;, httpMethod = &quot;GET&quot;, response = CommonResponse.class)</span></span><br><span class="line">    <span class="meta">@ApiImplicitParam(name = &quot;id&quot;, value = &quot; Product ID&quot;, required = true, paramType = &quot;path&quot;, dataType = &quot;Long&quot;)</span></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommonResponse <span class="title">getProduct</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Long productId)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseUtil.generateResponse(productService.select(productId));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiOperation(value = &quot;更新商品信息&quot;, notes = &quot;通过 ID 更新商品信息&quot;, httpMethod = &quot;PUT&quot;, response = CommonResponse.class)</span></span><br><span class="line">    <span class="meta">@ApiImplicitParams(&#123;</span></span><br><span class="line"><span class="meta">            @ApiImplicitParam(name = &quot;id&quot;, value = &quot;商品 ID&quot;, required = true, paramType = &quot;path&quot;, dataType = &quot;Long&quot;),</span></span><br><span class="line"><span class="meta">            @ApiImplicitParam(name = &quot;newProduct&quot;, value = &quot;商品信息对象&quot;, required = true, dataType = &quot;Product&quot;, dataTypeClass = Product.class)</span></span><br><span class="line"><span class="meta">    &#125;)</span></span><br><span class="line">    <span class="meta">@PutMapping(&quot;/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommonResponse <span class="title">updateProduct</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Long productId, <span class="meta">@RequestBody</span> Product newProduct)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseUtil.generateResponse(productService.update(productId, newProduct));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiOperation(value = &quot;删除商品信息&quot;, notes = &quot;通过 ID 删除商品信息&quot;, httpMethod = &quot;DELETE&quot;, response = CommonResponse.class)</span></span><br><span class="line">    <span class="meta">@ApiImplicitParam(name = &quot;id&quot;, value = &quot;商品 ID&quot;, required = true, paramType = &quot;path&quot;, dataType = &quot;Long&quot;)</span></span><br><span class="line">    <span class="meta">@DeleteMapping(&quot;/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommonResponse <span class="title">deleteProduct</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> <span class="keyword">long</span> productId)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseUtil.generateResponse(productService.delete(productId));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@ApiOperation(value = &quot;更新商品信息&quot;, notes = &quot;通过 ID 更新商品信息&quot;, httpMethod = &quot;POST&quot;, response = CommonResponse.class)</span></span><br><span class="line">    <span class="meta">@ApiImplicitParam(name = &quot;newProduct&quot;, value = &quot;商品信息对象&quot;, required = true, dataType = &quot;Product&quot;, dataTypeClass = Product.class)</span></span><br><span class="line">    <span class="meta">@PostMapping</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommonResponse <span class="title">addProduct</span><span class="params">(<span class="meta">@RequestBody</span> Product newProduct)</span> <span class="keyword">throws</span> ServiceException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseUtil.generateResponse(productService.add(newProduct));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="查看及测试-API"><a href="#查看及测试-API" class="headerlink" title="查看及测试 API"></a>查看及测试 API</h2></li>
+</ul>
+<p>启动应用并访问<a href="">http://localhost:8080/swagger-ui.html</a> 即可查看和测试相关 API </p>
+<h2 id="相关注解说明"><a href="#相关注解说明" class="headerlink" title="相关注解说明"></a><a target="_blank" rel="noopener" href="https://github.com/helloworlde/SpringBootCollection/blob/master/SpringBoot-Swagger/Swagger.md">相关注解说明</a></h2></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#SpringBoot" >
+    <span class="tag-code">SpringBoot</span>
+  </a>
+
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+  <a href="/tags#Swagger" >
+    <span class="tag-code">Swagger</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2018/01/07/SpringBoot-%E4%BD%BF%E7%94%A8-Flyway/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Boot 使用 Flyway
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2018/01/07/Swagger-%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3%E8%AF%B4%E6%98%8E/">
+        
+          Swagger 常用注解说明
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Spring-Boot-%E9%9B%86%E6%88%90-Swagger-API-%E6%96%87%E6%A1%A3%E5%B7%A5%E5%85%B7"><span class="toc-nav-text">Spring Boot 集成 Swagger API 文档工具</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">添加依赖</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-Swagger"><span class="toc-nav-text">配置 Swagger</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0-Model-%E6%8F%8F%E8%BF%B0"><span class="toc-nav-text">添加 Model 描述</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0-API-%E6%8E%A5%E5%8F%A3%E5%8F%8A%E6%8F%8F%E8%BF%B0"><span class="toc-nav-text">添加 API 接口及描述</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%8F%8A%E6%B5%8B%E8%AF%95-API"><span class="toc-nav-text">查看及测试 API</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%9B%B8%E5%85%B3%E6%B3%A8%E8%A7%A3%E8%AF%B4%E6%98%8E"><span class="toc-nav-text">相关注解说明</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2018/01/07/SpringBoot-集成-Swagger-API-文档工具/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "yanm1ng";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "SpringBoot 集成 Swagger API 文档工具",
+        owner: "yanm1ng",
+        repo: "yanm1ng.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>
