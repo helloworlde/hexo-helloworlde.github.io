@@ -152,27 +152,6 @@
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2021/03/27/%E4%BD%BF%E7%94%A8%E8%85%BE%E8%AE%AF%E4%BA%91%E7%9A%84Serverless%E9%83%A8%E7%BD%B2%E5%A4%A9%E6%B0%94%E5%BA%94%E7%94%A8/">使用腾讯云的Serverless部署天气应用</a>
-      </h2>
-      <p class="article-date">March 27, 2021</p>
-      
-      <div class="article-summary">
-        
-          使用腾讯云的Serverless部署应用
-使用腾讯云的Serverless服务，部署一个Go编写的天气变化的提醒应用该应用通过定时查询高德地图的天气API，当当前天气或未来几天天气不好时，通过Server酱在微信中进行提醒
-
-构建应用应用使用 go modules开发
-
-go.mod
-
-12 ...
-        
-      </div>
-      <a class="more" href="/2021/03/27/%E4%BD%BF%E7%94%A8%E8%85%BE%E8%AE%AF%E4%BA%91%E7%9A%84Serverless%E9%83%A8%E7%BD%B2%E5%A4%A9%E6%B0%94%E5%BA%94%E7%94%A8/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
         <a href="/2021/02/20/Thrfit-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">Thrfit 客户端请求处理流程</a>
       </h2>
       <p class="article-date">February 20, 2021</p>
@@ -605,6 +584,30 @@ Stream ...
         
       </div>
       <a class="more" href="/2020/12/15/gRPC-Server-%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2020/12/05/gRPC-Server-%E7%AB%AF%E5%85%B3%E9%97%AD%E6%B5%81%E7%A8%8B/">gRPC Server 端关闭流程</a>
+      </h2>
+      <p class="article-date">December 5, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC Server 端关闭流程关闭 Server关闭 Server 可以使用 shutdown 或者 shutdownNow 方法
+shutdown1server.shutdown().awaitTermination(10, TimeUnit.SECONDS);
+
+
+io.grpc.i ...
+        
+      </div>
+      <a class="more" href="/2020/12/05/gRPC-Server-%E7%AB%AF%E5%85%B3%E9%97%AD%E6%B5%81%E7%A8%8B/">Read more</a>
     </article>
   
 
