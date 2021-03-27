@@ -1,11 +1,12 @@
 ---
 title: 使用腾讯云的Serverless部署天气应用
 date: 2019-10-13 18:56:40
+tags:
     - Serverless
     - Go
 categories: 
     - Serverless
-    - Go
+    - Go   
 ---
 
 # 使用腾讯云的Serverless部署应用
