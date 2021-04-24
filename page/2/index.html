@@ -152,6 +152,30 @@
   
     <article class="article-card">
       <h2 class="article-head">
+        <a href="/2020/12/15/gRPC-Server-%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">gRPC Server 端请求处理流程</a>
+      </h2>
+      <p class="article-date">December 15, 2020</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC Server 端请求处理流程[TOC]
+初始化
+创建并启动 ServerTransport
+
+在 Server 启动的时候，最终调用 NettyServer 的 start() 方法，为 ServerBootstrap 添加了 ChannelInitializer，最终，当有新的连 ...
+        
+      </div>
+      <a class="more" href="/2020/12/15/gRPC-Server-%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
         <a href="/2020/12/05/gRPC-Server-%E7%AB%AF%E5%85%B3%E9%97%AD%E6%B5%81%E7%A8%8B/">gRPC Server 端关闭流程</a>
       </h2>
       <p class="article-date">December 5, 2020</p>
@@ -591,30 +615,6 @@ liveness用于检查应用是否存活，当应用组件因故障不健康时 ..
         
       </div>
       <a class="more" href="/2020/09/20/Spring-Boot-2-3-Liveness-%E5%92%8C-Readness-%E6%8E%A5%E5%8F%A3%E4%BD%BF%E7%94%A8/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/SpringBoot-%E6%A1%86%E6%9E%B6%E8%87%AA%E5%B8%A6%E6%8F%92%E4%BB%B6%E6%9E%84%E5%BB%BA-Docker-%E9%95%9C%E5%83%8F/">SpringBoot 框架自带插件构建 Docker 镜像</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
-      
-        
-  <a href="/tags#SpringBoot" >
-    <span class="tag-code">SpringBoot</span>
-  </a>
-
-  <a href="/tags#Docker" >
-    <span class="tag-code">Docker</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          SpringBoot 框架自带插件构建 Docker 镜像Spring Boot 2.3.0 之后支持通过 buildpacks 插件构建 Docker 镜像，原理和执行过程与 Jib 类似，支持 Spring Boot 项目的分层构建，当代码改动后，只需更新代码部分，可以减少构建后 pus ...
-        
-      </div>
-      <a class="more" href="/2020/09/20/SpringBoot-%E6%A1%86%E6%9E%B6%E8%87%AA%E5%B8%A6%E6%8F%92%E4%BB%B6%E6%9E%84%E5%BB%BA-Docker-%E9%95%9C%E5%83%8F/">Read more</a>
     </article>
   
 
