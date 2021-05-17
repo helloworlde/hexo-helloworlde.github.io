@@ -59,14 +59,14 @@ public class Swagger2Configuration {
 
     private ApiInfo apiInfo() {
         // 联系信息
-        Contact contact = new Contact("HelloWood", "hellowood.com.cn", "hellowoodes@outlook.com");
+        Contact contact = new Contact("HelloWood", "helloworlde.github.io", "xxxx@outlook.com");
         return new ApiInfoBuilder()
                 // 大标题
                 .title("Swagger Application")
                 // 描述
                 .description("Swagger Application Demo")
                 // 服务条款 URL
-                .termsOfServiceUrl("http://hellowood.com.cn")
+                .termsOfServiceUrl("helloworlde.github.io")
                 .contact(contact)
                 // 版本
                 .version("0.0.1-SNAPSHOT")
