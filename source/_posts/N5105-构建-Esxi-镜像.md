@@ -18,6 +18,7 @@ N5105 使用的是 Intel i225V 网卡，但是VMWare 官方的 Esxi 镜像里并
 ## 1. 下载所需的镜像和驱动
  
 ### 1.1 申请 Esxi 授权
+
 Esxi 的软件下载脑洞比较清奇，需要先注册申请，填写个人隐私信息如手机号，住址，公司等，等待三五天人工审核通过后就可以下载免费版本；如果没有任何反馈，可以点击申请页下面的 [Contact us](https://www.vmware.com/support/us_support.html) 提工单给 VMWare；
 
 可以在 [VMware vSphere Hypervisor 7.0 Download Center](https://customerconnect.vmware.com/en/downloads/details?downloadGroup=ESXI70U3D&productId=974&rPId=89003) 页面申请 7.0 版本的下载；选择 Offline Bundle 的压缩文件
