@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      N5105 构建 Esxi 镜像 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>N5105 构建 Esxi 镜像</h2>
+  <p class="post-date">2022-08-11</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="N5105-构建-Esxi-镜像"><a href="#N5105-构建-Esxi-镜像" class="headerlink" title="N5105 构建 Esxi 镜像"></a>N5105 构建 Esxi 镜像</h1><p>N5105 使用的是 Intel i225V 网卡，但是VMWare 官方的 Esxi 镜像里并没有该网卡的驱动，安装时会因为没有网卡导致安装失败；另外，因为买了一个国产的光威 NVME 硬盘(千万别买！)，也没有相应的驱动，安装时提示没有硬盘</p>
+<p>经过一番搜索，发现 <a target="_blank" rel="noopener" href="https://sysin.org/blog/vmware-esxi-7-u3e-nuc-usb-nvme/#%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80-313">VMware ESXi 7.0 U3e SLIC 2.6 &amp; Unlocker 集成 Intel NUC 网卡、USB 网卡和 NVMe 驱动 (2022.07 更新)</a> 里面有一个添加了驱动的镜像文件，但是分享链接是百度网盘，下载完的时候我已经单独构建好了，测试可以使用</p>
+<p>考虑到安全问题，想通过官方的镜像添加驱动的方式自行构建镜像；需要用到 Windows 电脑和 PowerShell；手里没有 Windows 电脑的可以用虚拟机或者申请按时付费的云服务器</p>
+<h2 id="1-下载所需的镜像和驱动"><a href="#1-下载所需的镜像和驱动" class="headerlink" title="1. 下载所需的镜像和驱动"></a>1. 下载所需的镜像和驱动</h2><h3 id="1-1-申请-Esxi-授权"><a href="#1-1-申请-Esxi-授权" class="headerlink" title="1.1 申请 Esxi 授权"></a>1.1 申请 Esxi 授权</h3><p>Esxi 的软件下载脑洞比较清奇，需要先注册申请，填写个人隐私信息如手机号，住址，公司等，等待三五天人工审核通过后就可以下载免费版本；如果没有任何反馈，可以点击申请页下面的 <a target="_blank" rel="noopener" href="https://www.vmware.com/support/us_support.html">Contact us</a> 提工单给 VMWare；</p>
+<p>可以在 <a target="_blank" rel="noopener" href="https://customerconnect.vmware.com/en/downloads/details?downloadGroup=ESXI70U3D&productId=974&rPId=89003">VMware vSphere Hypervisor 7.0 Download Center</a> 页面申请 7.0 版本的下载；选择 Offline Bundle 的压缩文件</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-esxi-build-image-esxi-download.png" alt="homelab-esxi-build-image-esxi-download.png"></p>
+<h3 id="1-2-下载-NVME-社区驱动"><a href="#1-2-下载-NVME-社区驱动" class="headerlink" title="1.2 下载 NVME 社区驱动"></a>1.2 下载 NVME 社区驱动</h3><p>从 <a target="_blank" rel="noopener" href="https://flings.vmware.com/community-nvme-driver-for-esxi">Community NVMe Driver for ESXi</a> 下载 NVME 驱动<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-esxi-build-image-nvme-driver.png" alt="homelab-esxi-build-image-nvme-driver.png"></p>
+<h3 id="1-3-下载网卡社区驱动"><a href="#1-3-下载网卡社区驱动" class="headerlink" title="1.3 下载网卡社区驱动"></a>1.3 下载网卡社区驱动</h3><p>从 <a target="_blank" rel="noopener" href="https://flings.vmware.com/community-networking-driver-for-esxi">Community Networking Driver for ESXi</a> 下载网卡驱动，该驱动包含 Intel I225-V 网卡的驱动</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-esxi-build-image-network-driver.png" alt="homelab-esxi-build-image-network-driver.png"></p>
+<h2 id="2-安装-PowerCLI"><a href="#2-安装-PowerCLI" class="headerlink" title="2. 安装 PowerCLI"></a>2. 安装 PowerCLI</h2><p>PowerCLI 需要使用 PowerShell，目前只能在 Windows 平台使用，其他平台 PowerShell  都是 Core 版本，会提示 <code>Exception: The VMware.ImageBuilder module is not currently supported on the Core edition of PowerShell</code></p>
+<p>参考 <a target="_blank" rel="noopener" href="https://developer.vmware.com/powercli/installation-guide">PowerCLI Installation Guide</a>，支持离线和在线的方式进行安装；在线安装比较慢，建议使用魔法；如果没有魔法建议使用离线方式安装</p>
+<h3 id="2-1-在线安装"><a href="#2-1-在线安装" class="headerlink" title="2.1 在线安装"></a>2.1 在线安装</h3><p>在 PowerShell 中运行以下命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Install-Module</span> <span class="literal">-Name</span> VMware.PowerCLI</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-离线安装"><a href="#2-2-离线安装" class="headerlink" title="2.2 离线安装"></a>2.2 离线安装</h3><p>需要下载 PowerCLI，在 <a target="_blank" rel="noopener" href="https://developer.vmware.com/powercli/installation-guide">PowerCLI Installation Guide</a> 的 Offline 下面的链接里可以<a target="_blank" rel="noopener" href="https://developer.vmware.com/docs/15743/">直接下载</a></p>
+<h4 id="2-2-1-查找-Moudle-位置"><a href="#2-2-1-查找-Moudle-位置" class="headerlink" title="2.2.1. 查找 Moudle 位置"></a>2.2.1. 查找 Moudle 位置</h4><p>首先需要查找 PowerShell 的 Module 位置，在 Windows 下通常有多个位置，建议使用  <code>C:\Program Files\WindowsPowerShell\Modules</code>；在 PowerShell 中运行以下命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$env:PSModulePath</span>.split(<span class="string">&quot;;&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>返回结果：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\admin\Documents\WindowsPowerShell\Modules</span><br><span class="line">C:\Program Files\WindowsPowerShell\Modules</span><br><span class="line">C:\Windows\system32\WindowsPowerShell\v1.<span class="number">0</span>\Modules</span><br><span class="line">C:\Program Files (x86)\Windows Kits\<span class="number">10</span>\Microsoft Application Virtualization\Sequencer\AppvPkgConverter</span><br><span class="line">C:\Program Files (x86)\Windows Kits\<span class="number">10</span>\Microsoft Application Virtualization\Sequencer\AppvSequencer</span><br><span class="line">C:\Program Files (x86)\Windows Kits\<span class="number">10</span>\Microsoft Application Virtualization\</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-2-将-PowerCLI-解压到-Module-目录下"><a href="#2-2-2-将-PowerCLI-解压到-Module-目录下" class="headerlink" title="2.2.2. 将 PowerCLI 解压到 Module 目录下"></a>2.2.2. 将 PowerCLI 解压到 Module 目录下</h4><p>注意，要直接解压到 Module 所在的目录，不要在 Module 下单独创建目录，否则可能会提示 ‘在模块<code>VMware.ImageBuilder”中找到“Add-EsxSoftwareDepot”命令，但无法加载该模块</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Expand-Archive</span> <span class="string">&#x27;C:\Users\admin\Downloads\Esxi\VMware-PowerCLI-12.3.0-17860403.zip&#x27;</span>  <span class="literal">-DestinationPath</span> <span class="string">&#x27;C:\Program Files\WindowsPowerShell\Modules&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-3-解锁导入的文件"><a href="#2-2-3-解锁导入的文件" class="headerlink" title="2.2.3. 解锁导入的文件"></a>2.2.3. 解锁导入的文件</h4><p>在 Module 所在的目录下执行解锁</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="string">&#x27;C:\Program Files\WindowsPowerShell\Modules&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">Get-ChildItem</span> * <span class="literal">-Recurse</span> | <span class="built_in">Unblock-File</span></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="2-2-4-检查导入结果"><a href="#2-2-4-检查导入结果" class="headerlink" title="2.2.4. 检查导入结果"></a>2.2.4. 检查导入结果</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Get-Module</span> <span class="literal">-Name</span> VMware.PowerCLI <span class="literal">-ListAvailable</span></span><br></pre></td></tr></table></figure>
+
+<p>执行后返回 PowerCLI 的信息，版本为安装的 12.7，目录为 <code>C:\Program Files\WindowsPowerShell\Modules</code>，说明安装成功</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">    目录: C:\Program Files\WindowsPowerShell\Modules</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ModuleType Version    Name                                ExportedCommands</span><br><span class="line">---------- -------    ----                                ----------------</span><br><span class="line">Manifest   <span class="number">12.7</span>.<span class="number">0</span>.... VMware.PowerCLI</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="3-将驱动添加到镜像文件中"><a href="#3-将驱动添加到镜像文件中" class="headerlink" title="3. 将驱动添加到镜像文件中"></a>3. 将驱动添加到镜像文件中</h2><h3 id="3-1-将压缩文件添加到当前-PowerShell-Session-中"><a href="#3-1-将压缩文件添加到当前-PowerShell-Session-中" class="headerlink" title="3.1 将压缩文件添加到当前 PowerShell Session 中"></a>3.1 将压缩文件添加到当前 PowerShell Session 中</h3><ul>
+<li>添加 Esxi</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Add-EsxSoftwareDepot</span> C:\Users\admin\Downloads\Esxi\VMware<span class="literal">-ESXi</span><span class="literal">-7</span>.<span class="number">0</span>U3d<span class="literal">-19482537</span><span class="literal">-depot</span>.zip</span><br></pre></td></tr></table></figure>
+
+<p>返回结果：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Depot Url</span><br><span class="line">---------</span><br><span class="line">zip:C:\Users\admin\Downloads\Esxi\VMware<span class="literal">-ESXi</span><span class="literal">-7</span>.<span class="number">0</span>U3d<span class="literal">-19482537</span><span class="literal">-depot</span>.zip?index.xml</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li> 添加网卡驱动</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Add-EsxSoftwareDepot</span> C:\Users\admin\Downloads\Esxi\Net<span class="literal">-Community</span><span class="literal">-Driver_1</span>.<span class="number">2.7</span>.<span class="number">0</span><span class="literal">-1vmw</span>.<span class="number">700.1</span>.<span class="number">0.15843807</span>_19480755.zip</span><br></pre></td></tr></table></figure>
+
+<p>返回结果：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Depot Url</span><br><span class="line">---------</span><br><span class="line">zip:C:\Users\admin\Downloads\Esxi\Net<span class="literal">-Community</span><span class="literal">-Driver_1</span>.<span class="number">2.7</span>.<span class="number">0</span><span class="literal">-1vmw</span>.<span class="number">700.1</span>.<span class="number">0.15843807</span>_19480755.zip?index.xml</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加 NVME 驱动</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Add-EsxSoftwareDepot</span> C:\Users\admin\Downloads\Esxi\nvme<span class="literal">-community</span><span class="literal">-driver_1</span>.<span class="number">0.1</span>.<span class="number">0</span><span class="literal">-3vmw</span>.<span class="number">700.1</span>.<span class="number">0.15843807</span><span class="literal">-component</span><span class="literal">-18902434</span>.zip</span><br></pre></td></tr></table></figure>
+
+<p>返回结果：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Depot Url</span><br><span class="line">---------</span><br><span class="line">zip:C:\Users\admin\Downloads\Esxi\nvme<span class="literal">-community</span><span class="literal">-driver_1</span>.<span class="number">0.1</span>.<span class="number">0</span><span class="literal">-3vmw</span>.<span class="number">700.1</span>.<span class="number">0.15843807</span><span class="literal">-component</span><span class="literal">-18902434</span>.zip?index.xml</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-获取当前的镜像"><a href="#3-2-获取当前的镜像" class="headerlink" title="3.2 获取当前的镜像"></a>3.2 获取当前的镜像</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Get-EsxImageProfile</span></span><br></pre></td></tr></table></figure>
+
+<p>返回结果如下，其中 Name 在后续使用中需要用到</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Name                           Vendor          Last Modified   Acceptance Level</span><br><span class="line">----                           ------          -------------   ----------------</span><br><span class="line">ESXi<span class="literal">-7</span>.<span class="number">0</span>U3d<span class="literal">-19482537</span><span class="literal">-no</span><span class="literal">-tools</span>  VMware, Inc.    <span class="number">2022</span>/<span class="number">3</span>/<span class="number">11</span> <span class="number">15</span>... PartnerSupported</span><br><span class="line">ESXi<span class="literal">-7</span>.<span class="number">0</span>U3d<span class="literal">-19482537</span><span class="literal">-standard</span>  VMware, Inc.    <span class="number">2022</span>/<span class="number">3</span>/<span class="number">29</span> <span class="number">0</span>:... PartnerSupported</span><br><span class="line">ESXi<span class="literal">-7</span>.<span class="number">0</span>U3sd<span class="literal">-19482531</span><span class="literal">-no</span><span class="literal">-tools</span> VMware, Inc.    <span class="number">2022</span>/<span class="number">3</span>/<span class="number">11</span> <span class="number">13</span>... PartnerSupported</span><br><span class="line">ESXi<span class="literal">-7</span>.<span class="number">0</span>U3sd<span class="literal">-19482531</span><span class="literal">-standard</span> VMware, Inc.    <span class="number">2022</span>/<span class="number">3</span>/<span class="number">29</span> <span class="number">0</span>:... PartnerSupported</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-复制新的镜像，并添加驱动"><a href="#3-3-复制新的镜像，并添加驱动" class="headerlink" title="3.3 复制新的镜像，并添加驱动"></a>3.3 复制新的镜像，并添加驱动</h3><ul>
+<li>复制镜像</li>
+</ul>
+<p>基于当前的 Esxi 镜像，复制新的镜像，指定名称和租户，便于后面区分</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">New-EsxImageProfile</span> <span class="literal">-CloneProfile</span> <span class="string">&#x27;ESXi-7.0U3sd-19482531-standard&#x27;</span>  <span class="literal">-name</span> <span class="string">&#x27;ESXi-7.0U3sd-N5105&#x27;</span> <span class="literal">-vendor</span> <span class="string">&#x27;hellowood&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加网卡驱动</li>
+</ul>
+<p>使用复制镜像时使用的名称 <code>ESXi-7.0U3sd-N5105</code>，将网卡驱动 <code>net-community</code> 添加到镜像中</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Add-EsxSoftwarePackage</span> <span class="literal">-ImageProfile</span> <span class="string">&#x27;ESXi-7.0U3sd-N5105&#x27;</span> <span class="literal">-SoftwarePackage</span> <span class="string">&#x27;net-community&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>返回结果：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Name                           Vendor          Last Modified   Acceptance Level</span><br><span class="line">----                           ------          -------------   ----------------</span><br><span class="line">ESXi<span class="literal">-7</span>.<span class="number">0</span>U3sd<span class="literal">-N5105</span>             hellowood       <span class="number">2022</span>/<span class="number">8</span>/<span class="number">11</span> <span class="number">22</span>... PartnerSupported</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加 NVME 驱动</li>
+</ul>
+<p>使用复制镜像时使用的名称 <code>ESXi-7.0U3sd-N5105</code>，将 NVME 驱动 <code>nvme -community</code> 添加到镜像中</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Add-EsxSoftwarePackage</span> <span class="literal">-ImageProfile</span> <span class="string">&#x27;ESXi-7.0U3sd-N5105&#x27;</span> <span class="literal">-SoftwarePackage</span> <span class="string">&#x27;nvme-community&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>返回结果：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Name                           Vendor          Last Modified   Acceptance Level</span><br><span class="line">----                           ------          -------------   ----------------</span><br><span class="line">ESXi<span class="literal">-7</span>.<span class="number">0</span>U3sd<span class="literal">-N5105</span>             hellowood       <span class="number">2022</span>/<span class="number">8</span>/<span class="number">11</span> <span class="number">22</span>... PartnerSupported</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-将镜像导出为-iso-格式"><a href="#3-4-将镜像导出为-iso-格式" class="headerlink" title="3.4 将镜像导出为 iso 格式"></a>3.4 将镜像导出为 iso 格式</h3><p>执行导出后，就会生成 iso 格式的文件，用于制作启动盘；这样就可以在 N5105 上进行安装了</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Export-EsxImageProfile</span> <span class="literal">-ImageProfile</span> <span class="string">&#x27;ESXi-7.0U3sd-N5105&#x27;</span> <span class="literal">-ExportToIso</span> <span class="literal">-FilePath</span> C:\Users\admin\Downloads\Esxi\ESXi<span class="literal">-7</span>.<span class="number">0</span>U3sd<span class="literal">-N5105</span>.iso</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/teamlet/article/details/124151910">NUC 11构建 ESXi 7.0.3安装网卡驱动</a></li>
+<li><a target="_blank" rel="noopener" href="https://soulteary.com/2021/06/22/nuc-notes-install-esxi7.html">NUC 折腾笔记 - 安装 ESXi 7</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Esxi" >
+    <span class="tag-code">Esxi</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/04/24/%E6%A0%91%E8%8E%93%E6%B4%BE-4b-%E5%AE%89%E8%A3%85-Kubernetes/">
+        <span class="nav-arrow">← </span>
+        
+          树莓派 4b 安装 Kubernetes
+        
+      </a>
+    
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#N5105-%E6%9E%84%E5%BB%BA-Esxi-%E9%95%9C%E5%83%8F"><span class="toc-nav-text">N5105 构建 Esxi 镜像</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1-%E4%B8%8B%E8%BD%BD%E6%89%80%E9%9C%80%E7%9A%84%E9%95%9C%E5%83%8F%E5%92%8C%E9%A9%B1%E5%8A%A8"><span class="toc-nav-text">1. 下载所需的镜像和驱动</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-1-%E7%94%B3%E8%AF%B7-Esxi-%E6%8E%88%E6%9D%83"><span class="toc-nav-text">1.1 申请 Esxi 授权</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-2-%E4%B8%8B%E8%BD%BD-NVME-%E7%A4%BE%E5%8C%BA%E9%A9%B1%E5%8A%A8"><span class="toc-nav-text">1.2 下载 NVME 社区驱动</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-3-%E4%B8%8B%E8%BD%BD%E7%BD%91%E5%8D%A1%E7%A4%BE%E5%8C%BA%E9%A9%B1%E5%8A%A8"><span class="toc-nav-text">1.3 下载网卡社区驱动</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2-%E5%AE%89%E8%A3%85-PowerCLI"><span class="toc-nav-text">2. 安装 PowerCLI</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-1-%E5%9C%A8%E7%BA%BF%E5%AE%89%E8%A3%85"><span class="toc-nav-text">2.1 在线安装</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-2-%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85"><span class="toc-nav-text">2.2 离线安装</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-2-1-%E6%9F%A5%E6%89%BE-Moudle-%E4%BD%8D%E7%BD%AE"><span class="toc-nav-text">2.2.1. 查找 Moudle 位置</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-2-2-%E5%B0%86-PowerCLI-%E8%A7%A3%E5%8E%8B%E5%88%B0-Module-%E7%9B%AE%E5%BD%95%E4%B8%8B"><span class="toc-nav-text">2.2.2. 将 PowerCLI 解压到 Module 目录下</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-2-3-%E8%A7%A3%E9%94%81%E5%AF%BC%E5%85%A5%E7%9A%84%E6%96%87%E4%BB%B6"><span class="toc-nav-text">2.2.3. 解锁导入的文件</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-2-4-%E6%A3%80%E6%9F%A5%E5%AF%BC%E5%85%A5%E7%BB%93%E6%9E%9C"><span class="toc-nav-text">2.2.4. 检查导入结果</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#3-%E5%B0%86%E9%A9%B1%E5%8A%A8%E6%B7%BB%E5%8A%A0%E5%88%B0%E9%95%9C%E5%83%8F%E6%96%87%E4%BB%B6%E4%B8%AD"><span class="toc-nav-text">3. 将驱动添加到镜像文件中</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-1-%E5%B0%86%E5%8E%8B%E7%BC%A9%E6%96%87%E4%BB%B6%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%BD%93%E5%89%8D-PowerShell-Session-%E4%B8%AD"><span class="toc-nav-text">3.1 将压缩文件添加到当前 PowerShell Session 中</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-2-%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E7%9A%84%E9%95%9C%E5%83%8F"><span class="toc-nav-text">3.2 获取当前的镜像</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-3-%E5%A4%8D%E5%88%B6%E6%96%B0%E7%9A%84%E9%95%9C%E5%83%8F%EF%BC%8C%E5%B9%B6%E6%B7%BB%E5%8A%A0%E9%A9%B1%E5%8A%A8"><span class="toc-nav-text">3.3 复制新的镜像，并添加驱动</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3-4-%E5%B0%86%E9%95%9C%E5%83%8F%E5%AF%BC%E5%87%BA%E4%B8%BA-iso-%E6%A0%BC%E5%BC%8F"><span class="toc-nav-text">3.4 将镜像导出为 iso 格式</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-nav-text">参考文档</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://helloworlde.github.io/2022/08/11/N5105-构建-Esxi-镜像/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "N5105 构建 Esxi 镜像",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>
