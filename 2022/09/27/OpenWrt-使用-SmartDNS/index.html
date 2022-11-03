@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      OpenWrt 使用 SmartDNS | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>OpenWrt 使用 SmartDNS</h2>
+  <p class="post-date">2022-09-27</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="OpenWrt-使用-SmartDNS"><a href="#OpenWrt-使用-SmartDNS" class="headerlink" title="OpenWrt 使用 SmartDNS"></a>OpenWrt 使用 SmartDNS</h1><p><a target="_blank" rel="noopener" href="https://pymumu.github.io/smartdns/">SmartDNS</a>  是由国内用户开发的本地 DNS 服务器，从多个上游获取 DNS 结果，并将访问速度最快的地址返回给客户端；SmartDNS 可以运行在多个平台，如 Linux, OpenWrt 等</p>
+<p>在 OpenWrt 中运行 SmartDNS，将其作为 dnsmasq 的上游或作为唯一的 DNS 服务器，用于提升 DNS 解析速度</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>SmartDNS 的安装非常简单，使用 opkg 命令即可安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">opkg update</span><br><span class="line">opkg install smartdns</span><br><span class="line">opkg install luci-app-smartdns</span><br><span class="line">opkg install luci-i18n-smartdns-zh-cn</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置-SmartDNS"><a href="#配置-SmartDNS" class="headerlink" title="配置 SmartDNS"></a>配置 SmartDNS</h2><p>安装完成后，在服务-SmartDNS 常规配置中，选择启用 SmartDNS，然后添加上游 DNS 服务器（也可以直接在命令行修改 <code>/etc/config/smartdns</code> 配置文件）</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-dns-smartdns-upstream.png" alt="homelab-openwrt-dns-smartdns-upstream.png"></p>
+<p>这样，SmartDNS 会运行在路由器的 6053 端口上</p>
+<h2 id="配置-Dnsmasq"><a href="#配置-Dnsmasq" class="headerlink" title="配置 Dnsmasq"></a>配置 Dnsmasq</h2><p>OpenWrt 默认的 DHCP 和 DNS 服务由 Dnsmasq 提供，所以需要配置 SmartDNS 作为 Dnsmasq 的上游 DNS 服务器</p>
+<p>在网络-DHCP/DNS -常规设置中，添加 DNS 转发，将 SmartDNS 作为 Dnsmasq 的上游<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-oepnwrt-smart-dns-as-dnsmasq-upstream.png" alt="homelab-oepnwrt-smart-dns-as-dnsmasq-upstream.png"></p>
+<h2 id="检查配置结果"><a href="#检查配置结果" class="headerlink" title="检查配置结果"></a>检查配置结果</h2><p>通过 <code>nslookup</code> 命令查找 <code>smartdns</code>，如果返回 <code>smartdns</code> 的解析结果，则说明配置成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">nslookup -querytype=ptr smartdns</span><br><span class="line"></span><br><span class="line">Server:         192.168.2.1</span><br><span class="line">Address:        192.168.2.1<span class="comment">#53</span></span><br><span class="line"></span><br><span class="line">Non-authoritative answer:</span><br><span class="line">smartdns        name = smartdns.</span><br></pre></td></tr></table></figure>
+
+<h2 id="将-SmartDNS-作为主-DNS-服务器"><a href="#将-SmartDNS-作为主-DNS-服务器" class="headerlink" title="将 SmartDNS 作为主 DNS 服务器"></a>将 SmartDNS 作为主 DNS 服务器</h2><p>上述配置完成后，DNS的查询流程为 客户端 -&gt; Dnsmasq -&gt; SmartDNS -&gt;  上游 DNS 服务器；Dnsmasq 变成了赚差价的中间商，会影响查询速度；因此，可以将 SmartDNS 作为主 DNS 服务器，不再经过 Dnsmasq</p>
+<p>需要注意的是，如果使用了 OpenClash 等需要劫持 DNS 的服务，不能用这种方式，否则可能会导致服务无法正常使用</p>
+<ul>
+<li>修改 Dnsmasq 的端口为非 53 端口</li>
+</ul>
+<p>在网络 - DHCP/DNS 配置- 高级设置中，修改 DNS 服务器端口，改为 53 之外的其他端口，如 6653</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-oepnwrt-smart-dns-masqdns-non-53-port.png" alt="homelab-oepnwrt-smart-dns-masqdns-non-53-port.png"></p>
+<ul>
+<li>修改 SmartDNS 的端口为 53 端口</li>
+</ul>
+<p>在服务-SmartDNS-常规设置中，将 SmartDNS 的端口修改为 53，这样客户端的 DNS 查询请求都会由 SmartDNS 提供</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-oepnwrt-smart-dns-use-the-53-port.png" alt="homelab-oepnwrt-smart-dns-use-the-53-port.png"></p>
+<p>此时 DNS 的查询流程为 客户端 -&gt; SmartDNS -&gt;  上游 DNS 服务器</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#OpenWrt" >
+    <span class="tag-code">OpenWrt</span>
+  </a>
+
+  <a href="/tags#SmartDNS" >
+    <span class="tag-code">SmartDNS</span>
+  </a>
+
+  <a href="/tags#DNS" >
+    <span class="tag-code">DNS</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/09/26/OpenWrt-%E7%9B%91%E6%8E%A7/">
+        <span class="nav-arrow">← </span>
+        
+          OpenWrt-监控
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/10/09/%E5%B0%8F%E7%B1%B3-Redmi-AX6S-AX3200-%E5%88%B7%E5%85%A5-OpenWrt-%E5%8F%8A%E4%BD%BF%E7%94%A8%E4%BD%93%E9%AA%8C/">
+        
+          小米 Redmi AX6S(AX3200) 刷入 OpenWrt 及使用体验
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#OpenWrt-%E4%BD%BF%E7%94%A8-SmartDNS"><span class="toc-nav-text">OpenWrt 使用 SmartDNS</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-nav-text">安装</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-SmartDNS"><span class="toc-nav-text">配置 SmartDNS</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-Dnsmasq"><span class="toc-nav-text">配置 Dnsmasq</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%A3%80%E6%9F%A5%E9%85%8D%E7%BD%AE%E7%BB%93%E6%9E%9C"><span class="toc-nav-text">检查配置结果</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%B0%86-SmartDNS-%E4%BD%9C%E4%B8%BA%E4%B8%BB-DNS-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-nav-text">将 SmartDNS 作为主 DNS 服务器</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://blog.hellowood.dev/2022/09/27/OpenWrt-使用-SmartDNS/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "OpenWrt 使用 SmartDNS",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

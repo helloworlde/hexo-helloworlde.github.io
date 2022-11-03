@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Traefik 使用 Let’s Encrypt 申请 HTTPS 证书 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Traefik 使用 Let’s Encrypt 申请 HTTPS 证书</h2>
+  <p class="post-date">2022-08-07</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Traefik-使用-Let’s-Encrypt-申请-HTTPS-证书"><a href="#Traefik-使用-Let’s-Encrypt-申请-HTTPS-证书" class="headerlink" title="Traefik 使用 Let’s Encrypt 申请 HTTPS 证书"></a>Traefik 使用 Let’s Encrypt 申请 HTTPS 证书</h1><p>在 Traefik 中，支持通过 Let’s Encrypt 从 ACME <a target="_blank" rel="noopener" href="https://doc.traefik.io/traefik/https/acme/">自动申请 HTTPS 证书</a></p>
+<h2 id="从-ACME-申请证书"><a href="#从-ACME-申请证书" class="headerlink" title="从 ACME 申请证书"></a>从 ACME 申请证书</h2><p> Traefik 申请证书基于 <a target="_blank" rel="noopener" href="https://github.com/go-acme/lego">Lego</a> ，所以同样支持基于 TLS、HTTP、DNS 三种申请方式</p>
+<p> 因为要申请的域名没有部署服务，所以基于 DNS 的方式验证；在申请证书时会向域名解析中添加 <code>_acme-challenge</code>前缀的 TXT 记录用于验证</p>
+<h3 id="添加配置"><a href="#添加配置" class="headerlink" title="添加配置"></a>添加配置</h3><ul>
+<li>traefik.yaml</li>
+</ul>
+<p>需要向 Traefik 的配置文件中添加 <code>certificatesResolvers</code> 的配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">certificatesResolvers:</span></span><br><span class="line">  <span class="attr">default:</span></span><br><span class="line">    <span class="attr">acme:</span></span><br><span class="line">      <span class="attr">email:</span> <span class="string">yourname@mail.com</span></span><br><span class="line">      <span class="attr">storage:</span> <span class="string">/etc/traefik/certificates/acme.json</span></span><br><span class="line">      <span class="attr">dnsChallenge:</span></span><br><span class="line">        <span class="attr">provider:</span> <span class="string">alidns</span></span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>email</code>为注册 ACME 的邮箱，<code>storage</code> 是存储生成的证书内容的文件；<code>dnsChallenge</code> 指定了以 DNS 的方式验证；<code>provider</code> 指定域名解析平台，常见的平台参考 [providers](<a target="_blank" rel="noopener" href="https://doc.traefik.io/traefik/https/ac%1B[Ime/#providers">https://doc.traefik.io/traefik/https/ac[Ime/#providers</a>)</p>
+<ul>
+<li>docker-compose.yaml</li>
+</ul>
+<p>因为使用的是 DNS Provider 是阿里云，所以需要将阿里云的鉴权方式通过环境变量的方式添加到容器中</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">reverse-proxy:</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">reverse-proxy</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">traefik:2.8</span></span><br><span class="line">    <span class="attr">command:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;--configFile=/etc/traefik/traefik.yml&quot;</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;80:80&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;443:443&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8080:8080&quot;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;/var/run/docker.sock:/var/run/docker.sock:ro&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;/root/workspaces/homelab/traefik/traefik.yml:/etc/traefik/traefik.yml&quot;</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">ALICLOUD_ACCESS_KEY=$&#123;ALICLOUD_ACCESS_KEY&#125;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">ALICLOUD_SECRET_KEY=$&#123;ALICLOUD_SECRET_KEY&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>为服务指定域名</li>
+</ul>
+<p>在服务路由规则中指定域名，这样 Traefik 就会为这个域名自动申请证书；需要开启 TLS 并且指定 <code>certresolver</code>，名称即为配置文件 <code>certificatesResolvers</code>中定义的名称，即 <code>defualt</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">whoami:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">&quot;traefik/whoami&quot;</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">&quot;whoami&quot;</span></span><br><span class="line">    <span class="attr">labels:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;traefik.enable=true&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;traefik.http.routers.whoami.rule=Host(`whoami.homelab.example.com`)&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;traefik.http.routers.whoami.entrypoints=websecure&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;traefik.http.routers.whoami.tls=true&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;traefik.http.routers.whoami.tls.certresolver=default&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这样，就会在 Traefik 启动后主动为 <code>whoami.homelab.example.com</code>申请 HTTPS 证书，并保存到 <code>/etc/traefik/certificates/acme.json</code> 文件中：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;letsencrypt&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;Account&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;Email&quot;</span>: <span class="string">&quot;yourname@mail.com&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;Registration&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;body&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;valid&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;contact&quot;</span>: [</span><br><span class="line">            <span class="string">&quot;mailto:yourname@mail.com&quot;</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;uri&quot;</span>: <span class="string">&quot;https://acme-v02.api.letsencrypt.org/acme/acct/1234&quot;</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;PrivateKey&quot;</span>: <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;KeyType&quot;</span>: <span class="string">&quot;4096&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;Certificates&quot;</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">&quot;domain&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;main&quot;</span>: <span class="string">&quot;whoami.homelab.example.com&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;certificate&quot;</span>: <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;key&quot;</span>: <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;Store&quot;</span>: <span class="string">&quot;default&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="泛域名证书申请"><a href="#泛域名证书申请" class="headerlink" title="泛域名证书申请"></a>泛域名证书申请</h2><p>在使用过程中，通常会有多个域名，需要频繁申请证书，当服务重启后同时更新可能会被 Let’s Encrypt 限流导致申请失败，因此，Let’s Encrypt 支持为泛域名申请证书；这个证书可以用于所有的子域名；</p>
+<p>如要转发的 Host 都是 <code>xxx.homelab.example.com</code>，那么为 <code>*.homelab.example.com</code>申请证书即可</p>
+<ul>
+<li>traefik.yaml</li>
+</ul>
+<p>同样需要先指定 <code>certificatesResolvers</code>；然后在 <code>entryPoints.websecure.http.tls</code> 中指定要申请的域名；这样 Traefik 启动后就会自动为 <code>homelab.example.com</code> 和 <code>*.homelab.example.com</code> 申请 HTTPS 证书，之后访问 <code>xxx.homelab.example.com</code> 都可以用这个证书</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">certificatesResolvers:</span></span><br><span class="line">  <span class="attr">default:</span></span><br><span class="line">    <span class="attr">acme:</span></span><br><span class="line">      <span class="attr">email:</span> <span class="string">yourname@mail.com</span></span><br><span class="line">      <span class="attr">storage:</span> <span class="string">/etc/traefik/certificates/acme.json</span></span><br><span class="line">      <span class="attr">dnsChallenge:</span></span><br><span class="line">        <span class="attr">provider:</span> <span class="string">alidns</span></span><br><span class="line"></span><br><span class="line"><span class="attr">entryPoints:</span></span><br><span class="line">  <span class="attr">web:</span></span><br><span class="line">    <span class="attr">address:</span> <span class="string">&quot;:80&quot;</span></span><br><span class="line">  <span class="attr">websecure:</span></span><br><span class="line">    <span class="attr">address:</span> <span class="string">&quot;:443&quot;</span></span><br><span class="line">    <span class="attr">http:</span></span><br><span class="line">      <span class="attr">tls:</span></span><br><span class="line">        <span class="attr">certResolver:</span> <span class="string">default</span></span><br><span class="line">        <span class="attr">domains:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">main:</span> <span class="string">&quot;homelab.example.com&quot;</span></span><br><span class="line">          <span class="attr">sans:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">&quot;homelab.example.com&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">&quot;*.homelab.example.com&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>申请后得到的证书内容为：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;default&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;Account&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;Email&quot;</span>: <span class="string">&quot;yourname@mail.com&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;Registration&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;body&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;status&quot;</span>: <span class="string">&quot;valid&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;contact&quot;</span>: [</span><br><span class="line">            <span class="string">&quot;mailto:yourname@mail.com&quot;</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;uri&quot;</span>: <span class="string">&quot;https://acme-v02.api.letsencrypt.org/acme/acct/1234&quot;</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;PrivateKey&quot;</span>: <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;KeyType&quot;</span>: <span class="string">&quot;4096&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;Certificates&quot;</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">&quot;domain&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;main&quot;</span>: <span class="string">&quot;homelab.example.com&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;sans&quot;</span>: [</span><br><span class="line">            <span class="string">&quot;homelab.example.com&quot;</span>,</span><br><span class="line">            <span class="string">&quot;*.homelab.example.com&quot;</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;certificate&quot;</span>: <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;key&quot;</span>: <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;Store&quot;</span>: <span class="string">&quot;default&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#Traefik" >
+    <span class="tag-code">Traefik</span>
+  </a>
+
+  <a href="/tags#LetsEncrypt" >
+    <span class="tag-code">LetsEncrypt</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/08/03/%E4%BD%BF%E7%94%A8-Let%E2%80%99s-Encrypt-%E7%94%B3%E8%AF%B7-HTTPS-%E8%AF%81%E4%B9%A6/">
+        <span class="nav-arrow">← </span>
+        
+          使用 Let’s Encrypt 申请 HTTPS 证书
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/08/08/Openwrt-%E5%88%9D%E5%A7%8B%E5%8C%96%E9%85%8D%E7%BD%AE/">
+        
+          Openwrt-初始化配置
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Traefik-%E4%BD%BF%E7%94%A8-Let%E2%80%99s-Encrypt-%E7%94%B3%E8%AF%B7-HTTPS-%E8%AF%81%E4%B9%A6"><span class="toc-nav-text">Traefik 使用 Let’s Encrypt 申请 HTTPS 证书</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BB%8E-ACME-%E7%94%B3%E8%AF%B7%E8%AF%81%E4%B9%A6"><span class="toc-nav-text">从 ACME 申请证书</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">添加配置</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%B3%9B%E5%9F%9F%E5%90%8D%E8%AF%81%E4%B9%A6%E7%94%B3%E8%AF%B7"><span class="toc-nav-text">泛域名证书申请</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://blog.hellowood.dev/2022/08/07/Traefik-使用-Let’s-Encrypt-申请-HTTPS-证书/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Traefik 使用 Let’s Encrypt 申请 HTTPS 证书",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

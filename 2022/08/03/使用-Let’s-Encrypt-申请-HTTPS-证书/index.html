@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      使用 Let’s Encrypt 申请 HTTPS 证书 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>使用 Let’s Encrypt 申请 HTTPS 证书</h2>
+  <p class="post-date">2022-08-03</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="使用-Let’s-Encrypt-申请-HTTPS-证书"><a href="#使用-Let’s-Encrypt-申请-HTTPS-证书" class="headerlink" title="使用 Let’s Encrypt 申请 HTTPS 证书"></a>使用 Let’s Encrypt 申请 HTTPS 证书</h1><p>在搭建私有服务器的过程中，需要通过外网访问，因为 .dev 域名要求使用 https，但是域名服务商只提供根域名的证书，为了使子域名也可以使用，所以通过 Let’s Encrypt 申请免费证书</p>
+<p>Let’s Encrypt 是一家免费、开放、自动化的证书颁发机构（CA），旨在尽可能对用户友好的方式免费提供为网站启用 HTTPS（SSL/TLS）所需的数字证书</p>
+<p>因为将域名解析迁移到腾讯云的 DNSPod 下面，所以以 DNSPod 为例，以 DNS 验证的方式，在本地机器上使用命令行申请证书</p>
+<h2 id="安装-Lego"><a href="#安装-Lego" class="headerlink" title="安装 Lego"></a>安装 Lego</h2><p>Let’s Encrypt 有多种命令行客户端，可以使用官方提到的 <a target="_blank" rel="noopener" href="https://certbot.eff.org/">Certbot</a>；也可以使用 <a target="_blank" rel="noopener" href="https://go-acme.github.io/lego/">Lego</a>，相比 Certbot 支持的域名解析平台更多</p>
+<ul>
+<li>安装</li>
+</ul>
+<p>直接使用 Go 命令进行安装，因为本地的 Go 版本是 1.19，所以需要指定版本号使用<code>install</code>命令安装；如果是低版本的 Go，可以使用 <code>get</code>的方式安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">go install github.com/go-acme/lego/v4/cmd/lego@latest</span><br><span class="line"></span><br><span class="line"><span class="comment">#低版本 Go 使用 get 方式安装</span></span><br><span class="line">go get -u github.com/go-acme/lego/v4/cmd/lego</span><br></pre></td></tr></table></figure>
+
+<h2 id="申请证书"><a href="#申请证书" class="headerlink" title="申请证书"></a>申请证书</h2><h3 id="1-创建-DNSPod-Token"><a href="#1-创建-DNSPod-Token" class="headerlink" title="1. 创建 DNSPod Token"></a>1. 创建 DNSPod Token</h3><p>通过 DNS 的方式申请，Let’s Encrypt 需要向域名添加 DNS 解析以证明拥有该域名；所以需要域名解析平台的授权，通常是以 Token 或者 AK/SK 的方式进行验证</p>
+<p>在 DNSPod 需要先申请 DNSPod Token，登录控制台后在右上角，我的账号中选择 API 密钥，然后选择 DNSPod Token 进行创建密钥</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-cert-apply-dnspod.png" alt="homelab-cert-apply-dnspod.png"></p>
+<h3 id="2-使用-Lego-命令生成证书"><a href="#2-使用-Lego-命令生成证书" class="headerlink" title="2. 使用 Lego 命令生成证书"></a>2. 使用 Lego 命令生成证书</h3><p>通过 Lego 命令申请证书，需要指定 DNS 平台，提供用户邮箱和域名；</p>
+<p>还需要将 DNSPod 的鉴权方式添加到变量中，key 是<code>DNSPOD_API_KEY</code>，value 是 DNSPod 生成的密钥的 ID 和 Token 的组合，是用逗号分割；如 ID 是 123，Token是 abc，那么 <code>DNSPOD_API_KEY</code> 就是 <code>123,abc</code></p>
+<p>指定 <code>DNSPOD_HTTP_TIMEOUT</code> 用于控制执行 HTTP 请求的超时时间，避免因为网络超时导致申请失败</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DNSPOD_API_KEY=123456,abcdefghijklmnopqrstuvwxyz1234567890 DNSPOD_HTTP_TIMEOUT=<span class="string">&quot;300&quot;</span> \ lego --email helloworld@mail.com --dns dnspod --domains helloworld.dev run</span><br></pre></td></tr></table></figure>
+
+<p>输出以下内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">2022/08/03 17:36:13 [INFO] [helloworld.dev] acme: Obtaining bundled SAN certificate</span><br><span class="line">2022/08/03 17:36:16 [INFO] [helloworld.dev] AuthURL: https://acme-v02.api.letsencrypt.org/acme/authz-v3/123456</span><br><span class="line">2022/08/03 17:36:16 [INFO] [helloworld.dev] acme: Could not find solver <span class="keyword">for</span>: tls-alpn-01</span><br><span class="line">2022/08/03 17:36:16 [INFO] [helloworld.dev] acme: Could not find solver <span class="keyword">for</span>: http-01</span><br><span class="line">2022/08/03 17:36:16 [INFO] [helloworld.dev] acme: use dns-01 solver</span><br><span class="line">2022/08/03 17:36:16 [INFO] [helloworld.dev] acme: Preparing to solve DNS-01</span><br><span class="line">2022/08/03 17:36:16 [INFO] [helloworld.dev] acme: Trying to solve DNS-01</span><br><span class="line">2022/08/03 17:36:16 [INFO] [helloworld.dev] acme: Checking DNS record propagation using [192.168.1.1:53 172.1.1.1:53]</span><br><span class="line">2022/08/03 17:36:18 [INFO] Wait <span class="keyword">for</span> propagation [timeout: 1m0s, interval: 2s]</span><br><span class="line">2022/08/03 17:36:20 [INFO] [helloworld.dev] acme: Waiting <span class="keyword">for</span> DNS record propagation.</span><br><span class="line">2022/08/03 17:36:22 [INFO] [helloworld.dev] acme: Waiting <span class="keyword">for</span> DNS record propagation.</span><br><span class="line">2022/08/03 17:36:29 [INFO] [helloworld.dev] The server validated our request</span><br><span class="line">2022/08/03 17:36:29 [INFO] [helloworld.dev] acme: Cleaning DNS-01 challenge</span><br><span class="line">2022/08/03 17:36:30 [INFO] [helloworld.dev] acme: Validations succeeded; requesting certificates</span><br><span class="line">2022/08/03 17:36:31 [INFO] [helloworld.dev] Server responded with a certificate.</span><br></pre></td></tr></table></figure>
+
+<p>会将申请的证书内容写到当前目录的 <code>.lego</code>文件夹下，<code>certificates</code>文件夹下的 <code>helloworld.dev.crt</code>和<code>helloworld.dev.key</code>就是需要的证书</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── accounts</span><br><span class="line">│   └── acme-v02.api.letsencrypt.org</span><br><span class="line">│       ├── helloworld@mail.com</span><br><span class="line">│       │   ├── account.json</span><br><span class="line">│       │   └── keys</span><br><span class="line">│       │       └── helloworld@mail.com.key</span><br><span class="line">└── certificates</span><br><span class="line">├── helloworld.dev.crt</span><br><span class="line">├── helloworld.dev.issuer.crt</span><br><span class="line">├── helloworld.dev.json</span><br><span class="line">└── helloworld.dev.key</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#Traefik" >
+    <span class="tag-code">Traefik</span>
+  </a>
+
+  <a href="/tags#LetsEncrypt" >
+    <span class="tag-code">LetsEncrypt</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/07/23/Openwrt-%E7%A9%BA%E9%97%B4%E6%89%A9%E5%AE%B9/">
+        <span class="nav-arrow">← </span>
+        
+          Openwrt-空间扩容
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/08/07/Traefik-%E4%BD%BF%E7%94%A8-Let%E2%80%99s-Encrypt-%E7%94%B3%E8%AF%B7-HTTPS-%E8%AF%81%E4%B9%A6/">
+        
+          Traefik 使用 Let’s Encrypt 申请 HTTPS 证书
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-Let%E2%80%99s-Encrypt-%E7%94%B3%E8%AF%B7-HTTPS-%E8%AF%81%E4%B9%A6"><span class="toc-nav-text">使用 Let’s Encrypt 申请 HTTPS 证书</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85-Lego"><span class="toc-nav-text">安装 Lego</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%94%B3%E8%AF%B7%E8%AF%81%E4%B9%A6"><span class="toc-nav-text">申请证书</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1-%E5%88%9B%E5%BB%BA-DNSPod-Token"><span class="toc-nav-text">1. 创建 DNSPod Token</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2-%E4%BD%BF%E7%94%A8-Lego-%E5%91%BD%E4%BB%A4%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6"><span class="toc-nav-text">2. 使用 Lego 命令生成证书</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://blog.hellowood.dev/2022/08/03/使用-Let’s-Encrypt-申请-HTTPS-证书/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "使用 Let’s Encrypt 申请 HTTPS 证书",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Ubuntu Server 22 虚拟机空间扩容 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Ubuntu Server 22 虚拟机空间扩容</h2>
+  <p class="post-date">2022-09-09</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Ubuntu-Server-22-虚拟机空间扩容"><a href="#Ubuntu-Server-22-虚拟机空间扩容" class="headerlink" title="Ubuntu Server 22 虚拟机空间扩容"></a>Ubuntu Server 22 虚拟机空间扩容</h1><blockquote>
+<p>使用 Esxi 安装 Ubuntu Server 后，发现分配的 20G 磁盘空间不够，通过 Esxi 控制台将磁盘扩容到 40G，重启后还需要手动调整</p>
+</blockquote>
+<h3 id="检查未分区空间"><a href="#检查未分区空间" class="headerlink" title="检查未分区空间"></a>检查未分区空间</h3><p>修改了磁盘大小后，新增的空间状态是未分区，首先检查是否新增成功</p>
+<ul>
+<li>使用 <code>fdisk</code> 查看</li>
+</ul>
+<p>使用 <code>fdisk</code> 命令查看 <code>/dev/sda</code>设备情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fdisk /dev/sda</span><br></pre></td></tr></table></figure>
+
+<p>输入 <code>F</code> 显示未分区的空间大小</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): F</span><br><span class="line"></span><br><span class="line">Unpartitioned space /dev/sda: 20971520 B, 167772160 bytes, 0 sectors</span><br><span class="line">Units: sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br></pre></td></tr></table></figure>
+
+<h3 id="将未分区空间添加到已有分区"><a href="#将未分区空间添加到已有分区" class="headerlink" title="将未分区空间添加到已有分区"></a>将未分区空间添加到已有分区</h3><p>需要先将这部分空间添加到系统挂载的对应分区</p>
+<ol>
+<li>查找根目录挂载的设备</li>
+</ol>
+<p>通过 <code>df</code> 命令查看空间，发现挂载到根<code>/</code>目录的设备是 <code>/dev/mapper/ubuntu--vg-ubuntu--lv</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df -h</span><br></pre></td></tr></table></figure>
+<p>结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Filesystem                         Size  Used Avail Use% Mounted on</span><br><span class="line">tmpfs                              796M  1.5M  794M   1% /run</span><br><span class="line">/dev/mapper/ubuntu--vg-ubuntu--lv   19G   16G  1.6G  92% /</span><br><span class="line">tmpfs                              3.9G     0  3.9G   0% /dev/shm</span><br><span class="line">tmpfs                              5.0M     0  5.0M   0% /run/lock</span><br><span class="line">/dev/sda2                          2.0G  127M  1.7G   7% /boot</span><br><span class="line">/dev/sda1                          1.1G  5.3M  1.1G   1% /boot/efi</span><br><span class="line">tmpfs                              796M  4.0K  796M   1% /run/user/0</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>lsblk</code> 查看分区信息，发现 <code>ubuntu--vg-ubuntu--lv</code>是在<code>/dev/sda3</code>下的逻辑分区，所以需要将未分区的空间添加到 <code>/sda/sda3</code>分区下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsblk</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">NAME                      MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS</span><br><span class="line">loop0                       7:0    0  55.6M  1 loop /snap/core18/2538</span><br><span class="line">loop1                       7:1    0    62M  1 loop /snap/core20/1581</span><br><span class="line">loop2                       7:2    0    62M  1 loop /snap/core20/1587</span><br><span class="line">loop3                       7:3    0 118.4M  1 loop /snap/docker/1779</span><br><span class="line">loop4                       7:4    0  79.9M  1 loop /snap/lxd/22923</span><br><span class="line">loop5                       7:5    0    47M  1 loop /snap/snapd/16292</span><br><span class="line">loop6                       7:6    0  44.7M  1 loop /snap/snapd/15534</span><br><span class="line">sda                         8:0    0    50G  0 disk</span><br><span class="line">├─sda1                      8:1    0     1G  0 part /boot/efi</span><br><span class="line">├─sda2                      8:2    0     2G  0 part /boot</span><br><span class="line">└─sda3                      8:3    0  19.9G  0 part</span><br><span class="line">└─ubuntu--vg-ubuntu--lv 253:0    0  18.5G  0 lvm  /</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩容"><a href="#扩容" class="headerlink" title="扩容"></a>扩容</h3><ol>
+<li>调整物理卷的大小</li>
+</ol>
+<p>当磁盘大小发生变化后，需要使用 <code>pvresize</code> 调整物理卷的大小</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pvresize /dev/sda3</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Physical volume <span class="string">&quot;/dev/sda3&quot;</span> changed</span><br><span class="line">1 physical volume(s) resized or updated / 0 physical volume(s) not resized</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>扩容分区</li>
+</ol>
+<p>通过 <code>growpart</code> 将未分区空间添加到 <code>/dev/sda</code> 设备的逻辑分区 <code>3</code> 下面</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">growpart /dev/sda 3</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CHANGED: partition=3 start=6397952 old: size=77486080 end=83884032 new: size=161374175 end=167772127</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>使用所有空闲空间为逻辑分区扩容</li>
+</ol>
+<p>使用 <code>lvresize</code> 命令进行扩容，将所有空闲的空间都分配给 <code>/dev/mapper/ubuntu--vg-ubuntu--lv</code>；需要注意的是 <code>/dev/mapper/ubuntu--vg-ubuntu--lv</code>名称中间是两个 <code>-</code>符号</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lvresize -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Size of logical volume ubuntu-vg/ubuntu-lv changed from 18.47 GiB (4729 extents) to &lt;36.95 GiB (9458 extents).</span><br><span class="line">Logical volume ubuntu-vg/ubuntu-lv successfully resized.</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>扩展文件系统本身</li>
+</ol>
+<p>扩容完成后，需要扩展文件系统本身，让系统能够使用新的可用的逻辑分区</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">resize2fs 1.46.5 (30-Dec-2021)</span><br><span class="line">Filesystem at /dev/mapper/ubuntu--vg-ubuntu--lv is mounted on /; on-line resizing required</span><br><span class="line">old_desc_blocks = 3, new_desc_blocks = 5</span><br><span class="line">The filesystem on /dev/mapper/ubuntu--vg-ubuntu--lv is now 9684992 (4k) blocks long.</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>检查分区大小</li>
+</ol>
+<p>使用  <code>df</code> 命令再次检查分区大小，发现 <code>/</code> 挂载的空间大小已经扩容完成了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ df -hT</span><br><span class="line">Filesystem                        Type   Size  Used Avail Use% Mounted on</span><br><span class="line">tmpfs                             tmpfs  796M  1.4M  794M   1% /run</span><br><span class="line">/dev/mapper/ubuntu--vg-ubuntu--lv ext4    40G   19G   21G  47% /</span><br><span class="line">tmpfs                             tmpfs  3.9G     0  3.9G   0% /dev/shm</span><br><span class="line">tmpfs                             tmpfs  5.0M     0  5.0M   0% /run/lock</span><br><span class="line">/dev/sda2                         ext4   2.0G  127M  1.7G   7% /boot</span><br><span class="line">/dev/sda1                         vfat   1.1G  5.3M  1.1G   1% /boot/efi</span><br><span class="line">tmpfs                             tmpfs  796M  4.0K  796M   1% /run/user/0</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://askubuntu.com/questions/1106795/ubuntu-server-18-04-lvm-out-of-space-with-improper-default-partitioning">Ubuntu Server 18.04 LVM out of space with improper default partitioning</a></li>
+<li><a target="_blank" rel="noopener" href="https://community.spiceworks.com/topic/2325763-how-can-i-make-ubuntu-vg-ubuntu-lv-consume-the-entire-disk-space-available">How can I make ubuntu–vg-ubuntu–lv consume the entire disk space available?</a></li>
+<li><a target="_blank" rel="noopener" href="https://wiki.ubuntu.com/Lvm">What is LVM</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.digitalocean.com/community/tutorials/how-to-use-lvm-to-manage-storage-devices-on-ubuntu-16-04">How To Use LVM To Manage Storage Devices on Ubuntu 16.04</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#Ubuntu" >
+    <span class="tag-code">Ubuntu</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/09/05/%E4%BD%BF%E7%94%A8-Pi-hole-%E4%BD%9C%E4%B8%BA-DNS-%E5%92%8C-DHCP-%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+        <span class="nav-arrow">← </span>
+        
+          使用 Pi-hole 作为 DNS 和 DHCP 服务器
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/09/12/Esxi-%E6%8C%82%E8%BD%BD%E7%89%A9%E7%90%86%E7%A3%81%E7%9B%98%E5%88%B0%E8%99%9A%E6%8B%9F%E6%9C%BA/">
+        
+          Esxi 挂载物理磁盘到虚拟机
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Ubuntu-Server-22-%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%A9%BA%E9%97%B4%E6%89%A9%E5%AE%B9"><span class="toc-nav-text">Ubuntu Server 22 虚拟机空间扩容</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%A3%80%E6%9F%A5%E6%9C%AA%E5%88%86%E5%8C%BA%E7%A9%BA%E9%97%B4"><span class="toc-nav-text">检查未分区空间</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%B0%86%E6%9C%AA%E5%88%86%E5%8C%BA%E7%A9%BA%E9%97%B4%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%B7%B2%E6%9C%89%E5%88%86%E5%8C%BA"><span class="toc-nav-text">将未分区空间添加到已有分区</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%89%A9%E5%AE%B9"><span class="toc-nav-text">扩容</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-nav-text">参考文档</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://blog.hellowood.dev/2022/09/09/Ubuntu-Server-22-虚拟机空间扩容/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Ubuntu Server 22 虚拟机空间扩容",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

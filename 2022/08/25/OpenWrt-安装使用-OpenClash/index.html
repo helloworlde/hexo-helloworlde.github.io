@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      OpenWrt  安装使用 OpenClash | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>OpenWrt  安装使用 OpenClash</h2>
+  <p class="post-date">2022-08-25</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="OpenWrt-安装使用-OpenClash"><a href="#OpenWrt-安装使用-OpenClash" class="headerlink" title="OpenWrt 安装使用 OpenClash"></a>OpenWrt 安装使用 OpenClash</h1><h2 id="Clash-使用方式对比"><a href="#Clash-使用方式对比" class="headerlink" title="Clash 使用方式对比"></a>Clash 使用方式对比</h2><p>OpenClash 是 Clash 的 OpenWrt 客户端；Clash 有多种使用方式，如直接使用客户端，或者以容器或进程的方式运行在服务器上，客户端以代理的方式使用，或者运行在 OpenWrt 中等；因为各种因素影响，不同的使用方式有不同的适用场景：</p>
+<ul>
+<li>运行客户端</li>
+</ul>
+<p>客户端直接使用的方式最灵活，调整代理方式或策略比较方便，可以选择性的开启或关闭，会代理设备上支持代理的所有流量；适用于手机，电脑等有客户端支持等设备</p>
+<ul>
+<li>代理方式使用</li>
+</ul>
+<p>代理方式适用于没有客户端软件的场景，如命令行，为特定的软件配置代理等；这种方式不够灵活，可按需为特定应用或设备配置</p>
+<ul>
+<li>运行在OpenWrt</li>
+</ul>
+<p>运行在 OpenWrt 等主路由或旁路由中，可以透明代理整个局域网内的流量，对于一些无法直接操作的 IoT 设备非常方便；也不需要修改客户端任何配置；缺点是如果不稳定会影响局域网内的所有设备</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>需要使用 Clash 配置网络，用于访问特定的资源；<a target="_blank" rel="noopener" href="https://github.com/vernesong/OpenClash">OpenClash</a>  是 Openwrt 的 Clash 客户端；</p>
+<ol>
+<li>OpenClash 依赖的是 <code>dnsmasq-full</code>，所以需要移除默认的<code>dnsmasq</code>，否则会导致 OpenClash 安装失败</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">opkg remove dnsmasq &amp;&amp; opkg install dnsmasq-full</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>下载并安装 OpenClash</li>
+</ol>
+<p>可以在 <a target="_blank" rel="noopener" href="https://github.com/vernesong/OpenClash">OpenClash</a> 仓库的 <a target="_blank" rel="noopener" href="https://github.com/vernesong/OpenClash/releases">Release</a> 页面选择对应的版本进行下载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/vernesong/OpenClash/releases/download/v0.45.35-beta/luci-app-openclash_0.45.35-beta_all.ipk -O openclash.ipk</span><br><span class="line">opkg update</span><br><span class="line">opkg install openclash.ipk</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>添加 <code>luci-compact</code> 并重启，否则会提示进入 luci 页面错误</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">opkg install luci luci-base luci-compat</span><br><span class="line">reboot</span><br></pre></td></tr></table></figure>
+
+<p>待重启完成后重新登录控制台，可以在服务菜单中看到 <code>OpenClash</code></p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-openclash-init-page.png" alt="homelab-openwrt-openclash-init-page.png"></p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><h3 id="配置文件订阅"><a href="#配置文件订阅" class="headerlink" title="配置文件订阅"></a>配置文件订阅</h3><p>进入服务-OpenClash，选择配置文件订阅，新增订阅；输入订阅的链接地址，保存并更新即可；这样以 OpenWrt 为网关的设备就可以通过 OpenClash 访问特定的资源了</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-init-openclash-config.png" alt="homelab-openwrt-init-openclash-config.png"></p>
+<h3 id="配置-DNS"><a href="#配置-DNS" class="headerlink" title="配置 DNS"></a>配置 DNS</h3><p>OpenClash 默认提供 7874 端口用于 DNS 查询；启动后会劫持 Dnsmasq，只保留自己作为 Dnsmasq 的上游；</p>
+<p>但是目前的版本里并没有将已配置的 DNS 转发作为 OpenClash 的上游（参考issue <a target="_blank" rel="noopener" href="https://github.com/vernesong/OpenClash/issues/2720">启用 DNS 劫持后未将 Dnsmasq 中添加的 DNS 转发作为上游 DNS</a>），这样会导致无法使用 SmartDNS 或其他上游 DNS，因此需要手动修改将 SmartDNS 作为 OpenClash 的上游服务器</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-openclash-dnsmasq-upstream.png" alt="homelab-openwrt-openclash-dnsmasq-upstream.png"></p>
+<ul>
+<li>配置 DNS 服务器</li>
+</ul>
+<p>在 服务- OpenClash-全局设置-DNS设置中，选择新增，设置自定义上游 DNS服务器为 SmartDNS<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-openclash-add-upstream.png" alt="homelab-openwrt-openclash-add-upstream.png"></p>
+<ul>
+<li>启用自定义上游 DNS 服务器</li>
+</ul>
+<p>新增完成后，在该页面选择启用 “自定义上游 DNS 服务器”，这样，就可以使用 SmartDNS 作为主 DNS服务器了；如果有其他的上游，也可以同样配置；<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-openclash-enable-dns-config.png" alt="homelab-openwrt-openclash-enable-dns-config.png"><br>配置完成后，DNS的查询流程为 客户端 -&gt; Dnsmasq -&gt; OpenClash -&gt; SmartDNS -&gt;  上游 DNS 服务器</p>
+<h3 id="配置运行模式"><a href="#配置运行模式" class="headerlink" title="配置运行模式"></a>配置运行模式</h3><p>参考 <a target="_blank" rel="noopener" href="https://github.com/vernesong/OpenClash/wiki/%E5%B8%B8%E8%A7%84%E8%AE%BE%E7%BD%AE">OpenClash-常规设置</a>，主要有 Fake-IP 和 Redir-Host 两种模式；经测试，开启了 OpenClash 使用 Redir-Host 会导致部分 UDP 流量超时，如王者荣耀/英雄联盟/吃鸡等使用 UDP 的应用超时或无法连接；使用  Fake-IP TUN 模式则可以正常使用</p>
+<ul>
+<li>Fake-IP</li>
+</ul>
+<p>当客户端发起请求查询 DNS 时，会先返回一个随机的保留地址，同时查询上游 DNS 服务器，如果需要代理则发送给代理服务器查询，然后再进行连接；客户端立即向Fake-IP 发起的请求会被快速响应，节约了一次本地向DNS服务器查询的时间</p>
+<p>运行模式有 TUN，增强和混合三种模式；区别在与 TUN 可以代理 UDP流量</p>
+<p>这个模式会导致客户端获取到的 DNS 查询到的结果与实际不一致，<code>nslookup</code>/<code>dig</code>等的使用会受影响</p>
+<ul>
+<li>Redir-Host</li>
+</ul>
+<p>当客户端发起请求时，会并发查询 DNS，等待返回结果后再尝试进行规则判定和连接，如果需要代理，会使用fallback 的 DNS 服务器再次查询；与不使用 OpenClash 相比，多了过滤，fallback 查询的时间，响应速度可能会变慢</p>
+<p>有兼容，TUN 和混合三种模式，区别在与 TUN 可以代理 UDP流量</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-openclash-change-mode.png" alt="homelab-openwrt-openclash-change-mode.png"></p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Clash" >
+    <span class="tag-code">Clash</span>
+  </a>
+
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#OpenWrt" >
+    <span class="tag-code">OpenWrt</span>
+  </a>
+
+  <a href="/tags#OpenClash" >
+    <span class="tag-code">OpenClash</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/08/25/%E5%B0%8F%E7%B1%B3%E8%B7%AF%E7%94%B1%E5%99%A8-4A-%E5%8D%83%E5%85%86%E7%89%88%E5%88%B7%E5%85%A5-OpenWrt/">
+        <span class="nav-arrow">← </span>
+        
+          小米路由器 4A 千兆版刷入 OpenWrt
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/08/26/Openwrt-DDNS-%E9%85%8D%E7%BD%AE/">
+        
+          Openwrt-DDNS 配置
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#OpenWrt-%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8-OpenClash"><span class="toc-nav-text">OpenWrt 安装使用 OpenClash</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Clash-%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%E5%AF%B9%E6%AF%94"><span class="toc-nav-text">Clash 使用方式对比</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-nav-text">安装</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AE%A2%E9%98%85"><span class="toc-nav-text">配置文件订阅</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-DNS"><span class="toc-nav-text">配置 DNS</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E8%BF%90%E8%A1%8C%E6%A8%A1%E5%BC%8F"><span class="toc-nav-text">配置运行模式</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://blog.hellowood.dev/2022/08/25/OpenWrt-安装使用-OpenClash/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "OpenWrt  安装使用 OpenClash",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

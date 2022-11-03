@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Openwrt-DDNS 配置 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Openwrt-DDNS 配置</h2>
+  <p class="post-date">2022-08-26</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Openwrt-DDNS-配置"><a href="#Openwrt-DDNS-配置" class="headerlink" title="Openwrt DDNS 配置"></a>Openwrt DDNS 配置</h1><p>DDNS(Dynamic DNS) 一般用于从外部访问家庭网络内的设备，因为家庭宽带没有固定的 IP 地址，所以通过域名访问时需要动态的更新域名的记录为当前的 IP 地址；实现的原理也比较简单，就是通过定时脚本，调用域名解析商的接口，修改域名的记录</p>
+<p>和大部分路由器一样，OpenWrt 也支持 DDNS，通过 DDNS 的脚本执行动态更新</p>
+<h2 id="申请公网-IP"><a href="#申请公网-IP" class="headerlink" title="申请公网 IP"></a>申请公网 IP</h2><p>DDNS 需要能从外部访问，因此需要有一个公网IP；通常打电话给宽带运营商即可搞定，理由可以是需要访问 NAS、安装监控之类的；通常运营商会提供，获取到之后 PPPOE 重新拨号或者重启光猫路由器即可；通过访问 <a target="_blank" rel="noopener" href="https://tool.lu/ip/">https://tool.lu/ip/</a> 等工具，即可获取到自己的公网 IP</p>
+<p>需要注意的是，22/80/443/8080 等常用端口被运营商限制，无法访问，因此，配置 DDNS 后只能通过域名+端口的方式访问； 如果域名是 <code>.dev</code> 这类强制要求 HTTPS 访问的域名是无法在浏览器访问的</p>
+<h2 id="配置-DDNS"><a href="#配置-DDNS" class="headerlink" title="配置 DDNS"></a>配置 DDNS</h2><h3 id="安装-luci-app-ddns"><a href="#安装-luci-app-ddns" class="headerlink" title="安装 luci-app-ddns"></a>安装 luci-app-ddns</h3><p>需要安装 luci-app-ddns，用于从 OpenWrt 控制界面修改配置；通过 <code>opkg</code>命令或者 OpenWrt 控制界面的软件都可以安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">opkg update</span><br><span class="line">opkg install luci-app-ddns</span><br><span class="line">opkg install luci-i18n-ddns-zh-cn</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装-ddns-scripts-xxx"><a href="#安装-ddns-scripts-xxx" class="headerlink" title="安装 ddns-scripts-xxx"></a>安装 ddns-scripts-xxx</h3><p>DDNS 的更新由脚本执行，因此需要安装对应域名服务商的更新脚本；如 godaddy 的脚本是 ddns-scripts-godaddy；官方提供的域名服务商脚本可以从 <a target="_blank" rel="noopener" href="https://openwrt.org/packages/index/network---ip-addresses-and-names">Packagesindexnetwork—ip-addresses-and-names</a> 查看</p>
+<p>其他域名服务商可以在 GitHub 或恩山无线论坛中查找对应的软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ddns-scripts-godaddy</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置-DDNS-1"><a href="#配置-DDNS-1" class="headerlink" title="配置 DDNS"></a>配置 DDNS</h3><ul>
+<li>添加 DDNS 配置</li>
+</ul>
+<p>添加 DDNS 配置，输入 DDNS 配置名称，选择 IPV4 版本，DDNS 服务提供商选择 Godaddy</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-ddns-new-config.png" alt="homelab-openwrt-ddns-new-config.png"></p>
+<ul>
+<li>配置域名信息</li>
+</ul>
+<p>配置要更新的域名和对应云服务商的认证信息，保存并应用</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-ddns-basic-config.png" alt="homelab-openwrt-ddns-basic-config.png"></p>
+<ul>
+<li>配置公网 IP 来源</li>
+</ul>
+<p>如果是由 OpenWrt 拨号上网，IP 地址来源选择使用网络或者 WAN 接口即可；如果 OpenWrt 作为旁路由，可以通过使用 URL 或者自定义脚本进行获取；如 <a target="_blank" rel="noopener" href="http://checkip.dyndns.com/">http://checkip.dyndns.com</a></p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-ddns-ip-address-config.png" alt="homelab-openwrt-ddns-ip-address-config.png"></p>
+<ul>
+<li>修改更新时间</li>
+</ul>
+<p>默认检查时间是 30 分钟，72 小时强制更新一次；可能会出现 IP 变化了，但是没有更新的情况；因此可以缩短强制更新时间，比如每隔 1小时强制更新一次</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-ddns-update-config.png" alt="homelab-openwrt-ddns-update-config.png"></p>
+<ul>
+<li>启用 DDNS 配置</li>
+</ul>
+<p>启用后，会自动检查 IP 信息，并执行脚本更新到 DNS 服务商，随后就可以通过域名访问了</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-ddns-enable-ddns-config-2.png" alt="homelab-openwrt-ddns-enable-ddns-config-2.png"></p>
+<h2 id="公网访问内部服务"><a href="#公网访问内部服务" class="headerlink" title="公网访问内部服务"></a>公网访问内部服务</h2><p>配置 DDNS 后，通过域名访问 OpenWrt；需要注意，开启之后路由器将会完全暴露在公网，可能会被攻击或劫持；仅用于测试，不建议开启</p>
+<h3 id="配置防火墙"><a href="#配置防火墙" class="headerlink" title="配置防火墙"></a>配置防火墙</h3><p>首先需要配置路由器的防火墙策略，允许 wan 口接受入站和转发的数据（如果 OpenWrt 是旁路由，则主路由和 OpenWrt 都需要配置防火墙；如果 OpenWrt 是主路由，配置 OpenWrt 即可）</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-ddns-enable-firewall.png" alt="homelab-openwrt-ddns-enable-firewall.png"></p>
+<p>可以在外网通过 ping 当前的公网 IP 进行检查；通常可以使用手机开启热点，电脑连接该热点进行测试，观测 ping 返回的结果；假设当前公网 IP 地址是 <code>123.123.123.123</code></p>
+<ul>
+<li>如下，说明网络是通的，只需要在 OpenWrt 开启允许外网访问即可</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ping 123.123.123.123</span><br><span class="line">PING 123.123.123.123 (123.123.123.123): 56 data bytes</span><br><span class="line">64 bytes from 123.123.123.123: icmp_seq=0 ttl=55 time=17.725 ms</span><br><span class="line">64 bytes from 123.123.123.123: icmp_seq=1 ttl=55 time=16.598 ms</span><br><span class="line">64 bytes from 123.123.123.123: icmp_seq=2 ttl=55 time=9.939 ms</span><br><span class="line">^C</span><br><span class="line">--- 123.123.123.123 ping statistics ---</span><br><span class="line">8 packets transmitted, 8 packets received, 0.0% packet loss</span><br><span class="line">round-trip min/avg/max/stddev = 8.355/12.869/17.725/3.600 ms</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如下，说明发出的包超时了，需要检测当前的公网 IP 是否正确有效</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ping 123.123.123.123</span><br><span class="line">PING 123.123.123.123 (123.123.123.123): 56 data bytes</span><br><span class="line">Request timeout <span class="keyword">for</span> icmp_seq 0</span><br><span class="line">Request timeout <span class="keyword">for</span> icmp_seq 1</span><br><span class="line">Request timeout <span class="keyword">for</span> icmp_seq 2</span><br><span class="line">^C</span><br><span class="line">--- 123.123.123.123 ping statistics ---</span><br><span class="line">4 packets transmitted, 0 packets received, 100.0% packet loss</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如下，收到回包，说明发出的包被拒绝了，大部分的路由器都不允许外网 ping，因此需要配置防火墙允许访问（辣鸡小米路由器不支持）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PING 123.123.123.123 (123.123.123.123): 56 data bytes</span><br><span class="line">92 bytes from 123.123.123.123: Destination Port Unreachable</span><br><span class="line">Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src      Dst</span><br><span class="line">4  5  00 5400 971e   0 0000  38  01 ff90 127.0.0.1  123.123.123.123</span><br><span class="line"></span><br><span class="line">Request timeout for icmp_seq 0</span><br><span class="line">92 bytes from 123.123.123.123: Destination Port Unreachable</span><br><span class="line">Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src      Dst</span><br><span class="line">4  5  00 5400 cc8b   0 0000  38  01 ca23 127.0.0.1  123.123.123.123</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="添加端口转发"><a href="#添加端口转发" class="headerlink" title="添加端口转发"></a>添加端口转发</h3><p>在 OpenWrt 的网络-防火墙-端口转发中添加配置，将路由器指定端口转发给内部服务的端口</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-openwrt-ddns-add-port-forward.png" alt="homelab-openwrt-ddns-add-port-forward.png"></p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#Esxi" >
+    <span class="tag-code">Esxi</span>
+  </a>
+
+  <a href="/tags#OpenWrt" >
+    <span class="tag-code">OpenWrt</span>
+  </a>
+
+  <a href="/tags#DDNS" >
+    <span class="tag-code">DDNS</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/08/25/OpenWrt-%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8-OpenClash/">
+        <span class="nav-arrow">← </span>
+        
+          OpenWrt  安装使用 OpenClash
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/09/05/Ubuntu-22-%E8%AE%BE%E7%BD%AE%E9%9D%99%E6%80%81-IP/">
+        
+          Ubuntu 22 设置静态 IP
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Openwrt-DDNS-%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">Openwrt DDNS 配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%94%B3%E8%AF%B7%E5%85%AC%E7%BD%91-IP"><span class="toc-nav-text">申请公网 IP</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-DDNS"><span class="toc-nav-text">配置 DDNS</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85-luci-app-ddns"><span class="toc-nav-text">安装 luci-app-ddns</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85-ddns-scripts-xxx"><span class="toc-nav-text">安装 ddns-scripts-xxx</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-DDNS-1"><span class="toc-nav-text">配置 DDNS</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%85%AC%E7%BD%91%E8%AE%BF%E9%97%AE%E5%86%85%E9%83%A8%E6%9C%8D%E5%8A%A1"><span class="toc-nav-text">公网访问内部服务</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-nav-text">配置防火墙</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-nav-text">添加端口转发</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://blog.hellowood.dev/2022/08/26/Openwrt-DDNS-配置/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Openwrt-DDNS 配置",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

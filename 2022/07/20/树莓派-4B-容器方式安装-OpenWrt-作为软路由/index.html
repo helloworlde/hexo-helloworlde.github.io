@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      树莓派 4B 容器方式安装 OpenWrt 作为软路由 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>树莓派 4B 容器方式安装 OpenWrt 作为软路由</h2>
+  <p class="post-date">2022-07-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="树莓派-4B-容器方式安装-OpenWrt-作为软路由"><a href="#树莓派-4B-容器方式安装-OpenWrt-作为软路由" class="headerlink" title="树莓派 4B 容器方式安装 OpenWrt 作为软路由"></a>树莓派 4B 容器方式安装 OpenWrt 作为软路由</h1><blockquote>
+<p>在树莓派 4B，基于 Ubuntu 22.04，使用 Docker 容器的方式运行 Openwrt 作为软路由，基于 <a target="_blank" rel="noopener" href="https://github.com/SuLingGG/OpenWrt-Docker">SuLingGG/OpenWrt-Docker</a> 的方案</p>
+</blockquote>
+<ul>
+<li>什么是软路由</li>
+</ul>
+<p>硬路由以特有的硬设备，包括处理器、电源供应、嵌入式软件，提供设定的路由器功能，如常用的路由器；软路由则是指利用台式机或服务器配合软件形成路由解决方案，主要靠软件的设置，达成路由器的功能；</p>
+<p>普通路由器因为硬件性能限制，无法支持长时间处理大量流量，当家中有 NAS 等设备时，通常无法跑满带宽；通过软路由，可以让路由器只处理流量的转发，其他的功能由软路由实现</p>
+<p>通常我们使用软路由用于多线负载、宽带叠加、为局域网内的其他设备过滤广告、自定义 DNS 等扩展功能</p>
+<h2 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h2><ul>
+<li>安装 <a target="_blank" rel="noopener" href="https://ubuntu.pkgs.org/21.10/ubuntu-main-arm64/linux-modules-extra-raspi_5.13.0.1008.14_arm64.deb.html">linux-modules-extra-raspi</a></li>
+</ul>
+<p>需要保证安装了<code>linux-modules-extra-raspi</code>，否则会导致在运行容器后出现<code>Error response from daemon: failed to create the macvlan port: operation not supported</code>错误</p>
+<p><code>linux-modules-extra-raspi</code> 是树莓派 Ubuntu Arm 的不常用扩展，Ubuntu 最新的包管理中默认不包含扩展；因此需要单独安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install linux-modules-extra-raspi</span><br></pre></td></tr></table></figure>
+
+<p>安装之后需要重启树莓派</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo reboot</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置网络"><a href="#配置网络" class="headerlink" title="配置网络"></a>配置网络</h2><ul>
+<li>开启网卡混杂模式</li>
+</ul>
+<p>默认情况下网卡只会将发送给本机的包传递到上层服务，其他的包一律丢弃；开启混杂模式后机器的网卡能够接收所有流经过它的数据流，而无论其目的地址是否是它，一般用于网络分析和路由节点；</p>
+<p>树莓派只有一个有线接口，地址为 <code>eth0</code>，所以在 <code>eth0</code> 接口开启混杂模式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ip link <span class="built_in">set</span> eth0 promisc on</span><br></pre></td></tr></table></figure>
+
+<p>执行以下命令检查结果</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig eth0</span><br></pre></td></tr></table></figure>
+
+<p>网卡 flag 信息有 <code>PROMISC</code> 表示开启成功</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">eth0: flags&#x3D;4419&lt;UP,BROADCAST,RUNNING,PROMISC,MULTICAST&gt;  mtu 1500</span><br><span class="line">inet 192.168.31.2  netmask 255.255.255.0  broadcast 192.168.31.255</span><br><span class="line">inet6 2408:8207:24ac:6fc0::50c  prefixlen 128  scopeid 0x0&lt;global&gt;</span><br><span class="line">    inet6 fe80::dea6:32ff:fe5f:b43e  prefixlen 64  scopeid 0x20&lt;link&gt;</span><br><span class="line">    inet6 2408:8207:24ac:6fc0:dea6:32ff:fe5f:b43e  prefixlen 64  scopeid 0x0&lt;global&gt;</span><br><span class="line">        ether dc:a6:32:5f:b4:3e  txqueuelen 1000  (Ethernet)</span><br><span class="line">        RX packets 2705601  bytes 1502740361 (1.5 GB)</span><br><span class="line">        RX errors 0  dropped 55  overruns 0  frame 0</span><br><span class="line">        TX packets 2314782  bytes 826118897 (826.1 MB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="配置-OpenWrt-容器"><a href="#配置-OpenWrt-容器" class="headerlink" title="配置 OpenWrt 容器"></a>配置 OpenWrt 容器</h2><ol>
+<li>创建 <code>macvlan</code></li>
+</ol>
+<p><code>macvlan</code> 是一种网卡虚拟化技术，允许在同一个物理网卡上配置多个 MAC 地址，即多个 <code>interface</code>，每个 <code>interface</code> 可以配置自己的 IP；<code>macvlan</code>直接通过以太网的 <code>interface</code> 连接到物理网络，因此性能极好</p>
+<p>因此，软路由需要使用 <code>macvlan</code> 配合混杂模式在容器中实现路由功能</p>
+<p>Docker 创建 <code>macvlan</code> 时要确定所在的网段，可以在路由器后台进行确认；如小米路由器常用的是 <code>192.168.31.0/24</code>网段；在创建网络时需要保证子网网段<code>subnet</code>和网关地址<code>gateway</code>参数与当前网络一致</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create -d macvlan --subnet=192.168.31.0/24 --gateway=192.168.31.1 -o parent=eth0 macnet</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>创建容器</li>
+</ol>
+<p>创建容器时需要指定网络为刚才创建的 <code>macnet</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --restart always --name openwrt -d --network macnet --privileged   sulinggg/openwrt:rpi4 /sbin/init</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>修改容器网络配置</li>
+</ol>
+<p>容器成功运行后还无法直接使用，需要进入到容器中修改 OpenWrt 的网络配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it openwrt bash</span><br></pre></td></tr></table></figure>
+
+<p>修改网络</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/config/network</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li> <code>ipaddr</code> 为 OpenWrt 分配 IP 地址，因为 OpenWrt 使用了独立的 Mac 地址，所以这个 IP 地址不能和树莓派的相同，否则会无法访问；如树莓派的 IP 地址为 <code>192.168.31.2</code>，可以将 OpenWrt 的 IP 改为 <code>192.168.31.4</code></li>
+<li><code>gateway</code> 为当前局域网的网关地址，即 <code>192.168.31.1</code></li>
+<li><code>dns</code>  需要指定 DNS，否则无法将域名解析为 IP，建议使用路由器的地址，或者使用 <code>114.114.114.114</code>等常用 DNS 服务器</li>
+</ul>
+<p>需要注意的是，使用到的 IP 都应该是固定的，可以在路由器中配置 DHCP 进行 Mac 地址绑定</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">config interface <span class="string">&#x27;lan&#x27;</span></span><br><span class="line">option <span class="built_in">type</span> <span class="string">&#x27;bridge&#x27;</span></span><br><span class="line">option ifname <span class="string">&#x27;eth0&#x27;</span></span><br><span class="line">option proto <span class="string">&#x27;static&#x27;</span></span><br><span class="line">option netmask <span class="string">&#x27;255.255.255.0&#x27;</span></span><br><span class="line">option ip6assign <span class="string">&#x27;60&#x27;</span></span><br><span class="line">option ipaddr <span class="string">&#x27;192.168.31.4&#x27;</span></span><br><span class="line">option gateway <span class="string">&#x27;192.168.31.1&#x27;</span></span><br><span class="line">option dns <span class="string">&#x27;114.114.114.114&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>修改完成后重启容器的网络</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/network restart</span><br></pre></td></tr></table></figure>
+<p>重启完成后访问 <a target="_blank" rel="noopener" href="http://192.168.31.4/">http://192.168.31.4</a>，使用账户 <code>root</code> 和密码 <code>password</code> 即可进入管理页面</p>
+<ol start="4">
+<li>OpenWrt 配置</li>
+</ol>
+<p>登录后在 <code>网络-接口</code>中修改 <code>LAN</code> 接口，在底层基本设置中选择<code>忽略此接口</code>，使用默认路由器做 DHCP 服务器<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/openwrt-config-dhcp.png" alt="openwrt-config-dhcp.png"></p>
+<h2 id="使用-OpenWrt"><a href="#使用-OpenWrt" class="headerlink" title="使用 OpenWrt"></a>使用 OpenWrt</h2><p>有两种使用方式：</p>
+<p>一种是将 OpenWrt 作为路由器的网关，这样所有使用路由器的设备的流量都会被 OpenWrt 处理，这种方式要求路由器支持指定网关(辣鸡小米路由器没有 root 不支持指定，且官方已不支持 root)，并且 OpenWrt 足够稳定，否则会影响使用；</p>
+<p>另一种方式是通过在设备端指定 OpenWrt 作为网关，只有这些设备的流量会被软路由处理，这种方式需要设备端支持（大部分 IoT 设备无法配置）<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/openwrt-usage-mac.png" alt="openwrt-usage-mac.png"></p>
+<h2 id="配置重启后网卡默认使用混杂模式"><a href="#配置重启后网卡默认使用混杂模式" class="headerlink" title="配置重启后网卡默认使用混杂模式"></a>配置重启后网卡默认使用混杂模式</h2><p>网卡的混杂模式会在系统重启后失效，需要在系统启动后自定配置混杂模式，参考 <a target="_blank" rel="noopener" href="https://askubuntu.com/questions/1355974/how-to-enable-promiscuous-mode-permanently-on-a-nic-managed-by-networkmanager">How to enable Promiscuous Mode permanently on a NIC managed by NetworkManager?</a>，通过注册一个单独的服务启用网卡混杂模式</p>
+<ol>
+<li>添加 <code>oneshot</code>服务，在网络启动之后执行，配置 <code>eth0</code> 网卡为混杂模式</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">sudo bash -c <span class="string">&#x27;cat &gt; /etc/systemd/system/eth0-promisc.service&#x27;</span> &lt;&lt;<span class="string">&#x27;EOS&#x27;</span></span><br><span class="line">[Unit]</span><br><span class="line">Description=Makes interfaces run <span class="keyword">in</span> promiscuous mode at boot</span><br><span class="line">After=network-online.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=oneshot</span><br><span class="line">ExecStart=/usr/sbin/ip link <span class="built_in">set</span> dev eth0 promisc on</span><br><span class="line">TimeoutStartSec=0</span><br><span class="line">RemainAfterExit=yes</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=default.target</span><br><span class="line">EOS</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>启用注册的服务</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl <span class="built_in">enable</span> eth0-promisc</span><br></pre></td></tr></table></figure>
+
+<p>这样，在系统重启后依然可以正常使用 OpenWrt</p>
+<h2 id="修复宿主机与-OpenWrt-无法通信问题"><a href="#修复宿主机与-OpenWrt-无法通信问题" class="headerlink" title="修复宿主机与 OpenWrt 无法通信问题"></a>修复宿主机与 OpenWrt 无法通信问题</h2><p>Docker 的 <code>macvlan</code> 为了安全禁止宿主机与容器通信，因此宿主机和 OpenWrt 无法互相访问，导致宿主机上的一些监控无法从 OpenWrt 拉取数据；可以通过在宿主机上再创建一个 <code>macvlan</code> 接口，修改路由规则解决该问题</p>
+<h3 id="配置-macvlan-接口"><a href="#配置-macvlan-接口" class="headerlink" title="配置 macvlan 接口"></a>配置 macvlan 接口</h3><ul>
+<li>宿主机创建 <code>macvlan</code> 接口</li>
+</ul>
+<p>在宿主机上添加了一个新的 <code>macvlan</code> 桥接 <code>eth0</code> 的接口，名称为 <code>openwrt-bridge</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip link add openwrt-bridge link eth0 <span class="built_in">type</span> macvlan mode bridge</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>为 <code>openwrt-bridge</code> 接口配置 IP 并启用</li>
+</ul>
+<p>为 <code>openwrt-bridge</code> 接口配置不冲突的 IP地址 <code>192.168.31.6</code>，并启用该接口</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ip addr add 192.168.31.6 dev openwrt-bridge</span><br><span class="line">ip link <span class="built_in">set</span> openwrt-bridge up</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>配置路由规则，添加 OpenWrt</li>
+</ul>
+<p>将 OpenWrt 的 IP 地址添加到 <code>openwrt-bridge</code> 接口的路由规则中，即可实现宿主机与 OpenWrt 容器的互相通信</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route add 192.168.31.4 dev openwrt-bridge</span><br></pre></td></tr></table></figure>
+<h3 id="配置重启后自动使用-macvlan-接口"><a href="#配置重启后自动使用-macvlan-接口" class="headerlink" title="配置重启后自动使用 macvlan 接口"></a>配置重启后自动使用 macvlan 接口</h3><p>同样通过添加一个 <code>oneshot</code>服务的方式配置</p>
+<ol>
+<li>添加 <code>oneshot</code>服务，在网络启动之后执行，添加 <code>macvlan</code> 网卡</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">sudo bash -c <span class="string">&#x27;cat &gt; /etc/systemd/system/openwrt-bridge.service&#x27;</span> &lt;&lt;<span class="string">&#x27;EOS&#x27;</span></span><br><span class="line">[Unit]</span><br><span class="line">Description=Add network interface <span class="keyword">for</span> openwrt at boot</span><br><span class="line">After=network-online.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=oneshot</span><br><span class="line">ExecStart=/usr/sbin/ip link add openwrt-bridge link eth0 <span class="built_in">type</span> macvlan mode bridge</span><br><span class="line">ExecStart=/usr/sbin/ip addr add 192.168.31.6 dev openwrt-bridge</span><br><span class="line">ExecStart=/usr/sbin/ip link <span class="built_in">set</span> openwrt-bridge up</span><br><span class="line">ExecStart=/usr/sbin/ip route add 192.168.31.4 dev openwrt-bridge</span><br><span class="line">ExecStop=/usr/sbin/ip link delete openwrt-bridge</span><br><span class="line">TimeoutStartSec=0</span><br><span class="line">RemainAfterExit=yes</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=default.target</span><br><span class="line">EOS</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>启用注册的服务</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl <span class="built_in">enable</span> openwrt-bridge</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="%E7%90%86%E8%A7%A3%20macvlan">https://switch-router.gitee.io/blog/macvlan/</a></li>
+<li><a target="_blank" rel="noopener" href="https://mlapp.cn/376.html">在Docker 中运行 OpenWrt 旁路网关</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.oddbit.com/post/2018-03-12-using-docker-macvlan-networks/">USING DOCKER MACVLAN NETWORKS</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/39032100/what-is-the-difference-between-systemds-oneshot-and-simple-service-types">What is the difference between systemd’s ‘oneshot’ and ‘simple’ service types?</a></li>
+<li><a target="_blank" rel="noopener" href="https://trstringer.com/simple-vs-oneshot-systemd-service/">Simple vs Oneshot - Choosing a systemd Service Type</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#OpenWrt" >
+    <span class="tag-code">OpenWrt</span>
+  </a>
+
+  <a href="/tags#RaspberryPi" >
+    <span class="tag-code">RaspberryPi</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/06/30/MacOS-Monterey-%E5%88%B6%E4%BD%9C-Windows-%E5%90%AF%E5%8A%A8%E7%9B%98/">
+        <span class="nav-arrow">← </span>
+        
+          MacOS Monterey 制作 Windows 启动盘
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/07/22/Openwrt-%E5%9C%A8-Esxi-%E4%B8%AD%E4%BB%A5%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85/">
+        
+          Openwrt 在 Esxi 中以虚拟机方式安装
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E6%A0%91%E8%8E%93%E6%B4%BE-4B-%E5%AE%B9%E5%99%A8%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85-OpenWrt-%E4%BD%9C%E4%B8%BA%E8%BD%AF%E8%B7%AF%E7%94%B1"><span class="toc-nav-text">树莓派 4B 容器方式安装 OpenWrt 作为软路由</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">安装依赖</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E7%BD%91%E7%BB%9C"><span class="toc-nav-text">配置网络</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-OpenWrt-%E5%AE%B9%E5%99%A8"><span class="toc-nav-text">配置 OpenWrt 容器</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-OpenWrt"><span class="toc-nav-text">使用 OpenWrt</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E9%87%8D%E5%90%AF%E5%90%8E%E7%BD%91%E5%8D%A1%E9%BB%98%E8%AE%A4%E4%BD%BF%E7%94%A8%E6%B7%B7%E6%9D%82%E6%A8%A1%E5%BC%8F"><span class="toc-nav-text">配置重启后网卡默认使用混杂模式</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BF%AE%E5%A4%8D%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B8%8E-OpenWrt-%E6%97%A0%E6%B3%95%E9%80%9A%E4%BF%A1%E9%97%AE%E9%A2%98"><span class="toc-nav-text">修复宿主机与 OpenWrt 无法通信问题</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-macvlan-%E6%8E%A5%E5%8F%A3"><span class="toc-nav-text">配置 macvlan 接口</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E9%87%8D%E5%90%AF%E5%90%8E%E8%87%AA%E5%8A%A8%E4%BD%BF%E7%94%A8-macvlan-%E6%8E%A5%E5%8F%A3"><span class="toc-nav-text">配置重启后自动使用 macvlan 接口</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-nav-text">参考文档</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://blog.hellowood.dev/2022/07/20/树莓派-4B-容器方式安装-OpenWrt-作为软路由/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "树莓派 4B 容器方式安装 OpenWrt 作为软路由",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

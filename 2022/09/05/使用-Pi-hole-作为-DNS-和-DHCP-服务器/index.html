@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      使用 Pi-hole 作为 DNS 和 DHCP 服务器 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>使用 Pi-hole 作为 DNS 和 DHCP 服务器</h2>
+  <p class="post-date">2022-09-05</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>@(HomeLab)[Pi-hole]</p>
+<h1 id="使用-Pi-hole-作为-DNS-和-DHCP-服务器"><a href="#使用-Pi-hole-作为-DNS-和-DHCP-服务器" class="headerlink" title="使用 Pi-hole 作为 DNS 和 DHCP 服务器"></a>使用 Pi-hole 作为 DNS 和 DHCP 服务器</h1><p>在使用 OpenWrt 的过程中，因为会经常修改 OpenWrt 的配置，导致 OpenWrt 出问题重新安装后没有来得及备份的配置丢失；其中以 IP 地址静态分配最多</p>
+<p>另外，因为需要通过 DNS 做广告拦截，所以需要使用 Pi-hole 作为 DNS 服务器，但是 Pi-hole 提供的 DNS 服务都是国外的，所以为了快速解析国内的 DNS，需要使用 Smartdns 作为 Pi-hole DNS 的上游；DNS 的解析在 Smartdns 中提供</p>
+<h2 id="配置-Docker-macvlan-网络"><a href="#配置-Docker-macvlan-网络" class="headerlink" title="配置 Docker macvlan 网络"></a>配置 Docker macvlan 网络</h2><p>因为在同一个服务器上提供了多个服务，因此存在端口冲突问题，Pi-hole 和 Smartdns 都需要 53 端口用于提供 DNS，而且 53 端口默认被 Ubuntu Server 使用；而且局域网中的设备需要访问 DHCP 服务，因此为了避免冲突，需要使用 <code>macvlan</code> 作为 Docker 网络的驱动</p>
+<p><code>macvlan</code> 是一种网卡虚拟化技术，允许在同一个物理网卡上配置多个 MAC 地址，即多个 interface，每个 interface 可以配置自己的 IP</p>
+<p>通过 <code>macvlan</code>，可以为每个 Docker 容器提供特定的 IP 地址，用于局域网内的设置直接通过容器的 IP 地址访问</p>
+<ul>
+<li>开启网卡混杂模式</li>
+</ul>
+<p>默认情况下网卡只会将发送给本机的包传递到上层服务，其他的包一律丢弃；开启混杂模式后机器的网卡能够接收所有流经过它的数据流，而无论其目的地址是否是它，因此，为了能让 Docker 容器能正常收到其他设备的请求，需要开启网卡混杂模式；需要注意 <code>eth0</code> 要和实际的网卡名称一致</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ip link <span class="built_in">set</span> eth0 promisc on</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建 macvlan 网络</li>
+</ul>
+<p>创建 macvlan 网络时，指定其 IP 范围和网关，与局域网一致，方便直接访问</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create -d macvlan --subnet=192.168.2.0/24 --gateway=192.168.2.1 -o parent=eth0 macnet</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装配置-Smartdns"><a href="#安装配置-Smartdns" class="headerlink" title="安装配置 Smartdns"></a>安装配置 Smartdns</h2><p>以容器的方式运行 Smartdns，在配置中指定其上游 DNS</p>
+<ul>
+<li>smartdns.conf</li>
+</ul>
+<p>在配置中添加了常用的 DNS 服务商作为上游 DNS ，可以通过 ping 的方式检查响应延时，删除超时的 DNS 上游</p>
+<p>建议不要开启 IPV6，也不要使用 IPV6 地址作为 DNS 解析，开启后会导致网络非常明显的变慢</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">#https:&#x2F;&#x2F;github.com&#x2F;pymumu&#x2F;smartdns&#x2F;blob&#x2F;master&#x2F;etc&#x2F;smartdns&#x2F;smartdns.conf</span><br><span class="line"># 服务器名称</span><br><span class="line">sever-name smartdns</span><br><span class="line"># 监听端口号</span><br><span class="line">bind-tcp [::]:53</span><br><span class="line">bind [::]:53</span><br><span class="line"></span><br><span class="line"># TCP 链接空闲超时时间</span><br><span class="line">tcp-idle-time 3</span><br><span class="line"># 域名结果缓存个数</span><br><span class="line">cache-size 0</span><br><span class="line"># 域名预先获取功能</span><br><span class="line">prefetch-domain yes</span><br><span class="line"># 过期缓存服务功能</span><br><span class="line">serve-expired yes</span><br><span class="line"># 过期缓存服务最长超时时间</span><br><span class="line">serve-expired-ttl 0</span><br><span class="line"></span><br><span class="line"># 测速模式选择</span><br><span class="line">speed-check-mode tcp:80,tcp:443,ping</span><br><span class="line"># 首次查询响应模式 fisrt-ping|fastest-ip|fastest-response</span><br><span class="line">response-mode first-ping</span><br><span class="line"></span><br><span class="line"># TTL 值</span><br><span class="line">rr-ttl-min 60</span><br><span class="line">rr-ttl-max 86400</span><br><span class="line"></span><br><span class="line"># 禁止使用 IPV6 解析</span><br><span class="line">force-AAAA-SOA yes</span><br><span class="line"># 双栈选优</span><br><span class="line"># dualstack-ip-selection yes</span><br><span class="line"></span><br><span class="line"># 上游 UDP DNS</span><br><span class="line">server 223.5.5.5</span><br><span class="line">server 119.29.29.29</span><br><span class="line">server 172.20.64.240</span><br><span class="line">server 192.168.4.251</span><br><span class="line">server 8.8.8.8 -blacklist-ip -check-edns</span><br><span class="line"></span><br><span class="line"># 上游 TCP DNS</span><br><span class="line">server-tcp 223.5.5.5</span><br><span class="line">server-tcp 223.6.6.6</span><br><span class="line">server-tcp 119.29.29.29</span><br><span class="line">server-tcp 64.6.64.6</span><br><span class="line">server-tcp 114.114.114.119</span><br><span class="line"># 上游 TLS DNS</span><br><span class="line">server-tls 1.1.1.1</span><br><span class="line">server-tls 8.8.4.4</span><br><span class="line">server-tls 9.9.9.9</span><br><span class="line"># 上游 HTTPS DNS</span><br><span class="line">server-https https:&#x2F;&#x2F;cloudflare-dns.com&#x2F;dns-query</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动 Smardns 容器</li>
+</ul>
+<p>在启动容器时指定 IP 地址为局域网内不冲突的固定 IP 地址；同时挂载配置文件到容器中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run --restart always \</span><br><span class="line">--name smartdns \</span><br><span class="line">-d --network macnet \</span><br><span class="line">--ip 192.168.2.21 \</span><br><span class="line">-v /workspace/smartdns/:/smartdns \</span><br><span class="line">ghostry/smartdns</span><br></pre></td></tr></table></figure>
+
+<p>在启动完成后，使用 <code>telnet</code> 检查是否可以正常访问 53 端口</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">telnet 192.168.2.21 53</span><br><span class="line"></span><br><span class="line">Trying ::1...</span><br><span class="line">Connected to 192.168.2.20.</span><br><span class="line">Escape character is <span class="string">&#x27;^]&#x27;</span>.</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装配置-Pi-hole"><a href="#安装配置-Pi-hole" class="headerlink" title="安装配置 Pi-hole"></a>安装配置 Pi-hole</h2><ul>
+<li>启动 Pi-hole 容器</li>
+</ul>
+<p>启动 Pi-hole 时同样需要指定 IP 地址</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run --restart always \</span><br><span class="line">--name pihole \</span><br><span class="line">-d --network macnet \</span><br><span class="line">--ip 192.168.2.20 \</span><br><span class="line">pihole/pihole</span><br></pre></td></tr></table></figure>
+
+<p>启动后访问 Pi-hole 的管理界面 <a target="_blank" rel="noopener" href="http://192.168.2.20/admin">http://192.168.2.20/admin</a>，这时需要提供访问密码，可以进入到容器中进行修改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it pihole bash</span><br></pre></td></tr></table></figure>
+
+<p>修改密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo pihole -a -p</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-dns-pihole-dashboard.png" alt="homelab-dns-pihole-dashboard.png"></p>
+<ul>
+<li>配置 Smartdns 作为上游服务器</li>
+</ul>
+<p>在 Settings - DNS 中，配置上游的 DNS 服务，将 Smartdns 作为第一个上游服务服务；同时可以添加其他 DNS 服务，避免在 Smartdns 出现问题时使用其他 DNS 服务器<br>修改接口配置，允许所有的查询来源</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-pihole-dns-upstream-config.png" alt="homelab-pihole-dns-upstream-config.png"></p>
+<ul>
+<li>配置 DHCP</li>
+</ul>
+<p>在 Settings - DNS 中，启用 DHCP，指定分配的 IP 范围、路由器地址、本地域名以及 DHCP 过期时间</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-pihole-dhcp-config.png" alt="homelab-pihole-dhcp-config.png"></p>
+<h2 id="路由器配置-DHCP-和-DNS-服务"><a href="#路由器配置-DHCP-和-DNS-服务" class="headerlink" title="路由器配置 DHCP 和 DNS 服务"></a>路由器配置 DHCP 和 DNS 服务</h2><p>在路由器配置中， 选择关闭 DHCP，并指定 DNS 为 Pi-hole 的地址，重启路由器后，即可生效</p>
+<ul>
+<li>关闭 DHCP</li>
+</ul>
+<p>在网络-接口-LAN 中选择忽略此接口</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-pihole-openwrt-close-dhcp-config.png" alt="homelab-pihole-openwrt-close-dhcp-config.png"></p>
+<ul>
+<li>配置 DNS</li>
+</ul>
+<p>在网络-接口-LAN 配置中，将自定义的 DNS 服务器指向 Pi-hole 的地址</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-pihole-openwrt-dns-config.png" alt="homelab-pihole-openwrt-dns-config.png"></p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Docker" >
+    <span class="tag-code">Docker</span>
+  </a>
+
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#DNS" >
+    <span class="tag-code">DNS</span>
+  </a>
+
+  <a href="/tags#Pi-hole" >
+    <span class="tag-code">Pi-hole</span>
+  </a>
+
+  <a href="/tags#DHCP" >
+    <span class="tag-code">DHCP</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/09/05/Ubuntu-22-%E8%AE%BE%E7%BD%AE%E9%9D%99%E6%80%81-IP/">
+        <span class="nav-arrow">← </span>
+        
+          Ubuntu 22 设置静态 IP
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/09/09/Ubuntu-Server-22-%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%A9%BA%E9%97%B4%E6%89%A9%E5%AE%B9/">
+        
+          Ubuntu Server 22 虚拟机空间扩容
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8-Pi-hole-%E4%BD%9C%E4%B8%BA-DNS-%E5%92%8C-DHCP-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-nav-text">使用 Pi-hole 作为 DNS 和 DHCP 服务器</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE-Docker-macvlan-%E7%BD%91%E7%BB%9C"><span class="toc-nav-text">配置 Docker macvlan 网络</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE-Smartdns"><span class="toc-nav-text">安装配置 Smartdns</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE-Pi-hole"><span class="toc-nav-text">安装配置 Pi-hole</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%B7%AF%E7%94%B1%E5%99%A8%E9%85%8D%E7%BD%AE-DHCP-%E5%92%8C-DNS-%E6%9C%8D%E5%8A%A1"><span class="toc-nav-text">路由器配置 DHCP 和 DNS 服务</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://blog.hellowood.dev/2022/09/05/使用-Pi-hole-作为-DNS-和-DHCP-服务器/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "使用 Pi-hole 作为 DNS 和 DHCP 服务器",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

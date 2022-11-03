@@ -152,403 +152,179 @@
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/12/23/gRPC-%E4%B8%AD%E7%9B%91%E5%90%AC-Sream-%E5%92%8C-Transport-%E7%9A%84%E4%BA%8B%E4%BB%B6/">gRPC 中监听 Sream 和 Transport 的事件</a>
+        <a href="/2022/06/30/MacOS-Monterey-%E5%88%B6%E4%BD%9C-Windows-%E5%90%AF%E5%8A%A8%E7%9B%98/">MacOS Monterey 制作 Windows 启动盘</a>
       </h2>
-      <p class="article-date">December 23, 2020</p>
+      <p class="article-date">June 30, 2022</p>
       
         
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#MacOS" >
+    <span class="tag-code">MacOS</span>
+  </a>
+
+  <a href="/tags#Windows" >
+    <span class="tag-code">Windows</span>
+  </a>
+
+  <a href="/tags#ISO" >
+    <span class="tag-code">ISO</span>
   </a>
 
       
       <div class="article-summary">
         
-          gRPC 中监听 Sream 和 Transport 的事件gRPC 提供了拦截器可以监听请求的事件，但是对于 Stream 或者 Transport 的具体事件，无法通过拦截器实现；gRPC 提供了 StreamTracer 和 TransportFilter 支持这样的能力
-Stream ...
+          MacOS Monterey 制作 Windows 启动盘
+需要在新的电脑安装 Windows 系统，但是手里只有 Mac，所以需要通过 Mac 制作 Windows 启动盘
+
+
+搜到的一些方法，如启动转换助理，或者 balenaEtcher 等；但是启动转换助理在 Monterey 上不支 ...
         
       </div>
-      <a class="more" href="/2020/12/23/gRPC-%E4%B8%AD%E7%9B%91%E5%90%AC-Sream-%E5%92%8C-Transport-%E7%9A%84%E4%BA%8B%E4%BB%B6/">Read more</a>
+      <a class="more" href="/2022/06/30/MacOS-Monterey-%E5%88%B6%E4%BD%9C-Windows-%E5%90%AF%E5%8A%A8%E7%9B%98/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/12/15/gRPC-Server-%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">gRPC Server 端请求处理流程</a>
+        <a href="/2021/04/24/%E6%A0%91%E8%8E%93%E6%B4%BE-4b-%E5%AE%89%E8%A3%85-Kubernetes/">树莓派 4b 安装 Kubernetes</a>
       </h2>
-      <p class="article-date">December 15, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC Server 端请求处理流程[TOC]
-初始化
-创建并启动 ServerTransport
-
-在 Server 启动的时候，最终调用 NettyServer 的 start() 方法，为 ServerBootstrap 添加了 ChannelInitializer，最终，当有新的连 ...
-        
-      </div>
-      <a class="more" href="/2020/12/15/gRPC-Server-%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/12/05/gRPC-Server-%E7%AB%AF%E5%85%B3%E9%97%AD%E6%B5%81%E7%A8%8B/">gRPC Server 端关闭流程</a>
-      </h2>
-      <p class="article-date">December 5, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC Server 端关闭流程关闭 Server关闭 Server 可以使用 shutdown 或者 shutdownNow 方法
-shutdown1server.shutdown().awaitTermination(10, TimeUnit.SECONDS);
-
-
-io.grpc.i ...
-        
-      </div>
-      <a class="more" href="/2020/12/05/gRPC-Server-%E7%AB%AF%E5%85%B3%E9%97%AD%E6%B5%81%E7%A8%8B/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/12/05/gRPC-Server-%E7%AB%AF%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">gRPC Server 端启动流程</a>
-      </h2>
-      <p class="article-date">December 5, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC Server 端启动流程gRPC Server 启动流程，底层实现以 Netty 为例；
-核心类
-io.grpc.Server 
-
-Server 的定义接口，实现类是 io.grpc.internal.ServerImpl，实现了服务、方法与方法处理器的绑定，端口监听，不同类型的  ...
-        
-      </div>
-      <a class="more" href="/2020/12/05/gRPC-Server-%E7%AB%AF%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/11/18/gRPC-Channel/">gRPC Channel</a>
-      </h2>
-      <p class="article-date">November 18, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC ChannelChannel 是用于执行 RPC 请求的概念上的端点连接，基于负载和配置，一个 Channel 可以有 0 或多个真实连接
-Subchannel 代表逻辑连接，最多维护一个物理连接发送 RPC，对应多个 Transport 
-
-Channel 有多个子类：
-
-Man ...
-        
-      </div>
-      <a class="more" href="/2020/11/18/gRPC-Channel/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/11/17/gRPC-Client-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">gRPC Client 启动流程</a>
-      </h2>
-      <p class="article-date">November 17, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC Client 启动流程gRPC 启动初始化的流程，使用 Netty 作为底层的实现
-初始化 ChannelChannel 的初始化通过 ChannelBuilder 构建这里通过 forTarget 设置了要解析的服务名称，会通过 NameResolver 解析，转换为具体的地址
- ...
-        
-      </div>
-      <a class="more" href="/2020/11/17/gRPC-Client-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/11/08/gRPC-Stream/">gRPC Stream</a>
-      </h2>
-      <p class="article-date">November 8, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC StreamStream 在 gRPC 中代表一个真正的请求，包含要发送的 消息；Stream 分为 ClientStream 和 ServerStream
-
-ClientStreamClientStream 接口继承 Stream 接口，有多个实现类或抽象实现类：
-
-Forwar ...
-        
-      </div>
-      <a class="more" href="/2020/11/08/gRPC-Stream/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/10/22/gRPC-Transport/">gRPC Transport</a>
-      </h2>
-      <p class="article-date">October 22, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC TransportTransport 分为 ClientTransport 和 ServerTransport，分别用于客户端和服务端
-
-ClientTransportClientTransport 与真正的 IP 地址是一一对应的，用于建立连接，创建流
-实现ClientTrans ...
-        
-      </div>
-      <a class="more" href="/2020/10/22/gRPC-Transport/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/29/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-LoadBalancer/">gRPC 使用自定义的 LoadBalancer</a>
-      </h2>
-      <p class="article-date">September 29, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC 使用自定义的 LoadBalancergRPC 中提供了 round_robin, pick_first, grpclb, HealthCheckingRoundRobin 等负载均衡的实现，默认使用HealthCheckingRoundRobin，该负载均衡支持检查 Subcha ...
-        
-      </div>
-      <a class="more" href="/2020/09/29/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-LoadBalancer/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%E4%B8%8E%E9%87%8D%E8%AF%95%E6%97%B6%E9%97%B4%E9%97%B4%E9%9A%94/">gRPC 超时时间与重试时间间隔</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC 超时时间与重试时间间隔
-gRPC 的超时时间生效机制以及重试超时时间间隔 
-
-超时时间配置对指定的服务和方法单独设置超时时间，timeout 作用于所有的 RPC 请求（无论是否重试，都会在 timeout 的时间之后超时，进行中的重试请求会被取消）
-123456789101112 ...
-        
-      </div>
-      <a class="more" href="/2020/09/20/gRPC-%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%E4%B8%8E%E9%87%8D%E8%AF%95%E6%97%B6%E9%97%B4%E9%97%B4%E9%9A%94/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/">gRPC 中的核心概念</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC 中的核心概念StubStub 层暴露给开发者，提供类型安全的绑定到正在适应的数据模型/IDL/接口
-ChannelChannel 层是传输处理之上的抽象，适合拦截器、装饰器，并比 Stub 层暴露更多的行为给应用一个 Channel 可能有多个 Subchannel 
-Subcha ...
-        
-      </div>
-      <a class="more" href="/2020/09/20/gRPC-%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E9%87%8D%E8%AF%95%E6%B5%81%E7%A8%8B/">gRPC 重试流程</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC 重试流程当第一次调用失败，流监听器关闭的时候，会根据请求的处理状态和方法的配置，判断是否需要重试
-请求的处理状态有三种，在io.grpc.internal.ClientStreamListener.RpcProgress中定义：
-
-PROCESSED: 请求被正常处理，按照返回的状 ...
-        
-      </div>
-      <a class="more" href="/2020/09/20/gRPC-%E9%87%8D%E8%AF%95%E6%B5%81%E7%A8%8B/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E5%AF%B9%E5%86%B2%E5%8E%9F%E7%90%86/">gRPC 对冲原理</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC 对冲原理gRPC 对冲开启后，当请求在指定的时间间隔后没有返回时，会发起对冲请求，继续等待，如果依然没有返回，则重复发送直到接收到返回结果或者超时取消
-对冲适用于当下游服务部分节点故障无法及时响应或者响应不及时的场景，通过对冲可以减少请求的失败率，但是可能会导致延时增加
-对冲和重试 ...
-        
-      </div>
-      <a class="more" href="/2020/09/20/gRPC-%E5%AF%B9%E5%86%B2%E5%8E%9F%E7%90%86/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">gRPC  自定义健康检查</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC  自定义健康检查在 gRPC 中自定义健康检查逻辑，用于检查特定的组件(如检查 Redis、MQ 等)，或者结合其他的服务组件一起使用(如使用 Spring Boot 的健康检查)
-实现gRPC 的健康检查服务是通过 health.proto定义的
-
-health.proto
-
-1 ...
-        
-      </div>
-      <a class="more" href="/2020/09/20/gRPC-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">gRPC  健康检查</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC  健康检查在 gRPC 中使用健康检查，在负载均衡前通过健康检查，只对健康的 Subchannel 发起请求，保证请求的成功率
-使用Server 端健康检查是一个独立的 Service，需要在 Server 端显式添加健康检查服务
-健康检查定义了两个方法，一个适用于单次请求的 ch ...
-        
-      </div>
-      <a class="more" href="/2020/09/20/gRPC-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">gRPC  负载均衡</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
-      
-        
-  <a href="/tags#gRPC" >
-    <span class="tag-code">gRPC</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          gRPC  负载均衡gRPC 内定义了  LoadBalancer 接口，用于负载均衡
-
-LoadBalancer 中的主要方法
-
-handleResolvedAddress：处理  NameResolver 解析的地址，用于创建 Subchannel
-handleNameResolutio ...
-        
-      </div>
-      <a class="more" href="/2020/09/20/gRPC-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">Read more</a>
-    </article>
-  
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/09/20/HPA-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E6%8C%87%E6%A0%87%E8%87%AA%E5%8A%A8%E6%89%A9%E7%BC%A9%E5%AE%B9/">HPA 使用自定义的指标自动扩缩容</a>
-      </h2>
-      <p class="article-date">September 20, 2020</p>
+      <p class="article-date">April 24, 2021</p>
       
         
   <a href="/tags#Kubernetes" >
     <span class="tag-code">Kubernetes</span>
   </a>
 
+  <a href="/tags#RaspberryPi" >
+    <span class="tag-code">RaspberryPi</span>
+  </a>
+
+  <a href="/tags#K3S" >
+    <span class="tag-code">K3S</span>
+  </a>
+
+  <a href="/tags#Rancher" >
+    <span class="tag-code">Rancher</span>
+  </a>
+
       
       <div class="article-summary">
         
-          HPA 使用自定义的指标自动扩缩容Kubernetes 支持使用自定义的指标作为 HPA 的依据；
-KEDA 是基于事件驱动的自动扩缩容组件；主要有两部分：
-
-Agent: 用于触发和停用扩缩容，通过 keda-operator 实现
-Metrics: 用于收集指标，提供给 Agent，通过 ...
+          树莓派 4b 安装 KubernetesK3S 是 Rancher 提供的用于边缘硬件的简化版本的 Kubernetes，基本能力和 Kubernetes 接近，适用于 IoT 硬件，支持 x86_64, ARMv7, ARM64 等
+安装在 Ubuntu Server 21.04 上安装  ...
         
       </div>
-      <a class="more" href="/2020/09/20/HPA-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E6%8C%87%E6%A0%87%E8%87%AA%E5%8A%A8%E6%89%A9%E7%BC%A9%E5%AE%B9/">Read more</a>
+      <a class="more" href="/2021/04/24/%E6%A0%91%E8%8E%93%E6%B4%BE-4b-%E5%AE%89%E8%A3%85-Kubernetes/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E5%91%BD%E5%90%8D%E8%A7%A3%E6%9E%90/">gRPC 命名解析</a>
+        <a href="/2021/04/24/%E6%A0%91%E8%8E%93%E6%B4%BE-4b-%E4%BD%BF%E7%94%A8-WiFi-%E4%BB%8E-SSD-Headless-%E5%90%AF%E5%8A%A8/">树莓派 4b 使用 WiFi 从 SSD Headless 启动</a>
       </h2>
-      <p class="article-date">September 20, 2020</p>
+      <p class="article-date">April 24, 2021</p>
+      
+        
+  <a href="/tags#Ubuntu" >
+    <span class="tag-code">Ubuntu</span>
+  </a>
+
+  <a href="/tags#RaspberryPi" >
+    <span class="tag-code">RaspberryPi</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          树莓派 4 使用 WiFi 从 SSD Headless 启动树莓派已经默认支持从 SSD 启动，可以根据官方提供的工具初始化树莓派系统并启动；尝试通过安装 Ubuntu Server，不使用网线、显示器、键盘等，从 SSD 直接启动
+依赖
+树莓派 4 
+Mac
+SSD 
+
+安装 Ubunt ...
+        
+      </div>
+      <a class="more" href="/2021/04/24/%E6%A0%91%E8%8E%93%E6%B4%BE-4b-%E4%BD%BF%E7%94%A8-WiFi-%E4%BB%8E-SSD-Headless-%E5%90%AF%E5%8A%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/02/20/Thrfit-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">Thrfit 客户端请求处理流程</a>
+      </h2>
+      <p class="article-date">February 20, 2021</p>
+      
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Thrfit 客户端请求处理流程使用同步的非阻塞的服务端和客户端的请求处理流程
+实现IDL
+helloworld.thrift
+
+12345678910111213namespace java io.github.helloworlde.thriftstruct HelloMessage & ...
+        
+      </div>
+      <a class="more" href="/2021/02/20/Thrfit-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/02/20/Thrfit-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">Thrfit 服务端请求处理流程</a>
+      </h2>
+      <p class="article-date">February 20, 2021</p>
+      
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Thrfit 服务端请求处理流程使用同步的非阻塞的服务端的请求处理流程
+实现IDL
+helloworld.thrift
+
+12345678910111213namespace java io.github.helloworlde.thriftstruct HelloMessage &#123 ...
+        
+      </div>
+      <a class="more" href="/2021/02/20/Thrfit-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/02/20/Thrift-%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%82%E6%AD%A5%E8%AF%B7%E6%B1%82/">Thrift 客户端异步请求</a>
+      </h2>
+      <p class="article-date">February 20, 2021</p>
+      
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Thrift 客户端异步请求实现IDL
+helloworld.thrift
+
+12345678910111213namespace java io.github.helloworlde.thriftstruct HelloMessage &#123;    1: required strin ...
+        
+      </div>
+      <a class="more" href="/2021/02/20/Thrift-%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%82%E6%AD%A5%E8%AF%B7%E6%B1%82/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/02/20/gRPC-%E6%9C%8D%E5%8A%A1%E9%97%B4%E8%B0%83%E7%94%A8%E4%BA%8B%E4%BB%B6%E6%B5%81%E7%A8%8B/">gRPC 服务间调用事件流程</a>
+      </h2>
+      <p class="article-date">February 20, 2021</p>
       
         
   <a href="/tags#gRPC" >
@@ -558,20 +334,24 @@ Metrics: 用于收集指标，提供给 Agent，通过 ...
       
       <div class="article-summary">
         
-          gRPC 命名解析命名解析根据服务的 URI，从注册中心获取并解析服务实例 IP，默认支持 schema 为 DNS，grpclb，xds 等
+          gRPC 服务间调用事件流程调用流程图
+可监听的事件客户端ClientCall客户端调用，用于执行客户端的调用行为
 
-gRPC 的命名解析的父类接口是 NameResolver
-NameResolver 包含有多个子类，用于实现命名解析每个 NameResolve ...
+checkStart：开始调用
+request：指定发送消息的数量
+sendMessage：发送消息到缓冲区
+halfClose：半关闭，会将消息发送给 Server 端
+c ...
         
       </div>
-      <a class="more" href="/2020/09/20/gRPC-%E5%91%BD%E5%90%8D%E8%A7%A3%E6%9E%90/">Read more</a>
+      <a class="more" href="/2021/02/20/gRPC-%E6%9C%8D%E5%8A%A1%E9%97%B4%E8%B0%83%E7%94%A8%E4%BA%8B%E4%BB%B6%E6%B5%81%E7%A8%8B/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-NameResolver/">gRPC 使用自定义的 NameResolver</a>
+        <a href="/2021/02/20/gRPC-%E5%AF%B9%E5%86%B2%E8%AF%B7%E6%B1%82%E5%8F%96%E6%B6%88%E6%B5%81%E7%A8%8B/">gRPC 对冲请求取消流程</a>
       </h2>
-      <p class="article-date">September 20, 2020</p>
+      <p class="article-date">February 20, 2021</p>
       
         
   <a href="/tags#gRPC" >
@@ -581,21 +361,90 @@ NameResolver 包含有多个子类，用于实现命名解析每个 NameResolve 
       
       <div class="article-summary">
         
-          gRPC 使用自定义的 NameResolver在使用注册中心时，gRPC 并未提供注册中心的服务发现，需要自己实现 NameResolverProvider 和 NameResolver
-
-NameResolver
-
-NameResolver 里面重写了 start 和 refresh 方 ...
+          gRPC 对冲请求取消流程当客户端接收到对冲请求集合中的一个完成时，会取消其他的请求，被取消的请求最终会提交一个 CancelClientStreamCommand，发送一个 RST_STEAM 请求；当服务端接受到这个流后，如果监听器还没有关闭，会执行取消上下文的操作，最终将这个请求取消
+ ...
         
       </div>
-      <a class="more" href="/2020/09/20/gRPC-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84-NameResolver/">Read more</a>
+      <a class="more" href="/2021/02/20/gRPC-%E5%AF%B9%E5%86%B2%E8%AF%B7%E6%B1%82%E5%8F%96%E6%B6%88%E6%B5%81%E7%A8%8B/">Read more</a>
     </article>
   
     <article class="article-card">
       <h2 class="article-head">
-        <a href="/2020/09/20/gRPC-%E4%B8%AD-Binlog-%E6%89%93%E5%8D%B0%E5%8E%9F%E7%90%86/">gRPC 中 Binlog 打印原理</a>
+        <a href="/2021/02/01/Thrift-%E4%B8%AD%E7%9A%84-Transport/">Thrift 中的 Transport</a>
       </h2>
-      <p class="article-date">September 20, 2020</p>
+      <p class="article-date">February 1, 2021</p>
+      
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Thrift 中的 TransportThrift 中有 TTransport 和 TServerTransport，封装了底层传输层的数据读写；分别用于客户端和服务端
+TTransport
+方法
+open 
+
+用于建立与 Server 端的连接
+1public abstract void  ...
+        
+      </div>
+      <a class="more" href="/2021/02/01/Thrift-%E4%B8%AD%E7%9A%84-Transport/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/02/01/Thrift-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%BC%82%E6%AD%A5%E8%AF%B7%E6%B1%82/">Thrift 服务端异步请求</a>
+      </h2>
+      <p class="article-date">February 1, 2021</p>
+      
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Thrift 服务端异步请求实现IDL
+helloworld.thrift
+
+12345678910111213namespace java io.github.helloworlde.thriftstruct HelloMessage &#123;    1: required strin ...
+        
+      </div>
+      <a class="more" href="/2021/02/01/Thrift-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%BC%82%E6%AD%A5%E8%AF%B7%E6%B1%82/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/01/31/Thrift-%E4%B8%AD%E7%9A%84-Protocol/">Thrift 中的 Protocol</a>
+      </h2>
+      <p class="article-date">January 31, 2021</p>
+      
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Thrift 中的 ProtocolTProtocol 是 Thrift 中协议的抽象类，定义了数据序列化和反序列化的接口
+
+属性TProtocol 中有 TTransport类型的属性trans_，用于与底层的传输层进行数据交互
+方法TProtocol 中的方法可以分为两类，分别用于写入和 ...
+        
+      </div>
+      <a class="more" href="/2021/01/31/Thrift-%E4%B8%AD%E7%9A%84-Protocol/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/01/29/gRPC-%E4%B8%AD%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3/">gRPC 中泛化调用服务接口</a>
+      </h2>
+      <p class="article-date">January 29, 2021</p>
       
         
   <a href="/tags#gRPC" >
@@ -605,15 +454,190 @@ NameResolver 里面重写了 start 和 refresh 方 ...
       
       <div class="article-summary">
         
-          gRPC 中 Binlog 打印原理gRPC 支持将请求调用的参数、Header 等信息以二进制的方式输出到文件中
-使用binlog 的依赖在 grpc-services中，所以需要有该依赖
-
-创建 Channel 时指定
-
-12345BinaryLog binaryLog = Binary ...
+          gRPC 中泛化调用服务接口gRPC 没有直接支持泛化调用，protobuf 可以不依赖于生成的代码实现调用，所以可以通过反射接口间接实现泛化调用
+要求 Server 端提供 grpc.reflection.v1alpha.ServerReflection 服务，用于获取服务的描述文件
+大致 ...
         
       </div>
-      <a class="more" href="/2020/09/20/gRPC-%E4%B8%AD-Binlog-%E6%89%93%E5%8D%B0%E5%8E%9F%E7%90%86/">Read more</a>
+      <a class="more" href="/2021/01/29/gRPC-%E4%B8%AD%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/01/18/Thrfit-%E4%B8%AD%E7%9A%84-Server/">Thrfit 中的 Server</a>
+      </h2>
+      <p class="article-date">January 18, 2021</p>
+      
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Thrfit 中的 ServerThrift 中有多种 Server 的实现，支持单线程、多线程、异步等多种方式
+Server 定义属性
+processorFactory_ : 处理器工厂
+serverTransport_: 服务端 Transport
+eventHandler_ : 事件监 ...
+        
+      </div>
+      <a class="more" href="/2021/01/18/Thrfit-%E4%B8%AD%E7%9A%84-Server/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/01/17/Thrfit-%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/">Thrfit 中的核心概念</a>
+      </h2>
+      <p class="article-date">January 17, 2021</p>
+      
+        
+  <a href="/tags#Thrift" >
+    <span class="tag-code">Thrift</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Thrfit 中的核心概念服务端12345678910111213+-------------------------------------------+| Server                                    || (single-threaded, eve ...
+        
+      </div>
+      <a class="more" href="/2021/01/17/Thrfit-%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/01/17/gRPC-%E5%8F%8D%E5%B0%84%E6%9C%8D%E5%8A%A1/">gRPC 反射服务</a>
+      </h2>
+      <p class="article-date">January 17, 2021</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 反射服务gRPC 提供了 grpc.reflection.v1alpha.ServerReflection 服务，在 Server 端添加后可以通过该服务获取所有服务的信息，包括服务定义，方法，属性等；
+可以根据获取到的服务信息调用其他的方法，实现泛化调用；gRPC 调试工具 gr ...
+        
+      </div>
+      <a class="more" href="/2021/01/17/gRPC-%E5%8F%8D%E5%B0%84%E6%9C%8D%E5%8A%A1/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/01/06/gRPC-Gateway-%E4%BD%BF%E7%94%A8/">gRPC Gateway 使用</a>
+      </h2>
+      <p class="article-date">January 6, 2021</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC Gateway 使用gRPC Gateway 可以代理 gRPC 服务，接收 HTTP 请求，并转为 gRPC 请求由服务进行处理，并将返回结果转换为 HTTP 响应发送给调用者 gRPC Gateway
+支持代理单个服务或者多个服务，当代理多个服务时，可以通过命名解析实现转发请求 ...
+        
+      </div>
+      <a class="more" href="/2021/01/06/gRPC-Gateway-%E4%BD%BF%E7%94%A8/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/01/06/gRPC-%E6%9C%8D%E5%8A%A1%E4%BD%BF%E7%94%A8-TLS-%E5%8A%A0%E5%AF%86/">gRPC 服务使用 TLS 加密</a>
+      </h2>
+      <p class="article-date">January 6, 2021</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 服务使用 TLS 加密gRPC 支持使用 TLS 对请求进行加密
+
+SSL(Secure Socket Layer，安全套接字)，是面向连接的网络层和应用层协议之间的一种协议层；SSL 通过互相认证、使用数字签名确保完整性、使用加密确保隐私性，以实现客户端和服务端之间的安全通讯
+T ...
+        
+      </div>
+      <a class="more" href="/2021/01/06/gRPC-%E6%9C%8D%E5%8A%A1%E4%BD%BF%E7%94%A8-TLS-%E5%8A%A0%E5%AF%86/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/01/04/gRPC-%E4%B8%AD%E4%BD%BF%E7%94%A8-Channelz/">gRPC 中使用 Channelz</a>
+      </h2>
+      <p class="article-date">January 4, 2021</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 中使用 ChannelzgRPC 提供了 Channelz 用于对外提供服务的数据，用于调试、监控等；根据服务的角色不同，可以提供的数据有：
+
+服务端: Servers, Server, ServerSockets, Socket
+客户端: TopChannels, Channel ...
+        
+      </div>
+      <a class="more" href="/2021/01/04/gRPC-%E4%B8%AD%E4%BD%BF%E7%94%A8-Channelz/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/01/04/gRPC-%E4%B8%AD%E6%89%93%E5%8D%B0%E8%AF%B7%E6%B1%82%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%97%A5%E5%BF%97/">gRPC 中打印请求二进制日志</a>
+      </h2>
+      <p class="article-date">January 4, 2021</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 中打印请求二进制日志gRPC 支持将请求调用的参数、Header 等信息以二进制的方式输出到文件中，方便在必要时排查问题
+使用1. 添加依赖binlog 的依赖在 grpc-services中，所以需要有该依赖
+123dependencies &#123;    implement ...
+        
+      </div>
+      <a class="more" href="/2021/01/04/gRPC-%E4%B8%AD%E6%89%93%E5%8D%B0%E8%AF%B7%E6%B1%82%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%97%A5%E5%BF%97/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/01/03/gRPC-%E6%8B%A6%E6%88%AA%E5%99%A8%E5%92%8C%E7%9B%91%E5%90%AC%E5%99%A8/">gRPC 拦截器和监听器</a>
+      </h2>
+      <p class="article-date">January 3, 2021</p>
+      
+        
+  <a href="/tags#gRPC" >
+    <span class="tag-code">gRPC</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          gRPC 拦截器和监听器gRPC 拦截器用于在请求执行之前执行，以实现校验授权，记录调用行为，插入其他逻辑等；拦截器有 ClientInterceptor 和 ServerInterceptor，分别用于客户端和服务端
+[TOC]
+客户端拦截器接口定义
+ClientInterceptor 
+ ...
+        
+      </div>
+      <a class="more" href="/2021/01/03/gRPC-%E6%8B%A6%E6%88%AA%E5%99%A8%E5%92%8C%E7%9B%91%E5%90%AC%E5%99%A8/">Read more</a>
     </article>
   
 

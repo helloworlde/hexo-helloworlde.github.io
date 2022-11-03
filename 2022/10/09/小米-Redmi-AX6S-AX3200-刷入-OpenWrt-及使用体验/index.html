@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      小米 Redmi AX6S(AX3200) 刷入 OpenWrt 及使用体验 | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>小米 Redmi AX6S(AX3200) 刷入 OpenWrt 及使用体验</h2>
+  <p class="post-date">2022-10-09</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="小米-Redmi-AX6S-AX3200-刷入-OpenWrt-及使用体验"><a href="#小米-Redmi-AX6S-AX3200-刷入-OpenWrt-及使用体验" class="headerlink" title="小米 Redmi AX6S(AX3200) 刷入 OpenWrt 及使用体验"></a>小米 Redmi AX6S(AX3200) 刷入 OpenWrt 及使用体验</h1><p>买了小米 Redmi AX3000 路由器后发现是 RA81 型号，这个型号目前无法刷入 OpenWrt；但是因为当前使用的 OpenWrt 作为旁路由的方式并不稳定，所以想更换一个可以刷入 OpenWrt 的路由器</p>
+<p>一番搜索之后发现 Redmi AX6S 相对更稳定，且已有 OpenWrt 的正式版本固件，因此又购入了一台新的 AX6S，准备刷入 OpenWrt 作为主路由使用</p>
+<p>AX6S有 RB01 和 RB03 两个版本，硬件完全相同；国内售卖的基本都是 RB03，可以通过刷入开发版固件的方式开启 telnet，RB01 只能拆机后通过 UART 接口写入的方式开启 telnet</p>
+<h2 id="刷入-OpenWrt"><a href="#刷入-OpenWrt" class="headerlink" title="刷入 OpenWrt"></a>刷入 OpenWrt</h2><h3 id="将固件升级为测试版"><a href="#将固件升级为测试版" class="headerlink" title="将固件升级为测试版"></a>将固件升级为测试版</h3><p>将固件升级为测试版是为了开启 telnet，方便输入 OpenWrt 的固件；可以通过 <code>telnet 192.168.31.1</code> 测试，通常是没有开启的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">telnet 192.168.31.1</span><br><span class="line">Trying 192.168.31.1...</span><br><span class="line">telnet: connect to address 192.168.31.1: Connection refused</span><br><span class="line">telnet: Unable to connect to remote host</span><br></pre></td></tr></table></figure>
+
+
+<ol>
+<li>下载测试版固件并升级</li>
+</ol>
+<p>首先下载测试版本固件<a target="_blank" rel="noopener" href="https://github.com/YangWang92/AX6S-unlock/raw/master/miwifi_rb03_firmware_stable_1.2.7.bin">miwifi_rb03_firmware_stable_1.2.7 </a>；在初始化路由器配置后，进入到路由器控制台，选择升级；<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-ax6s-openwrt-upgrade.png" alt="homelab-miwifi-ax6s-openwrt-upgrade.png"></p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-ax6s-openwrt-upgrade-ongoing.png" alt="homelab-miwifi-ax6s-openwrt-upgrade-ongoing.png"></p>
+<p>升级完成后路由器会重启，页面有水印提示 <code>Only For Test</code>；<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-ax6s-openwrt-upgrade-complted.png" alt="homelab-miwifi-ax6s-openwrt-upgrade-complted.png"></p>
+<p>此时使用 telnet 测试会发现已经可以登陆了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">telnet 192.168.31.1</span><br><span class="line">Trying 192.168.31.1...</span><br><span class="line">Connected to xiaoqiang.</span><br><span class="line">Escape character is <span class="string">&#x27;^]&#x27;</span>.</span><br><span class="line"></span><br><span class="line">XiaoQiang login:</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>计算路由器登陆密码</li>
+</ol>
+<p>路由器的登陆密码与 SN码有关，需要通过 SN码进行计算，可以使用 <a target="_blank" rel="noopener" href="https://github.com/YangWang92/AX6S-unlock/blob/master/unlock_pwd.py">YangWang92/AX6S-unlock</a> 仓库的 Python 脚本计算；SN码可以从路由器页面或者路由器背面商品信息中获取</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python3 unlock.py 36418/J1VU79634</span><br><span class="line">a857e591</span><br></pre></td></tr></table></figure>
+
+<p>使用账户 <code>root</code> 和计算得到的密码 <code>xxx</code> 进行登陆，即可登陆到路由器后台</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-ax6s-openwrt-telnet-success.png" alt="homelab-miwifi-ax6s-openwrt-telnet-success.png"></p>
+<h3 id="刷入-OpenWrt-1"><a href="#刷入-OpenWrt-1" class="headerlink" title="刷入 OpenWrt"></a>刷入 OpenWrt</h3><h4 id="1-下载-OpenWrt-固件"><a href="#1-下载-OpenWrt-固件" class="headerlink" title="1 下载 OpenWrt 固件"></a>1 下载 OpenWrt 固件</h4><h5 id="直接下载到路由器"><a href="#直接下载到路由器" class="headerlink" title="直接下载到路由器"></a>直接下载到路由器</h5><p>如果路由器能够上网，可以直接通过 <code>wget</code> 命令从 <a target="_blank" rel="noopener" href="https://openwrt.org/toh/xiaomi/ax3200">Xiaomi AX3200 / Redmi AX6S</a> 页面下载最新的安装固件 <a target="_blank" rel="noopener" href="http://downloads.openwrt.org/releases/22.03.0/targets/mediatek/mt7622/openwrt-22.03.0-mediatek-mt7622-xiaomi_redmi-router-ax6s-squashfs-factory.bin">openwrt-22.03.0-mediatek-mt7622-xiaomi_redmi-router-ax6s-squashfs-factory.bin</a>，为了后续操作方便，重命名为 <code>factory.bin</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /tmp</span><br><span class="line"></span><br><span class="line">wget http://downloads.openwrt.org/releases/22.03.0/targets/mediatek/mt7622/openwrt-22.03.0-mediatek-mt7622-xiaomi_redmi-router-ax6s-squashfs-factory.bin -O factory.bin</span><br></pre></td></tr></table></figure>
+
+<h5 id="从本地上传"><a href="#从本地上传" class="headerlink" title="从本地上传"></a>从本地上传</h5><p>如果路由器不能上网，可以手动下载安装固件<a target="_blank" rel="noopener" href="http://downloads.openwrt.org/releases/22.03.0/targets/mediatek/mt7622/openwrt-22.03.0-mediatek-mt7622-xiaomi_redmi-router-ax6s-squashfs-factory.bin">openwrt-22.03.0-mediatek-mt7622-xiaomi_redmi-router-ax6s-squashfs-factory.bin</a>后上传到路由器</p>
+<p>可以通过 <a target="_blank" rel="noopener" href="https://cyberduck.io/download/">Cyberduck</a> 或者本地启动一个 HTTP服务器的方式上传固件到路由器；以通过启动 Python 服务器的方式为例上传到路由器</p>
+<ul>
+<li>启动服务器</li>
+</ul>
+<p>在 OpenWrt 固件所在目录启动 Python Server； 启动后，会在本地 8000 端口提供一个 ftp 服务，可以从路由器上访问该端口获取</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m http.server</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在路由器下载固件</li>
+</ul>
+<p>需要知道本地的IP地址，可以在路由器页面查看，如本地的地址是 <code>192.168.31.100</code>，然后使用 <code>telnet</code> 登陆到路由器，将 OpenWrt 估计下载到 <code>/tmp</code>目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /tmp</span><br><span class="line">wget http://192.168.31.100/factory.bin -O factory.bin</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="2-开启-SSH-并准备刷入-OpenWrt"><a href="#2-开启-SSH-并准备刷入-OpenWrt" class="headerlink" title="2 开启 SSH 并准备刷入 OpenWrt"></a>2 开启 SSH 并准备刷入 OpenWrt</h4><p>登陆后，执行以下命令，准备输入 OpenWrt 固件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">nvram <span class="built_in">set</span> ssh_en=1</span><br><span class="line">nvram <span class="built_in">set</span> uart_en=1</span><br><span class="line">nvram <span class="built_in">set</span> boot_wait=on</span><br><span class="line">nvram <span class="built_in">set</span> flag_boot_success=1</span><br><span class="line">nvram <span class="built_in">set</span> flag_try_sys1_failed=0</span><br><span class="line">nvram <span class="built_in">set</span> flag_try_sys2_failed=0</span><br><span class="line">nvram <span class="built_in">set</span> <span class="string">&quot;boot_fw1=run boot_rd_img;bootm&quot;</span></span><br><span class="line">nvram commit</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-刷入-OpenWrt"><a href="#3-刷入-OpenWrt" class="headerlink" title="3 刷入 OpenWrt"></a>3 刷入 OpenWrt</h4><p>通过 <code>mtd</code> 命令将 OpenWrt 的固件写入到路由器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mtd -r write factory.bin firmware</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-ax6s-openwrt-execute-install.png" alt="homelab-miwifi-ax6s-openwrt-execute-install.png"></p>
+<p>写入完成后，路由器会自动重启；重启后的路由器的 IP 地址变为 <code>192.168.1.1</code>；此时 Wi-Fi 没有开启，需要使用网线连接到路由器，访问  <code>192.168.1.1</code> 进行配置</p>
+<h2 id="使用体验"><a href="#使用体验" class="headerlink" title="使用体验"></a>使用体验</h2><p>以 Redmi AX3000 和 Redmi AX6S 日常使用体验对比</p>
+<ul>
+<li>配置</li>
+</ul>
+<p>两者硬件配置基本相同，AX6S CPU 频率更高，支持 4x4 通道 80Mhz 的 5G WiFi，AX3000 支持 2x2 160Mhz 的 5G WiFi；可以理解为 AX3000 单设备速度上限更高，AX6S 支持更多设备并发，两者理论速度上限相同</p>
+<table>
+<thead>
+<tr>
+<th align="left">配置</th>
+<th align="left">AX3000</th>
+<th align="left">AX6S</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">CPU</td>
+<td align="left">IPQ5000双核1Ghz</td>
+<td align="left">MT7622B双核1.35Ghz</td>
+</tr>
+<tr>
+<td align="left">内存</td>
+<td align="left">256M</td>
+<td align="left">256M</td>
+</tr>
+<tr>
+<td align="left">闪存</td>
+<td align="left">128M</td>
+<td align="left">128M</td>
+</tr>
+<tr>
+<td align="left">尺寸</td>
+<td align="left">247x141x180mm</td>
+<td align="left">284x186x186mm</td>
+</tr>
+<tr>
+<td align="left">网口</td>
+<td align="left">千兆WANx1/LANx3</td>
+<td align="left">千兆WANx1/LANx3</td>
+</tr>
+<tr>
+<td align="left">无线</td>
+<td align="left">2x2 160Mhz,最高可达2402Mbps，4根天线</td>
+<td align="left">4x4 80Mhz,最高可达2402Mbps，6根天线</td>
+</tr>
+<tr>
+<td align="left">价格</td>
+<td align="left">239</td>
+<td align="left">299</td>
+</tr>
+</tbody></table>
+<ul>
+<li>外观</li>
+</ul>
+<p>Redmi AX3000 外观是白色，颜值在线；Redmi AX6S 使用黑色，要比 Redmi AX3000 大不少，因此显得十分笨重，但是其内部的 PCB 板周围仍有很大空间，完全可以做的更小；（AX6S太丑了！！！）</p>
+<p>两者的网口采用了同样的设计，网口上下两面都有凹槽，使用时很容易插反（为啥要这么设计？？？）；都是一个 WAN 口，三个 LAN 口（完全不够用）</p>
+<p>另外都有 Mesh 按钮，支持快速 Mesh 组网；但是 Reset 按钮必须得用卡针才能触发（垃圾！！！）</p>
+<ul>
+<li>散热</li>
+</ul>
+<p>因为完全镂空的设计，两个路由器的散热都非常好；高负载使用也不会烫手，相比小米路由器 4C 没有高负载也特别烫手，这两款路由器的散热提升不小</p>
+<ul>
+<li>使用体验</li>
+</ul>
+<p>Redmi AX6S 刷了 OpenWrt 后安装了 OpenClash/DDNS/SmartDNS 等几个常用的软件；内存日常占用在 80% 左右；使用 Youtube 看 8K 视频，CPU 占用大约 30%-50%，低负载时 10%以内；日常使用较稳定，因为节点偶尔抖动，所以玩游戏时 ping 可能会突然增高</p>
+<p>Redmi AX3000 日常使用比较稳定，因为不支持刷入 OpenWrt，并且官方固件阉割了系统状态，所以无法观测 CPU 和内存等信息</p>
+<p>速度方面，WiFi6 的电脑通过无线连接到路由器，然后通过路由器的网口连接到另一个 2.5G 网口都电脑进行测速；连接 AX3000 的无线协商速度是 2400Mbps，测速上下行大概都是 950Mbps 左右（所以千兆网口的路由器上 WiFi6 有个卵用？？？如果用于内网跑链路聚合，网口又不够用！！！）；AX6S 的协商速度是 1200Mbps，测试下行大约900Mbps，上行 850Mbps；直观感受是 AX6S速度不如AX3000，不过日常使用已经足够了</p>
+<p>综合来看，刷入 OpenWrt 安装常用软件后，128M 的闪存和 256M 的内存不够用，使用起来捉襟见肘；另外，只有千兆的网口，导致 WiFi6 的速度只能在内网支持 WiFi6 的设备之间使用，所以这个价位的 WiFi6 路由器只能是过渡产品，可能一两年后就需要淘汰（不如小黄鱼买 Redmi AX3000 RA69 版本，千万别买 RA81 版本！！！）</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-redmi-ax6s-usage.png" alt="homelab-miwifi-redmi-ax6s-usage.png"></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://openwrt.org/toh/xiaomi/ax3200">Xiaomi AX3200 / Redmi AX6S</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Router" >
+    <span class="tag-code">Router</span>
+  </a>
+
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#OpenWrt" >
+    <span class="tag-code">OpenWrt</span>
+  </a>
+
+  <a href="/tags#MiWiFi" >
+    <span class="tag-code">MiWiFi</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/09/27/OpenWrt-%E4%BD%BF%E7%94%A8-SmartDNS/">
+        <span class="nav-arrow">← </span>
+        
+          OpenWrt 使用 SmartDNS
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/10/26/Clash-%E4%BD%BF%E7%94%A8-Docker-%E9%83%A8%E7%BD%B2/">
+        
+          Clash 使用 Docker 部署
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E5%B0%8F%E7%B1%B3-Redmi-AX6S-AX3200-%E5%88%B7%E5%85%A5-OpenWrt-%E5%8F%8A%E4%BD%BF%E7%94%A8%E4%BD%93%E9%AA%8C"><span class="toc-nav-text">小米 Redmi AX6S(AX3200) 刷入 OpenWrt 及使用体验</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%B7%E5%85%A5-OpenWrt"><span class="toc-nav-text">刷入 OpenWrt</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%B0%86%E5%9B%BA%E4%BB%B6%E5%8D%87%E7%BA%A7%E4%B8%BA%E6%B5%8B%E8%AF%95%E7%89%88"><span class="toc-nav-text">将固件升级为测试版</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%B7%E5%85%A5-OpenWrt-1"><span class="toc-nav-text">刷入 OpenWrt</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#1-%E4%B8%8B%E8%BD%BD-OpenWrt-%E5%9B%BA%E4%BB%B6"><span class="toc-nav-text">1 下载 OpenWrt 固件</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E7%9B%B4%E6%8E%A5%E4%B8%8B%E8%BD%BD%E5%88%B0%E8%B7%AF%E7%94%B1%E5%99%A8"><span class="toc-nav-text">直接下载到路由器</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E4%BB%8E%E6%9C%AC%E5%9C%B0%E4%B8%8A%E4%BC%A0"><span class="toc-nav-text">从本地上传</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#2-%E5%BC%80%E5%90%AF-SSH-%E5%B9%B6%E5%87%86%E5%A4%87%E5%88%B7%E5%85%A5-OpenWrt"><span class="toc-nav-text">2 开启 SSH 并准备刷入 OpenWrt</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#3-%E5%88%B7%E5%85%A5-OpenWrt"><span class="toc-nav-text">3 刷入 OpenWrt</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BD%BF%E7%94%A8%E4%BD%93%E9%AA%8C"><span class="toc-nav-text">使用体验</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-nav-text">参考文档</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://blog.hellowood.dev/2022/10/09/小米-Redmi-AX6S-AX3200-刷入-OpenWrt-及使用体验/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "小米 Redmi AX6S(AX3200) 刷入 OpenWrt 及使用体验",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

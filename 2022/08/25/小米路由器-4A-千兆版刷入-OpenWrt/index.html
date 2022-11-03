@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="HelloWood&#39;s Note">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      小米路由器 4A 千兆版刷入 OpenWrt | HelloWood
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>HelloWood</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>小米路由器 4A 千兆版刷入 OpenWrt</h2>
+  <p class="post-date">2022-08-25</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="小米路由器-4A-千兆版刷入-OpenWrt"><a href="#小米路由器-4A-千兆版刷入-OpenWrt" class="headerlink" title="小米路由器 4A 千兆版刷入 OpenWrt"></a>小米路由器 4A 千兆版刷入 OpenWrt</h1><p>因为买了新的路由器，之前的小米 4A 千兆版被淘汰下来了，因此想刷个 OpenWrt 测试一下</p>
+<h2 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h2><ul>
+<li>电脑 Win/Mac/Linux，需要支持网线连接，如果是 Mac，需要一个网线转接器</li>
+<li>小米路由器 4A 千兆版</li>
+<li>Python3 环境</li>
+<li>网线</li>
+</ul>
+<h2 id="开启路由器-SSH"><a href="#开启路由器-SSH" class="headerlink" title="开启路由器 SSH"></a>开启路由器 SSH</h2><p>需要先开启路由器的 SSH，小米的固件只有开发版支持 SSH，但是现在所有的版本基本都不会放出开发版；所以只能通过破解的方式开启(开启后不支持保修)；</p>
+<p>因为小米路由器系统存在 <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2019-18370">CVE-2019-18370</a> 漏洞，所以可以通过该漏洞开启 SSH；需要使用项目 <a target="_blank" rel="noopener" href="https://github.com/acecilia/OpenWRTInvasion">acecilia/OpenWRTInvasion</a> 提供的脚本</p>
+<ul>
+<li>下载 <a target="_blank" rel="noopener" href="https://github.com/acecilia/OpenWRTInvasion">acecilia/OpenWRTInvasion</a> ，并安装依赖</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/acecilia/OpenWRTInvasion.git</span><br><span class="line"><span class="built_in">cd</span> OpenWRTInvasion</span><br><span class="line">pip3 install -r requirements.txt</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>执行脚本</li>
+</ul>
+<p>通过 WiFi 或有线的方式连接到路由器，然后进入命令行，执行以下命令，运行 <code>remote_command_execution_vulnerability.py</code> 脚本；执行脚本时需要输入路由器的地址和后台访问密码；地址如果没有改动默认就是 <code>192.168.31.1</code>，或者访问 <code>miwifi.com</code>也可以直接访问到；如果选择了离线模式，会在本地启动一个 ftp server</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 remote_command_execution_vulnerability.py</span><br></pre></td></tr></table></figure>
+
+<p>在执行结束后，会输出提示信息，用于通过 SSH 访问路由器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">here two options to provide the files needed <span class="keyword">for</span> invasion:</span><br><span class="line">1. Use a <span class="built_in">local</span> TCP file server runing on random port to provide files <span class="keyword">in</span> <span class="built_in">local</span> directory `script_tools`.</span><br><span class="line">2. Download needed files from remote github repository. (choose this option only <span class="keyword">if</span> github is accessable inside router device.)</span><br><span class="line">Which option <span class="keyword">do</span> you prefer? (default: 1)1</span><br><span class="line">****************</span><br><span class="line">router_ip_address: miwifi.com</span><br><span class="line">stok: f19c778f7bc6fbe92cc70a6c6bd2bd4f</span><br><span class="line">file provider: <span class="built_in">local</span> file server</span><br><span class="line">****************</span><br><span class="line">start uploading config file...</span><br><span class="line">start <span class="built_in">exec</span> <span class="built_in">command</span>...</span><br><span class="line"><span class="built_in">local</span> file server is runing on 0.0.0.0:57165. root=<span class="string">&#x27;script_tools&#x27;</span></span><br><span class="line"><span class="built_in">local</span> file server is getting <span class="string">&#x27;busybox-mipsel&#x27;</span> <span class="keyword">for</span> 192.168.31.1.</span><br><span class="line"><span class="built_in">local</span> file server is getting <span class="string">&#x27;dropbearStaticMipsel.tar.bz2&#x27;</span> <span class="keyword">for</span> 192.168.31.1.</span><br><span class="line"><span class="keyword">done</span>! Now you can connect to the router using several options: (user: root, password: root)</span><br><span class="line">* telnet miwifi.com</span><br><span class="line">* ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -c 3des-cbc -o UserKnownHostsFile=/dev/null root@miwifi.com</span><br><span class="line">* ftp: using a program like cyberduck</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>SSH 访问路由器</li>
+</ul>
+<p>通过指定参数的方式，使用 SSH 访问路由器，用户名密码都是 <code>root</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -c 3des-cbc -o UserKnownHostsFile=/dev/null root@miwifi.com</span><br></pre></td></tr></table></figure>
+
+<h2 id="刷入-Breed"><a href="#刷入-Breed" class="headerlink" title="刷入 Breed"></a>刷入 Breed</h2><p>启用 SSH 之后，就可以刷入 Breed 了；Breed 是由 <a target="_blank" rel="noopener" href="https://github.com/hackpascal">HackPascal</a> 开发的 Bootloader（引导装载程序），最大的特点是支持通过访问网页刷机，刷机失败后可以直接重置而不会导致机器变砖</p>
+<ul>
+<li>下载</li>
+</ul>
+<p>小米路由器 4A 使用的 CPU 是 mt7621，可以在 <a target="_blank" rel="noopener" href="https://breed.hackpascal.net/breed-mt7621-pbr-m1.bin">https://breed.hackpascal.net/</a> 下载，名称为 <code>breed-mt7621-pbr-m1.bin</code></p>
+<ul>
+<li>上传</li>
+</ul>
+<p>下载 Breed 后，需要通过 FTP 的方式上传到路由器，可以使用 <a target="_blank" rel="noopener" href="https://cyberduck.io/download/">Cyberduck</a></p>
+<p>连接地址为路由器的地址，默认是 <code>192.168.31.1</code>，选择上传到 <code>/tmp</code> 目录下（其他目录可能会因为权限导致上传失败）</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-upload-brade.png" alt="homelab-miwifi-upload-brade.png"></p>
+<ul>
+<li>刷入</li>
+</ul>
+<p>通过 SSH 登录路由器，执行以下命令，刷入  Breed 固件，需要注意的是，输入 Breed 后路由器不会开启 WiFi，只能通过网线的方式访问；另外刷入 Breed 后，路由器的指示灯会变得很暗或完全不亮，可以通过网线连接电脑，查看连接属性，如果分配了 IP 则说明路由器正常进入 Breed</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /tmp</span><br><span class="line">mtd write breed-mt7621-pbr-m1.bin Bootloader</span><br></pre></td></tr></table></figure>
+
+<p>刷入完成后，路由器会重启；通过网线连接后访问 <a target="_blank" rel="noopener" href="http://192.168.1.1/">http://192.168.1.1</a> 即可进入 Breed 界面</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-breed-info.png" alt="homelab-miwifi-breed-info.png"></p>
+<h2 id="刷入-OpenWrt"><a href="#刷入-OpenWrt" class="headerlink" title="刷入 OpenWrt"></a>刷入 OpenWrt</h2><p>注意，下面的镜像都有 initramfs-kernel 和 squashfs-sysupgrade 两种；需要使用的是 squashfs-sysupgrade；如果刷入 initramfs-kernel，在重启后配置会丢失，这是因为 initramfs-kernel 将配置保存在内存中，而不是磁盘</p>
+<h3 id="下载官方镜像"><a href="#下载官方镜像" class="headerlink" title="下载官方镜像"></a>下载官方镜像</h3><p>官方镜像可以从以下两个镜像下载；测试发现官方的 initramfs-kernel 可以正常刷入，但是 squashfs-sysupgrade 刷入后会导致路由器不断的重启，无法工作</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://openwrt.org/inbox/toh/xiaomi/xiaomi_mi_router_4a_gigabit_edition">Xiaomi Mi Router 4A Gigabit Edition 说明文档</a></li>
+</ul>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-openwrt-firmware-official2.png" alt="homelab-miwifi-openwrt-firmware-official2.png"></p>
+<ul>
+<li><a href="https://firmware-selector.openwrt.org/?version=21.02.3&target=ramips/mt7621&id=xiaomi_mi-router-4a-gigabit">https://firmware-selector.openwrt.org/</a><br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-openwrt-firmware-official.png" alt="homelab-miwifi-openwrt-firmware-official.png"></li>
+</ul>
+<h3 id="构建-OpenWrt-镜像"><a href="#构建-OpenWrt-镜像" class="headerlink" title="构建 OpenWrt 镜像"></a>构建 OpenWrt 镜像</h3><p>可以使用 <a target="_blank" rel="noopener" href="https://github.com/unkaer/Actions-OpenWrt-Xiaomi-R4A">unkaer/Actions-OpenWrt-Xiaomi-R4A</a> 自行构建（需要一个多小时），会预先安装中文和部分常用软件，实测可以正常工作</p>
+<p>参考项目 <a target="_blank" rel="noopener" href="https://github.com/unkaer/Actions-OpenWrt-Xiaomi-R4A#%E4%BD%BF%E7%94%A8">README</a>，fork 项目后选择Action，执行 <code>编译小米R4A千兆版_默认</code>，如果没有需要修改的配置，将<code>SSH 连接至 Actions</code> 设置为 false 然后执行，一个半小时左右能构建完成</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-openwrt-build-image.png" alt="homelab-miwifi-openwrt-build-image.png"></p>
+<p>构建完成后，可以在 Action 的 Summary 界面进行下载名称为 <code>OpenWrt_firmware_xiaomi_mi-router-4a-gigabit</code> 的文件</p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-openwrt-build-image-result.png" alt="homelab-miwifi-openwrt-build-image-result.png"></p>
+<h3 id="刷入-OpenWrt-1"><a href="#刷入-OpenWrt-1" class="headerlink" title="刷入 OpenWrt"></a>刷入 OpenWrt</h3><p>进入 Breed，选择固件更新，选择固件，在文件夹中选择 Kernel 版本的镜像，上传并更新；<br><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-breed-firmware-upload.png" alt="homelab-miwifi-breed-firmware-upload.png"></p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-breed-firmware-upgrade.png" alt="homelab-miwifi-breed-firmware-upgrade.png"></p>
+<p>等待刷入完成后，访问 <a target="_blank" rel="noopener" href="http://192.168.31.1/">http://192.168.31.1</a> 即可进入 OpenWrt， 默认的用户名密码是 <code>root</code> 和 <code>password</code></p>
+<p><img src="https://hellowoodes.oss-cn-beijing.aliyuncs.com/picture/homelab-miwifi-openwrt-homepage.png" alt="homelab-miwifi-openwrt-homepage.png"></p>
+<p>如果刷入失败，或者想重新刷入其他固件，可以将路由器断电，按住 Reset 后通电，直到路由器指示灯闪烁后松开 Reset，即可进入 Breed 重新进行刷机</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Router" >
+    <span class="tag-code">Router</span>
+  </a>
+
+  <a href="/tags#HomeLab" >
+    <span class="tag-code">HomeLab</span>
+  </a>
+
+  <a href="/tags#OpenWrt" >
+    <span class="tag-code">OpenWrt</span>
+  </a>
+
+  <a href="/tags#MiWiFi" >
+    <span class="tag-code">MiWiFi</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/08/11/N5105-%E6%9E%84%E5%BB%BA-Esxi-%E9%95%9C%E5%83%8F/">
+        <span class="nav-arrow">← </span>
+        
+          N5105 构建 Esxi 镜像
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/08/25/OpenWrt-%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8-OpenClash/">
+        
+          OpenWrt  安装使用 OpenClash
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E5%B0%8F%E7%B1%B3%E8%B7%AF%E7%94%B1%E5%99%A8-4A-%E5%8D%83%E5%85%86%E7%89%88%E5%88%B7%E5%85%A5-OpenWrt"><span class="toc-nav-text">小米路由器 4A 千兆版刷入 OpenWrt</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BE%9D%E8%B5%96"><span class="toc-nav-text">依赖</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%BC%80%E5%90%AF%E8%B7%AF%E7%94%B1%E5%99%A8-SSH"><span class="toc-nav-text">开启路由器 SSH</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%B7%E5%85%A5-Breed"><span class="toc-nav-text">刷入 Breed</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%B7%E5%85%A5-OpenWrt"><span class="toc-nav-text">刷入 OpenWrt</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%B8%8B%E8%BD%BD%E5%AE%98%E6%96%B9%E9%95%9C%E5%83%8F"><span class="toc-nav-text">下载官方镜像</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%9E%84%E5%BB%BA-OpenWrt-%E9%95%9C%E5%83%8F"><span class="toc-nav-text">构建 OpenWrt 镜像</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%B7%E5%85%A5-OpenWrt-1"><span class="toc-nav-text">刷入 OpenWrt</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://blog.hellowood.dev/2022/08/25/小米路由器-4A-千兆版刷入-OpenWrt/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+  <script>
+    var gitmentConfig = "helloworlde";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "小米路由器 4A 千兆版刷入 OpenWrt",
+        owner: "helloworlde",
+        repo: "helloworlde.github.io",
+        oauth: {
+          client_id: "0f87e490e00ee3fd87ef",
+          client_secret: "4a9d2b148e7971c2201ad12131ce8bf8159ccd2e"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
+          }
+        }
+      })
+      gitment.render(document.getElementById('comments'))
+    }
+  </script>
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+<script>
+    var _baId = 'a7fdb82c6853c71d20343c5ca5368d9f';
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>
